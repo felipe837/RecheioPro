@@ -19,7 +19,7 @@
   }
   *{margin:0;padding:0;box-sizing:border-box;}
   html{scroll-behavior:smooth;}
-  body{background:var(--creme);color:var(--chocolate);font-family:'Plus Jakarta Sans', sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+  body{background:radial-gradient(1200px 600px at 50% -10%, #FFFCF4 0%, var(--creme) 55%), var(--creme);color:var(--chocolate);font-family:'Plus Jakarta Sans', sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
   img,svg{display:block;max-width:100%;}
   h1,h2,h3,.display{font-family:'Fraunces', serif;}
   a{color:inherit;text-decoration:none;}
@@ -60,8 +60,11 @@
   .micro{font-size:12.5px;color:var(--chocolate-suave);display:flex;gap:14px;flex-wrap:wrap;justify-content:center;}
   .micro span{display:inline-flex;align-items:center;gap:5px;}
   .micro svg{width:13px;height:13px;flex-shrink:0;}
-  .cake-wrap{width:min(300px,72vw);margin-top:4px;}
-  .cake-wrap svg{filter:drop-shadow(0 26px 34px rgba(59,36,23,0.2));}
+  .cake-wrap{width:min(300px,72vw);margin-top:4px;position:relative;}
+  .cake-wrap svg,.cake-wrap img{filter:drop-shadow(0 26px 34px rgba(59,36,23,0.2));position:relative;z-index:1;}
+  .cake-wrap::before,.cake-wrap::after{content:"";position:absolute;border-radius:50%;filter:blur(38px);opacity:0.35;z-index:0;}
+  .cake-wrap::before{width:180px;height:180px;background:var(--dourado);top:-30px;left:-40px;}
+  .cake-wrap::after{width:150px;height:150px;background:var(--framboesa);bottom:-20px;right:-30px;opacity:0.25;}
 
   /* ---- shared section heads ---- */
   .kicker{color:var(--framboesa);font-weight:700;font-size:12.5px;letter-spacing:.06em;text-transform:uppercase;}
@@ -73,7 +76,7 @@
   .dor{padding:60px 0;}
   .dor-grid{display:grid;grid-template-columns:1fr;gap:12px;max-width:700px;margin:0 auto;}
   @media(min-width:640px){.dor-grid{grid-template-columns:1fr 1fr;}}
-  .dor-card{background:var(--branco);border:1px solid var(--creme-linha);border-radius:16px;padding:18px 20px;display:flex;gap:12px;align-items:flex-start;}
+  .dor-card{background:var(--branco);border:1px solid var(--creme-linha);border-radius:16px;padding:18px 20px;display:flex;gap:12px;align-items:flex-start;box-shadow:0 10px 24px -18px rgba(59,36,23,0.25);}
   .dor-card .ico{width:32px;height:32px;border-radius:9px;background:var(--creme-card);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--caramelo-escuro);}
   .dor-card p{font-size:14px;color:var(--chocolate-suave);line-height:1.5;font-weight:500;}
 
@@ -81,9 +84,19 @@
   .solucao{padding:60px 0;background:var(--creme-card);border-top:1px solid var(--creme-linha);border-bottom:1px solid var(--creme-linha);}
   .feature-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:640px;margin:0 auto;}
   @media(min-width:640px){.feature-grid{grid-template-columns:1fr 1fr 1fr;}}
-  .feature{background:var(--branco);border-radius:14px;padding:16px;border:1px solid var(--creme-linha);}
+  .feature{background:var(--branco);border-radius:14px;padding:16px;border:1px solid var(--creme-linha);box-shadow:0 10px 24px -18px rgba(59,36,23,0.25);transition:transform .18s ease;}
+  .feature:hover{transform:translateY(-3px);}
   .feature h3{font-size:14px;font-weight:700;margin-bottom:3px;}
   .feature p{font-size:12px;color:var(--chocolate-suave);line-height:1.45;}
+
+  /* ---- como funciona ---- */
+  .como-funciona{padding:56px 0 10px;}
+  .steps-row{display:grid;grid-template-columns:1fr;gap:22px;max-width:760px;margin:0 auto;}
+  @media(min-width:700px){.steps-row{grid-template-columns:1fr 1fr 1fr;}}
+  .step-item{text-align:center;padding:0 10px;}
+  .step-circle{width:44px;height:44px;border-radius:50%;background:var(--chocolate);color:var(--dourado);display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-weight:700;font-size:18px;margin:0 auto 12px;}
+  .step-item h3{font-size:15px;font-weight:700;margin-bottom:5px;}
+  .step-item p{font-size:13px;color:var(--chocolate-suave);line-height:1.5;}
 
   /* ---- planos ---- */
   .planos{padding:70px 0 40px;}
@@ -189,8 +202,17 @@
 
   .rgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;}
   .hscroll{display:flex;gap:12px;overflow-x:auto;margin-top:10px;padding-bottom:4px;}
-  .rcard{background:linear-gradient(135deg,var(--creme-card),var(--branco));border:1px solid var(--creme-linha);border-radius:16px;overflow:hidden;cursor:pointer;position:relative;}
-  .rcard .thumb{background:var(--creme-card);height:92px;display:flex;align-items:center;justify-content:center;font-size:34px;position:relative;}
+  .rcard{background:var(--branco);border:1px solid var(--creme-linha);border-radius:16px;overflow:hidden;cursor:pointer;position:relative;transition:transform .18s ease, box-shadow .18s ease;}
+  .rcard:active{transform:scale(0.97);}
+  .rcard .thumb{height:96px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+  .rcard .thumb-ico{width:52px;height:52px;filter:drop-shadow(0 4px 8px rgba(59,36,23,0.18));}
+  .rcard .thumb-emoji{position:absolute;bottom:6px;left:7px;width:24px;height:24px;border-radius:50%;background:rgba(255,253,248,0.92);display:flex;align-items:center;justify-content:center;font-size:12px;box-shadow:0 2px 6px rgba(59,36,23,0.18);}
+  .cat-bolos{background:linear-gradient(135deg,#E3A857,#C97B3D);}
+  .cat-recheios{background:linear-gradient(135deg,#D9748F,#C23B5B);}
+  .cat-coberturas{background:linear-gradient(135deg,#5A3B27,#3B2417);}
+  .cat-docinhos{background:linear-gradient(135deg,#E3A857,#C23B5B);}
+  .cat-tortas{background:linear-gradient(135deg,#C97B3D,#8F2942);}
+  .cat-salgados{background:linear-gradient(135deg,#D9A15C,#A85F28);}
   .rcard .info{padding:10px;}
   .rcard .cat{font-size:10px;font-weight:800;text-transform:uppercase;color:var(--caramelo-escuro);margin-bottom:2px;}
   .rcard .name{font-size:12.5px;font-weight:700;line-height:1.25;}
@@ -221,7 +243,9 @@
   .sheet-overlay{position:fixed;inset:0;z-index:90;display:flex;align-items:flex-end;justify-content:center;}
   .sheet{position:relative;background:var(--creme);width:100%;max-width:480px;max-height:88vh;overflow-y:auto;border-radius:26px 26px 0 0;animation:sheetIn .28s cubic-bezier(.2,.8,.2,1);}
   @keyframes sheetIn{from{transform:translateY(100%);}to{transform:translateY(0);}}
-  .sheet-hero{background:var(--creme-card);height:130px;display:flex;align-items:center;justify-content:center;font-size:56px;position:relative;}
+  .sheet-hero{height:150px;display:flex;align-items:center;justify-content:center;position:relative;}
+  .sheet-hero .thumb-ico{width:76px;height:76px;filter:drop-shadow(0 6px 12px rgba(59,36,23,0.22));}
+  .sheet-hero .thumb-emoji{position:absolute;bottom:14px;left:16px;width:32px;height:32px;border-radius:50%;background:rgba(255,253,248,0.92);display:flex;align-items:center;justify-content:center;font-size:15px;box-shadow:0 3px 8px rgba(59,36,23,0.2);}
   .sheet-close,.sheet-fav{position:absolute;top:12px;width:30px;height:30px;border-radius:50%;background:rgba(255,253,248,0.92);display:flex;align-items:center;justify-content:center;}
   .sheet-close{right:12px;} .sheet-fav{left:12px;}
   .stat-box{flex:1;background:var(--branco);border:1px solid var(--creme-linha);border-radius:12px;padding:10px;text-align:center;}
@@ -230,6 +254,45 @@
 </style>
 </head>
 <body>
+
+<!-- =========================== SPRITE: ícones por categoria =========================== -->
+<svg style="display:none" aria-hidden="true">
+  <symbol id="ic-bolos" viewBox="0 0 100 100">
+    <path d="M28 62 L72 62 L68 88 Q50 94 32 88 Z" fill="#FFFDF8" opacity="0.95"/>
+    <rect x="26" y="52" width="48" height="12" rx="3" fill="#FFFDF8"/>
+    <path d="M30 52 Q50 40 70 52" fill="none" stroke="#FFFDF8" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="50" cy="36" r="7" fill="#FFFDF8"/>
+    <path d="M50 29 Q54 20 48 14" fill="none" stroke="#FFFDF8" stroke-width="3" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="ic-recheios" viewBox="0 0 100 100">
+    <path d="M50 20 C34 20 24 34 24 48 C24 66 38 80 50 86 C62 80 76 66 76 48 C76 34 66 20 50 20 Z" fill="#FFFDF8" opacity="0.18"/>
+    <path d="M38 30 Q50 22 62 30 L58 62 Q50 70 42 62 Z" fill="#FFFDF8"/>
+    <circle cx="50" cy="72" r="5" fill="#FFFDF8"/>
+  </symbol>
+  <symbol id="ic-coberturas" viewBox="0 0 100 100">
+    <path d="M40 88 L38 46 Q38 30 50 30 Q62 30 62 46 L60 88 Z" fill="#FFFDF8"/>
+    <path d="M34 46 L66 46 L60 30 L40 30 Z" fill="#FFFDF8" opacity="0.85"/>
+    <path d="M50 30 C50 18 62 18 58 8" fill="none" stroke="#FFFDF8" stroke-width="4" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="ic-docinhos" viewBox="0 0 100 100">
+    <circle cx="38" cy="58" r="17" fill="#FFFDF8"/>
+    <circle cx="66" cy="42" r="13" fill="#FFFDF8" opacity="0.85"/>
+    <circle cx="33" cy="53" r="2" fill="#C23B5B"/>
+    <circle cx="43" cy="62" r="2" fill="#C23B5B"/>
+    <circle cx="39" cy="66" r="2" fill="#C23B5B"/>
+    <circle cx="62" cy="38" r="1.6" fill="#8F2942"/>
+    <circle cx="70" cy="45" r="1.6" fill="#8F2942"/>
+  </symbol>
+  <symbol id="ic-tortas" viewBox="0 0 100 100">
+    <path d="M50 26 L82 82 L18 82 Z" fill="#FFFDF8"/>
+    <path d="M50 26 L50 82 M34 82 L58 40 M66 82 L42 40" stroke="#C97B3D" stroke-width="2.5" opacity="0.55"/>
+    <circle cx="50" cy="34" r="4" fill="#C23B5B"/>
+  </symbol>
+  <symbol id="ic-salgados" viewBox="0 0 100 100">
+    <path d="M50 18 C68 34 74 52 62 72 C56 82 44 82 38 72 C26 52 32 34 50 18 Z" fill="#FFFDF8"/>
+    <path d="M40 58 Q50 66 60 58" fill="none" stroke="#C97B3D" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
+  </symbol>
+</svg>
 
 <!-- =========================== SITE (LANDING) =========================== -->
 <div id="site">
@@ -283,6 +346,17 @@
       <div class="feature reveal"><h3>🛒 Lista de compras</h3><p>Gerada automaticamente pelas receitas.</p></div>
       <div class="feature reveal"><h3>🎥 Aulas em vídeo</h3><p>Técnicas de confeitaria no seu ritmo.</p></div>
       <div class="feature reveal"><h3>⭐ Favoritos e busca</h3><p>Organize e ache tudo em segundos.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="como-funciona">
+  <div class="wrap">
+    <div class="sect-head reveal"><span class="kicker">Sem mistério</span><h2>Como funciona, do clique à primeira receita</h2></div>
+    <div class="steps-row">
+      <div class="step-item reveal"><div class="step-circle">1</div><h3>Escolha seu plano</h3><p>Essencial pra testar ou Pro completo — pagamento único, sem assinatura.</p></div>
+      <div class="step-item reveal"><div class="step-circle">2</div><h3>Receba sua chave</h3><p>Chega por e-mail na hora, direto da confirmação do pagamento.</p></div>
+      <div class="step-item reveal"><div class="step-circle">3</div><h3>Comece a usar</h3><p>Entra no app com a chave e já tem receita, calculadora e tudo mais na mão.</p></div>
     </div>
   </div>
 </section>
@@ -484,6 +558,7 @@ async function saveFavs(){ try{ await window.storage.set("recheiopro:favorites",
 ========================================================================= */
 function esc(s){ return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
 function isUnlocked(r){ return state.plan === "pro" || (state.plan === "essencial" && r.essencial); }
+function catSlug(cat){ return String(cat).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
 function showToast(msg){
   const root = document.getElementById("toast-root");
   root.innerHTML = `<div class="toast">${esc(msg)}</div>`;
@@ -496,9 +571,12 @@ function showToast(msg){
 function recipeCardHTML(r){
   const unlocked = isUnlocked(r);
   const fav = state.favorites.includes(r.id);
+  const slug = catSlug(r.category);
   return `
     <div class="rcard" onclick="RP.openRecipe('${r.id}')">
-      <div class="thumb">${r.emoji}
+      <div class="thumb cat-${slug}">
+        <svg class="thumb-ico" viewBox="0 0 100 100"><use href="#ic-${slug}"/></svg>
+        <span class="thumb-emoji">${r.emoji}</span>
         <button class="fav-btn" onclick="event.stopPropagation();${unlocked ? `RP.toggleFav('${r.id}')` : "RP.openUpgrade()"}">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="${fav?'#C23B5B':'none'}" stroke="${fav?'#C23B5B':'#6B4A34'}" stroke-width="2"><path d="M12 21s-7-4.35-9.5-8.5C.5 8.5 3 5 6.5 5c2 0 3.5 1.2 4.5 2.7C12 6.2 13.5 5 15.5 5 19 5 21.5 8.5 21.5 12.5 19 16.65 12 21 12 21z"/></svg>
         </button>
@@ -719,7 +797,9 @@ function openRecipeSheet(r){
   root.innerHTML = `
     <div class="sheet-overlay"><div class="modal-bg" onclick="RP.closeSheet()"></div>
       <div class="sheet">
-        <div class="sheet-hero">${r.emoji}
+        <div class="sheet-hero cat-${catSlug(r.category)}">
+          <svg class="thumb-ico" viewBox="0 0 100 100"><use href="#ic-${catSlug(r.category)}"/></svg>
+          <span class="thumb-emoji">${r.emoji}</span>
           <button class="sheet-close" onclick="RP.closeSheet()">✕</button>
           <button class="sheet-fav" onclick="RP.toggleFav('${r.id}')">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="${fav?'#C23B5B':'none'}" stroke="${fav?'#C23B5B':'#6B4A34'}" stroke-width="2"><path d="M12 21s-7-4.35-9.5-8.5C.5 8.5 3 5 6.5 5c2 0 3.5 1.2 4.5 2.7C12 6.2 13.5 5 15.5 5 19 5 21.5 8.5 21.5 12.5 19 16.65 12 21 12 21z"/></svg>
