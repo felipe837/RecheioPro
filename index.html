@@ -129,6 +129,26 @@
 
   /* ---- garantia / faq / prova ---- */
   .prova{padding:56px 0;}
+  .mock-grid{display:grid;grid-template-columns:1fr;gap:20px;max-width:900px;margin:0 auto;}
+  @media(min-width:760px){.mock-grid{grid-template-columns:1fr 1fr 1fr;}}
+  .mock-card{display:flex;flex-direction:column;gap:10px;}
+  .mock-screen{background:var(--branco);border:1px solid var(--creme-linha);border-radius:20px;padding:16px;box-shadow:0 20px 40px -22px rgba(59,36,23,0.3);min-height:190px;}
+  .mock-screen-dark{background:var(--chocolate);border-color:var(--chocolate);}
+  .mock-label{font-size:12.5px;font-weight:800;color:var(--chocolate);margin-bottom:8px;}
+  .mock-chip-row{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;}
+  .mock-chip{font-size:10px;font-weight:700;background:var(--creme-card);border:1px solid var(--creme-linha);padding:5px 9px;border-radius:100px;color:var(--caramelo-escuro);}
+  .mock-row{display:flex;justify-content:space-between;font-size:12px;padding:6px 0;border-bottom:1px solid var(--creme-linha);color:var(--chocolate-suave);}
+  .mock-total{display:flex;justify-content:space-between;background:var(--creme-card);border-radius:10px;padding:9px 10px;margin-top:8px;font-size:12px;font-weight:700;}
+  .mock-total-val{color:var(--framboesa);font-weight:800;font-size:14px;}
+  .mock-orc{background:rgba(255,255,255,0.08);color:#F3E6D3;border-radius:10px;padding:11px;font-size:11.5px;line-height:1.6;margin-bottom:10px;}
+  .mock-wpp{background:#25D366;color:#fff;text-align:center;border-radius:100px;padding:9px;font-size:11.5px;font-weight:800;}
+  .mock-thumb-demo{height:64px;border-radius:12px;display:flex;align-items:center;justify-content:center;}
+  .mock-caption{font-size:12px;color:var(--chocolate-suave);text-align:center;padding:0 6px;line-height:1.5;}
+  .testi-card{background:var(--branco);border:1px solid var(--creme-linha);border-radius:18px;padding:18px;box-shadow:0 16px 32px -20px rgba(59,36,23,0.25);}
+  .testi-placeholder{opacity:0.6;border-style:dashed;}
+  .testi-stars{color:var(--dourado);font-size:14px;margin-bottom:8px;letter-spacing:2px;}
+  .testi-quote{font-size:13px;color:var(--chocolate-suave);line-height:1.55;font-style:italic;margin-bottom:12px;}
+  .testi-name{font-size:12px;font-weight:800;color:var(--chocolate);}
   .prova-empty{max-width:620px;margin:0 auto;text-align:center;border:1.5px dashed var(--creme-linha);border-radius:18px;padding:30px 22px;background:var(--creme-card);}
   .prova-empty p{color:var(--chocolate-suave);font-size:14px;line-height:1.6;}
   .prova-empty .stars{color:var(--dourado);margin-bottom:8px;font-size:17px;letter-spacing:3px;}
@@ -389,7 +409,7 @@
         <div><div class="plan-tag">Porta de entrada</div><div class="plan-name">Essencial</div></div>
         <div><div class="price-row"><span class="price">R$17,90</span></div><div class="price-note">pagamento único · porta de entrada</div></div>
         <ul class="plan-list">
-          <li>✅ 18 receitas selecionadas</li><li>✅ Busca e categorias</li><li>✅ Favoritos</li><li>✅ Calculadora de custo básica</li>
+          <li>✅ 50 receitas selecionadas</li><li>✅ Busca e categorias</li><li>✅ Favoritos</li><li>✅ Calculadora de custo básica</li>
         </ul>
         <a href="https://pay.kiwify.com.br/CcFq1Th" class="plan-btn" style="display:block;">Começar com o Essencial</a>
       </div>
@@ -398,7 +418,7 @@
         <div><div class="plan-tag">Melhor custo-benefício</div><div class="plan-name">Pro</div></div>
         <div><div class="price-row"><span class="price">R$37,90</span></div><div class="price-note">pagamento único · catálogo crescendo toda semana</div></div>
         <ul class="plan-list">
-          <li>✅ 36 receitas e todas categorias</li><li>✅ Calculadora completa de custos</li><li>✅ Preço de venda e lucro</li>
+          <li>✅ 150 receitas e todas categorias</li><li>✅ Calculadora completa de custos</li><li>✅ Preço de venda e lucro</li>
           <li>✅ Lista de compras automática</li><li>✅ Aulas em vídeo e bônus</li><li>✅ Todos os recursos futuros</li>
         </ul>
         <a href="https://pay.kiwify.com.br/Gyobv2U" class="plan-btn" style="display:block;">Quero o Pro completo</a>
@@ -412,8 +432,58 @@
 
 <section class="prova">
   <div class="wrap">
-    <div class="sect-head reveal"><span class="kicker">Prova social</span><h2>Em breve, histórias de quem já usa o RecheioPro</h2></div>
-    <div class="prova-empty reveal"><div class="stars">★★★★★</div><p>Estamos no lançamento — assim que as primeiras confeiteiras começarem a usar o app, os depoimentos reais delas aparecem aqui.</p></div>
+    <div class="sect-head reveal"><span class="kicker">O produto de verdade</span><h2>Sem depoimento inventado — só o app funcionando</h2><p>Enquanto os primeiros depoimentos reais não chegam, preferimos mostrar exatamente o que você recebe.</p></div>
+    <div class="mock-grid">
+      <div class="mock-card reveal">
+        <div class="mock-screen">
+          <div class="mock-label">Calculadora de custo</div>
+          <div class="mock-chip-row"><span class="mock-chip">Farinha · R$5,00</span><span class="mock-chip">Ovos · R$2,50</span></div>
+          <div class="mock-row"><span>Farinha de trigo</span><span>R$ 5,00</span></div>
+          <div class="mock-row"><span>Ovos (3 un.)</span><span>R$ 2,50</span></div>
+          <div class="mock-total"><span>Custo por unidade</span><span class="mock-total-val">R$ 1,49</span></div>
+        </div>
+        <div class="mock-caption">Salva o preço do ingrediente uma vez — reaproveita em toda receita.</div>
+      </div>
+      <div class="mock-card reveal">
+        <div class="mock-screen mock-screen-dark">
+          <div class="mock-label" style="color:var(--dourado);">Orçamento pro cliente</div>
+          <div class="mock-orc">🧁 <b>Orçamento — Bolo de cenoura</b><br><br>Valor: <b>R$ 42,90</b><br>Pagamento: Pix ou cartão<br>Válido por 3 dias</div>
+          <div class="mock-wpp">💬 Enviar por WhatsApp</div>
+        </div>
+        <div class="mock-caption">Calculou o preço, já manda pronto pro cliente — sem sair do app.</div>
+      </div>
+      <div class="mock-card reveal">
+        <div class="mock-screen">
+          <div class="mock-thumb-demo cat-bolos"><svg class="thumb-ico" viewBox="0 0 100 100" style="width:44px;height:44px;"><use href="#ic-bolos"/></svg></div>
+          <div class="mock-label" style="margin-top:10px;">Bolo de Cenoura com Cobertura</div>
+          <div class="mock-row"><span>⏱ 50 min</span><span>🍽 12 fatias</span></div>
+          <div class="mock-row" style="border:none;"><span style="color:var(--chocolate-suave);">Ingredientes, modo de preparo, dica da confeiteira e conservação — tudo na ficha.</span></div>
+        </div>
+        <div class="mock-caption">36 receitas reais, com ficha completa — não é só uma lista de nomes.</div>
+      </div>
+    </div>
+    <div class="prova-empty reveal" style="margin-top:26px;"><div class="stars">★★★★★</div><p>Estamos no lançamento — assim que as primeiras confeiteiras começarem a usar o app, os depoimentos reais delas aparecem aqui.</p></div>
+
+    <div class="reveal" style="margin-top:30px;">
+      <div style="text-align:center;font-size:11.5px;font-weight:800;color:var(--chocolate-suave);letter-spacing:.04em;text-transform:uppercase;margin-bottom:14px;">👁️ Prévia de layout — texto de exemplo, ainda não é depoimento real</div>
+      <div class="mock-grid">
+        <div class="testi-card testi-placeholder">
+          <div class="testi-stars">★★★★★</div>
+          <p class="testi-quote">"[Aqui entra a fala real da cliente, do jeito que ela escreveu]"</p>
+          <div class="testi-name">Nome da cliente — Plano Essencial</div>
+        </div>
+        <div class="testi-card testi-placeholder">
+          <div class="testi-stars">★★★★★</div>
+          <p class="testi-quote">"[Aqui entra a fala real da cliente, do jeito que ela escreveu]"</p>
+          <div class="testi-name">Nome da cliente — Plano Pro</div>
+        </div>
+        <div class="testi-card testi-placeholder">
+          <div class="testi-stars">★★★★★</div>
+          <p class="testi-quote">"[Aqui entra a fala real da cliente, do jeito que ela escreveu]"</p>
+          <div class="testi-name">Nome da cliente — Plano Pro</div>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -640,6 +710,462 @@ const RECIPES = [
    ingredientes:[{n:"Biscoito champanhe",q:"200g"},{n:"Leite",q:"1 xícara"},{n:"Creme de baunilha",q:"1 caixa"},{n:"Creme de chocolate",q:"1 caixa"},{n:"Chocolate granulado",q:"a gosto"}],
    modo:["Molhe os biscoitos no leite e forre o fundo da travessa.","Alterne camadas de creme de baunilha, biscoito e creme de chocolate.","Finalize com granulado e leve à geladeira por 4h."],
    dicas:"Não deixe o biscoito encharcar demais no leite, só um mergulho rápido.",conservacao:"Até 4 dias na geladeira."},
+  {id:"r37",name:"Bolo de Laranja com Calda",category:"Bolos",emoji:"🍊",essencial:true,rendimento:"1 bolo (12 fatias)",tempo:"50 min",
+   ingredientes:[{n:"Suco de laranja",q:"1 xícara"},{n:"Raspas de laranja",q:"1 unidade"},{n:"Farinha de trigo",q:"2 xícaras"},{n:"Açúcar",q:"1 e 1/2 xícara"},{n:"Ovos",q:"3 unidades"},{n:"Óleo",q:"1/2 xícara"}],
+   modo:["Bata o suco, as raspas, os ovos e o óleo no liquidificador.","Misture aos secos e asse a 180°C por 35 min.","Fure o bolo quente e regue com calda de açúcar e suco de laranja."],
+   dicas:"A calda quente sobre o bolo quente é o que deixa ele úmido de verdade.",conservacao:"Até 4 dias na geladeira, coberto."},
+  {id:"r38",name:"Bolo Prestígio",category:"Bolos",emoji:"🥥",essencial:false,rendimento:"1 bolo (12 fatias)",tempo:"55 min",
+   ingredientes:[{n:"Farinha de trigo",q:"2 xícaras"},{n:"Chocolate em pó",q:"1/2 xícara"},{n:"Leite de coco",q:"1 xícara"},{n:"Coco ralado",q:"1 xícara"},{n:"Açúcar",q:"1 e 1/2 xícara"},{n:"Ovos",q:"3 unidades"}],
+   modo:["Misture os secos e junte os líquidos e ovos.","Asse a 180°C por 35 min.","Recheie e cubra com brigadeiro branco de coco e ganache."],
+   dicas:"Toste um pouco do coco ralado pra decorar por cima — fica mais bonito e saboroso.",conservacao:"Até 4 dias na geladeira."},
+  {id:"r39",name:"Bolo de Banana com Canela",category:"Bolos",emoji:"🍌",essencial:true,rendimento:"1 bolo (12 fatias)",tempo:"50 min",
+   ingredientes:[{n:"Banana madura amassada",q:"3 unidades"},{n:"Farinha de trigo",q:"2 xícaras"},{n:"Açúcar mascavo",q:"1 xícara"},{n:"Canela em pó",q:"1 colher (chá)"},{n:"Ovos",q:"2 unidades"},{n:"Óleo",q:"1/2 xícara"}],
+   modo:["Misture a banana amassada com os ovos e o óleo.","Junte os secos e a canela.","Despeje numa forma untada e asse a 180°C por 40 min."],
+   dicas:"Use banana bem madura (com pintinhas pretas) — deixa o bolo mais doce e úmido.",conservacao:"Até 4 dias em pote fechado, fora da geladeira."},
+  {id:"r40",name:"Bolo Naked de Morango",category:"Bolos",emoji:"🍓",essencial:false,rendimento:"1 bolo (14 fatias)",tempo:"1h",
+   ingredientes:[{n:"Massa de baunilha (2 discos)",q:"2 unidades"},{n:"Chantilly",q:"400g"},{n:"Morango fatiado",q:"300g"},{n:"Geleia de morango",q:"3 colheres (sopa)"}],
+   modo:["Intercale os discos de massa com chantilly e morango fatiado.","Cubra as laterais só parcialmente, deixando o bolo aparecer (efeito naked).","Finalize o topo com morangos inteiros e um fio de geleia."],
+   dicas:"Monte o bolo já gelado — facilita muito pra não desmanchar o recheio.",conservacao:"Até 2 dias na geladeira, consumir logo pelo morango fresco."},
+  {id:"r41",name:"Bolo de Chocolate Vulcão",category:"Bolos",emoji:"🌋",essencial:true,rendimento:"6 unidades individuais",tempo:"30 min",
+   ingredientes:[{n:"Chocolate meio amargo",q:"150g"},{n:"Manteiga",q:"100g"},{n:"Açúcar",q:"1/2 xícara"},{n:"Ovos",q:"3 unidades"},{n:"Farinha de trigo",q:"3 colheres (sopa)"}],
+   modo:["Derreta o chocolate com a manteiga.","Bata os ovos com açúcar e misture ao chocolate, depois a farinha.","Asse em forminhas individuais untadas a 220°C por 8-9 min — o centro tem que ficar mole."],
+   dicas:"O tempo é tudo aqui: 1 minuto a mais e o vulcão não escorre.",conservacao:"Sirva na hora — não é receita pra guardar."},
+  {id:"r42",name:"Bombom de Uva",category:"Docinhos",emoji:"🍇",essencial:false,rendimento:"20 unidades",tempo:"25 min",
+   ingredientes:[{n:"Uva sem semente",q:"20 unidades"},{n:"Chocolate meio amargo picado",q:"200g"},{n:"Chocolate branco (opcional)",q:"50g"}],
+   modo:["Lave e seque bem as uvas.","Derreta o chocolate em banho-maria e banhe cada uva com um palito.","Leve à geladeira até firmar."],
+   dicas:"As uvas precisam estar bem secas, senão o chocolate não gruda direito.",conservacao:"2 dias na geladeira, consumir fresco."},
+  {id:"r43",name:"Palha Italiana",category:"Docinhos",emoji:"🍪",essencial:true,rendimento:"20 pedaços",tempo:"20 min",
+   ingredientes:[{n:"Chocolate meio amargo",q:"300g"},{n:"Creme de leite",q:"1 caixa"},{n:"Manteiga",q:"1 colher (sopa)"},{n:"Bolacha maisena picada",q:"200g"}],
+   modo:["Derreta o chocolate com o creme de leite e a manteiga.","Misture a bolacha picada delicadamente.","Espalhe numa forma forrada e leve à geladeira antes de cortar em quadrados."],
+   dicas:"Não bata demais a bolacha — pedaços irregulares dão mais textura.",conservacao:"Até 7 dias na geladeira, em pote fechado."},
+  {id:"r44",name:"Brigadeiro de Churros",category:"Docinhos",emoji:"🥖",essencial:false,rendimento:"20 unidades",tempo:"25 min",
+   ingredientes:[{n:"Leite condensado",q:"1 lata"},{n:"Manteiga",q:"1 colher (sopa)"},{n:"Canela em pó",q:"1 colher (chá)"},{n:"Açúcar com canela (pra passar)",q:"a gosto"}],
+   modo:["Cozinhe o leite condensado, a manteiga e a canela até desgrudar da panela.","Deixe esfriar e enrole as bolinhas.","Passe no açúcar com canela antes de servir."],
+   dicas:"Adicione a canela aos poucos e prove — o ponto ideal varia de gosto.",conservacao:"5 dias em temperatura ambiente, em pote fechado."},
+  {id:"r45",name:"Pé-de-Moleque em Bolinha",category:"Docinhos",emoji:"🥜",essencial:true,rendimento:"18 unidades",tempo:"25 min",
+   ingredientes:[{n:"Amendoim torrado",q:"200g"},{n:"Açúcar",q:"1 xícara"},{n:"Água",q:"3 colheres (sopa)"}],
+   modo:["Derreta o açúcar com a água até dourar, sem mexer muito.","Misture o amendoim rapidamente.","Despeje em forminhas de silicone antes de endurecer."],
+   dicas:"Trabalhe rápido — o caramelo endurece em segundos fora do fogo.",conservacao:"Até 2 semanas em pote bem fechado, fora da geladeira."},
+  {id:"r46",name:"Trufa de Ninho",category:"Docinhos",emoji:"🤍",essencial:false,rendimento:"18 unidades",tempo:"30 min + 2h geladeira",
+   ingredientes:[{n:"Chocolate branco picado",q:"200g"},{n:"Creme de leite",q:"100g"},{n:"Leite ninho",q:"3 colheres (sopa)"},{n:"Chocolate branco (casquinha)",q:"200g"}],
+   modo:["Derreta o chocolate branco com o creme de leite.","Misture o leite ninho e leve à geladeira por 2h.","Modele bolinhas e banhe na casquinha derretida."],
+   dicas:"Passe as mãos com um pouco de manteiga pra modelar sem grudar.",conservacao:"7 dias na geladeira, em pote fechado."},
+  {id:"r47",name:"Recheio de Oreo",category:"Recheios",emoji:"🍪",essencial:true,rendimento:"Rende 1 bolo médio",tempo:"15 min",
+   ingredientes:[{n:"Biscoito recheado de chocolate triturado",q:"12 unidades"},{n:"Creme de leite",q:"1 caixa"},{n:"Leite condensado",q:"3 colheres (sopa)"}],
+   modo:["Bata o creme de leite com o leite condensado até engrossar.","Misture o biscoito triturado, reservando um pouco pra decorar.","Use gelado pra manter a textura crocante."],
+   dicas:"Triture grosseiramente — pedaços maiores dão mais crocância que pó fino.",conservacao:"3 dias na geladeira."},
+  {id:"r48",name:"Recheio de Limão",category:"Recheios",emoji:"🍋",essencial:false,rendimento:"Rende 1 bolo médio",tempo:"15 min",
+   ingredientes:[{n:"Leite condensado",q:"1 lata"},{n:"Suco de limão",q:"1/3 xícara"},{n:"Creme de leite",q:"1 caixa"},{n:"Raspas de limão",q:"1 unidade"}],
+   modo:["Misture o leite condensado com o suco de limão até engrossar naturalmente.","Junte o creme de leite e as raspas.","Use na hora — engrossa rápido."],
+   dicas:"Adicione o limão aos poucos, mexendo sempre, pra não talhar.",conservacao:"2 dias na geladeira."},
+  {id:"r49",name:"Recheio de Café com Chocolate",category:"Recheios",emoji:"☕",essencial:true,rendimento:"Rende 1 bolo médio",tempo:"20 min",
+   ingredientes:[{n:"Chocolate meio amargo",q:"150g"},{n:"Creme de leite",q:"1 caixa"},{n:"Café expresso forte",q:"2 colheres (sopa)"}],
+   modo:["Derreta o chocolate em banho-maria.","Misture o café ainda quente ao chocolate.","Junte o creme de leite aos poucos até ficar liso."],
+   dicas:"Use café coado forte, não solúvel — o sabor fica bem mais elegante.",conservacao:"4 dias na geladeira."},
+  {id:"r50",name:"Recheio de Coco Queimado",category:"Recheios",emoji:"🥥",essencial:false,rendimento:"Rende 1 bolo médio",tempo:"20 min",
+   ingredientes:[{n:"Açúcar",q:"1 xícara"},{n:"Leite de coco",q:"200ml"},{n:"Coco ralado",q:"100g"},{n:"Manteiga",q:"1 colher (sopa)"}],
+   modo:["Derreta o açúcar até dourar bem escuro (caramelizado).","Adicione o leite de coco com cuidado, mexendo sempre.","Junte o coco ralado e a manteiga até engrossar."],
+   dicas:"Quanto mais escuro o caramelo, mais marcante fica o sabor de 'queimado'.",conservacao:"5 dias na geladeira."},
+  {id:"r51",name:"Recheio de Maracujá Cremoso",category:"Recheios",emoji:"🍈",essencial:true,rendimento:"Rende 1 bolo médio",tempo:"15 min",
+   ingredientes:[{n:"Polpa de maracujá",q:"1/2 xícara"},{n:"Leite condensado",q:"1 lata"},{n:"Creme de leite",q:"1 caixa"},{n:"Manteiga",q:"1 colher (sopa)"}],
+   modo:["Cozinhe a polpa com o leite condensado e a manteiga até engrossar.","Deixe esfriar e misture o creme de leite.","Coe se preferir sem sementes."],
+   dicas:"Reserve um pouco da polpa crua pra decorar por cima no final.",conservacao:"3 dias na geladeira."},
+  {id:"r52",name:"Cobertura de Leite Ninho",category:"Coberturas",emoji:"🤍",essencial:false,rendimento:"Cobre 1 bolo médio",tempo:"15 min",
+   ingredientes:[{n:"Leite condensado",q:"1 lata"},{n:"Leite ninho",q:"1/2 xícara"},{n:"Creme de leite",q:"1 caixa"},{n:"Manteiga",q:"1 colher (sopa)"}],
+   modo:["Cozinhe o leite condensado e a manteiga até engrossar levemente.","Fora do fogo, misture o leite ninho e o creme de leite.","Deixe esfriar antes de cobrir o bolo."],
+   dicas:"Peneire o leite ninho antes de misturar pra não empelotar.",conservacao:"4 dias na geladeira."},
+  {id:"r53",name:"Buttercream de Baunilha",category:"Coberturas",emoji:"🧈",essencial:true,rendimento:"Cobre 1 bolo médio",tempo:"15 min",
+   ingredientes:[{n:"Manteiga em temperatura ambiente",q:"200g"},{n:"Açúcar de confeiteiro",q:"3 xícaras"},{n:"Essência de baunilha",q:"1 colher (chá)"},{n:"Leite",q:"2 colheres (sopa)"}],
+   modo:["Bata a manteiga até clarear.","Adicione o açúcar de confeiteiro aos poucos, batendo sempre.","Junte a baunilha e o leite até dar ponto de espalhar."],
+   dicas:"Bata bastante tempo — é o ar incorporado que deixa o buttercream fofo.",conservacao:"Até 3 dias fora da geladeira, coberto."},
+  {id:"r54",name:"Cobertura de Morango Natural",category:"Coberturas",emoji:"🍓",essencial:false,rendimento:"Cobre 1 bolo médio",tempo:"15 min",
+   ingredientes:[{n:"Morango",q:"250g"},{n:"Açúcar",q:"1/3 xícara"},{n:"Suco de limão",q:"1 colher (chá)"}],
+   modo:["Bata os morangos com o açúcar no liquidificador.","Leve ao fogo baixo até reduzir e engrossar.","Junte o limão no final e deixe esfriar antes de usar."],
+   dicas:"Não coe — os pedacinhos de morango deixam a cobertura mais rústica e saborosa.",conservacao:"5 dias na geladeira, em pote fechado."},
+  {id:"r55",name:"Ganache Branca",category:"Coberturas",emoji:"🤍",essencial:true,rendimento:"Cobre 1 bolo médio",tempo:"10 min + 2h descanso",
+   ingredientes:[{n:"Chocolate branco picado",q:"200g"},{n:"Creme de leite",q:"70g"}],
+   modo:["Derreta o chocolate branco em banho-maria ou micro-ondas.","Misture o creme de leite ainda morno.","Deixe descansar até engrossar antes de usar."],
+   dicas:"Chocolate branco derrete mais rápido — cuidado pra não queimar.",conservacao:"Até 5 dias fora da geladeira, coberta."},
+  {id:"r56",name:"Cobertura de Paçoca",category:"Coberturas",emoji:"🥜",essencial:false,rendimento:"Cobre 1 bolo médio",tempo:"15 min",
+   ingredientes:[{n:"Paçoca triturada",q:"6 unidades"},{n:"Creme de leite",q:"1 caixa"},{n:"Doce de leite",q:"3 colheres (sopa)"}],
+   modo:["Bata o creme de leite com o doce de leite até engrossar.","Misture a paçoca triturada delicadamente.","Use na hora pra manter a textura crocante."],
+   dicas:"Reserve um pouco de paçoca inteira pra decorar por cima.",conservacao:"2 dias na geladeira."},
+  {id:"r57",name:"Enroladinho de Salsicha",category:"Salgados",emoji:"🌭",essencial:true,rendimento:"20 unidades",tempo:"50 min",
+   ingredientes:[{n:"Massa folhada",q:"2 placas"},{n:"Mini salsicha",q:"20 unidades"},{n:"Gema (pra pincelar)",q:"1 unidade"},{n:"Gergelim",q:"a gosto"}],
+   modo:["Corte a massa em tiras e enrole cada salsicha.","Pincele com gema e salpique gergelim.","Asse a 200°C por 20 min até dourar."],
+   dicas:"Deixe a massa folhada gelada até o momento de usar — facilita muito o corte.",conservacao:"Até 2 dias na geladeira crus, ou congele."},
+  {id:"r58",name:"Quibe Assado",category:"Salgados",emoji:"🍽️",essencial:false,rendimento:"20 porções",tempo:"1h",
+   ingredientes:[{n:"Trigo para kibe",q:"1 xícara"},{n:"Carne moída",q:"500g"},{n:"Cebola picada",q:"1 unidade"},{n:"Hortelã",q:"2 colheres (sopa)"},{n:"Azeite",q:"2 colheres (sopa)"}],
+   modo:["Hidrate o trigo e esprema bem.","Misture com a carne, cebola e hortelã.","Espalhe numa assadeira, regue com azeite e asse a 200°C por 35 min."],
+   dicas:"Marque losangos na massa crua antes de assar — facilita cortar depois.",conservacao:"Até 3 dias na geladeira."},
+  {id:"r59",name:"Croquete de Frango",category:"Salgados",emoji:"🍗",essencial:true,rendimento:"25 unidades",tempo:"1h",
+   ingredientes:[{n:"Frango cozido desfiado",q:"400g"},{n:"Batata cozida amassada",q:"300g"},{n:"Farinha de rosca",q:"200g"},{n:"Ovo",q:"1 unidade"}],
+   modo:["Misture o frango com a batata amassada e tempere.","Modele em formato de croquete.","Passe no ovo e na farinha de rosca e frite até dourar."],
+   dicas:"A batata precisa estar bem seca pra massa não desmanchar ao fritar.",conservacao:"Até 2 dias na geladeira crus, ou congele."},
+  {id:"r60",name:"Empanada Argentina",category:"Salgados",emoji:"🥟",essencial:false,rendimento:"16 unidades",tempo:"1h",
+   ingredientes:[{n:"Discos de empanada",q:"16 unidades"},{n:"Carne moída",q:"400g"},{n:"Cebola picada",q:"1 unidade"},{n:"Ovo cozido picado",q:"2 unidades"},{n:"Azeitona picada",q:"a gosto"}],
+   modo:["Refogue a carne com a cebola e tempere bem.","Misture o ovo cozido e a azeitona depois de fria.","Recheie os discos, feche com repulgue e asse a 200°C por 25 min."],
+   dicas:"Deixe o recheio esfriar completamente antes de rechear — evita que a massa murche.",conservacao:"Até 2 dias na geladeira cruas, ou congele."},
+  {id:"r61",name:"Mini Pizza de Liquidificador",category:"Salgados",emoji:"🍕",essencial:true,rendimento:"12 unidades",tempo:"35 min",
+   ingredientes:[{n:"Leite",q:"1 xícara"},{n:"Ovos",q:"2 unidades"},{n:"Farinha de trigo",q:"1 xícara"},{n:"Óleo",q:"2 colheres (sopa)"},{n:"Molho de tomate e mussarela (pra cobrir)",q:"a gosto"}],
+   modo:["Bata o leite, ovos, farinha e óleo no liquidificador.","Despeje em forminhas untadas até meio da altura.","Cubra com molho e queijo e asse a 200°C por 20 min."],
+   dicas:"Não encha demais as forminhas — a massa cresce bastante.",conservacao:"Até 2 dias na geladeira, esquente antes de servir."},
+  {id:"r62",name:"Torta de Banana com Doce de Leite",category:"Tortas",emoji:"🍌",essencial:false,rendimento:"1 torta (14 fatias)",tempo:"40 min + 3h geladeira",
+   ingredientes:[{n:"Biscoito triturado",q:"200g"},{n:"Manteiga",q:"80g"},{n:"Banana fatiada",q:"4 unidades"},{n:"Doce de leite",q:"1 lata"},{n:"Chantilly",q:"200g"}],
+   modo:["Forre a forma com biscoito e manteiga.","Alterne camadas de banana e doce de leite.","Cubra com chantilly e leve à geladeira por 3h."],
+   dicas:"Passe as bananas fatiadas num pouco de limão pra não escurecerem.",conservacao:"Até 2 dias na geladeira, consumir logo pela banana fresca."},
+  {id:"r63",name:"Torta Mousse de Maracujá",category:"Tortas",emoji:"🍈",essencial:true,rendimento:"1 torta (16 fatias)",tempo:"30 min + 4h geladeira",
+   ingredientes:[{n:"Biscoito triturado",q:"200g"},{n:"Manteiga",q:"80g"},{n:"Polpa de maracujá",q:"1/2 xícara"},{n:"Leite condensado",q:"1 lata"},{n:"Creme de leite",q:"2 caixas"},{n:"Gelatina incolor",q:"1 envelope"}],
+   modo:["Forre a forma com a base de biscoito.","Bata a polpa, o leite condensado e uma caixa de creme de leite.","Adicione a gelatina hidratada e dissolvida, despeje sobre a base e leve à geladeira por 4h."],
+   dicas:"Coe a polpa se não gostar das sementes na mousse.",conservacao:"Até 4 dias na geladeira."},
+  {id:"r64",name:"Torta de Nozes",category:"Tortas",emoji:"🌰",essencial:false,rendimento:"1 torta (14 fatias)",tempo:"50 min",
+   ingredientes:[{n:"Massa podre",q:"1 disco"},{n:"Nozes picadas",q:"200g"},{n:"Açúcar mascavo",q:"1 xícara"},{n:"Ovos",q:"3 unidades"},{n:"Manteiga derretida",q:"100g"}],
+   modo:["Forre a forma com a massa.","Misture as nozes, o açúcar, os ovos e a manteiga.","Despeje sobre a massa e asse a 180°C por 35 min."],
+   dicas:"Torre as nozes levemente antes de picar — intensifica bastante o sabor.",conservacao:"Até 5 dias em temperatura ambiente, coberta."},
+  {id:"r65",name:"Torta Salgada de Frango",category:"Tortas",emoji:"🥧",essencial:true,rendimento:"1 torta (12 fatias)",tempo:"1h",
+   ingredientes:[{n:"Massa podre salgada",q:"2 discos"},{n:"Frango cozido desfiado",q:"400g"},{n:"Milho",q:"1/2 xícara"},{n:"Requeijão",q:"3 colheres (sopa)"},{n:"Queijo ralado",q:"1/2 xícara"}],
+   modo:["Forre a forma com um disco de massa.","Misture o frango, o milho e o requeijão e espalhe sobre a massa.","Cubra com o segundo disco, polvilhe queijo e asse a 200°C por 35 min."],
+   dicas:"Fure a massa de cima com um garfo pra não estufar demais no forno.",conservacao:"Até 3 dias na geladeira."},
+  {id:"r66",name:"Torta de Chocolate Branco com Morango",category:"Tortas",emoji:"🤍",essencial:false,rendimento:"1 torta (16 fatias)",tempo:"30 min + 4h geladeira",
+   ingredientes:[{n:"Biscoito triturado",q:"200g"},{n:"Manteiga",q:"80g"},{n:"Chocolate branco",q:"200g"},{n:"Creme de leite",q:"2 caixas"},{n:"Morango fatiado",q:"200g"}],
+   modo:["Forre a forma com a base de biscoito.","Derreta o chocolate branco com uma caixa de creme de leite e despeje sobre a base.","Cubra com a segunda caixa de creme de leite batida e finalize com morangos.","Leve à geladeira por 4h."],
+   dicas:"Decore com os morangos só na hora de servir, pra não soltarem água.",conservacao:"Até 3 dias na geladeira."},
+  {id:"r67",name:"Bolo de Iogurte com Limão",category:"Bolos",emoji:"🍋",essencial:true,rendimento:"1 bolo (12 fatias)",tempo:"45 min",
+   ingredientes:[{n:"Iogurte natural",q:"1 pote"},{n:"Farinha de trigo",q:"2 xícaras"},{n:"Açúcar",q:"1 e 1/2 xícara"},{n:"Ovos",q:"3 unidades"},{n:"Óleo",q:"1/2 xícara"},{n:"Raspas de limão",q:"1 unidade"}],
+   modo:["Bata o iogurte, os ovos, o óleo e o açúcar.","Junte a farinha e as raspas de limão.","Asse a 180°C por 35 min."],
+   dicas:"O iogurte deixa a massa mais macia e ajuda a durar mais dias fresca.",conservacao:"Até 4 dias na geladeira."},
+  {id:"r68",name:"Bolo Mármore",category:"Bolos",emoji:"🎨",essencial:false,rendimento:"1 bolo (12 fatias)",tempo:"50 min",
+   ingredientes:[{n:"Farinha de trigo",q:"2 xícaras"},{n:"Açúcar",q:"1 e 1/2 xícara"},{n:"Ovos",q:"3 unidades"},{n:"Leite",q:"1 xícara"},{n:"Óleo",q:"1/2 xícara"},{n:"Chocolate em pó",q:"3 colheres (sopa)"}],
+   modo:["Prepare a massa base e divida em duas partes.","Misture o chocolate em pó numa das partes.","Alterne colheradas das duas massas na forma e faça movimentos suaves para o efeito mármore. Asse a 180°C por 40 min."],
+   dicas:"Não misture demais as duas massas, ou perde o efeito marmorizado.",conservacao:"Até 4 dias em pote fechado, fora da geladeira."},
+  {id:"r69",name:"Bolo de Coco com Leite Condensado",category:"Bolos",emoji:"🥥",essencial:true,rendimento:"1 bolo (12 fatias)",tempo:"50 min",
+   ingredientes:[{n:"Coco ralado",q:"1 xícara"},{n:"Leite condensado",q:"1/2 lata"},{n:"Farinha de trigo",q:"2 xícaras"},{n:"Leite de coco",q:"1 xícara"},{n:"Ovos",q:"3 unidades"},{n:"Açúcar",q:"1 xícara"}],
+   modo:["Bata os líquidos e ovos.","Misture os secos e o coco ralado.","Asse a 180°C por 40 min e regue com leite condensado ainda quente."],
+   dicas:"Reserve coco ralado pra polvilhar por cima depois de assado.",conservacao:"Até 4 dias na geladeira."},
+  {id:"r70",name:"Bolo Piscina (Brigadeiro e Beijinho)",category:"Bolos",emoji:"🏊",essencial:false,rendimento:"1 bolo (14 fatias)",tempo:"1h",
+   ingredientes:[{n:"Massa de chocolate (2 discos)",q:"2 unidades"},{n:"Brigadeiro de colher",q:"300g"},{n:"Beijinho de colher",q:"300g"},{n:"Chantilly",q:"200g"}],
+   modo:["Monte a primeira camada de massa e espalhe o brigadeiro.","Cubra com a segunda massa e espalhe o beijinho, deixando uma borda de chantilly como 'piscina'.","Decore a borda com chantilly e finalize a gosto."],
+   dicas:"Use aro de confeitar pra criar a borda da 'piscina' com o chantilly.",conservacao:"Até 3 dias na geladeira."},
+  {id:"r71",name:"Bolo de Amendoim",category:"Bolos",emoji:"🥜",essencial:true,rendimento:"1 bolo (12 fatias)",tempo:"50 min",
+   ingredientes:[{n:"Amendoim torrado moído",q:"1 xícara"},{n:"Farinha de trigo",q:"1 xícara"},{n:"Açúcar",q:"1 e 1/2 xícara"},{n:"Ovos",q:"3 unidades"},{n:"Leite",q:"1 xícara"},{n:"Óleo",q:"1/2 xícara"}],
+   modo:["Bata os líquidos com os ovos.","Misture os secos e o amendoim moído.","Asse a 180°C por 40 min."],
+   dicas:"Use amendoim torrado na hora pra um sabor bem mais marcante.",conservacao:"Até 4 dias em pote fechado, fora da geladeira."},
+  {id:"r72",name:"Bolo Nega Maluca",category:"Bolos",emoji:"🍫",essencial:false,rendimento:"1 bolo (12 fatias)",tempo:"50 min",
+   ingredientes:[{n:"Chocolate em pó",q:"1 xícara"},{n:"Farinha de trigo",q:"2 xícaras"},{n:"Açúcar",q:"2 xícaras"},{n:"Água fervente",q:"1 xícara"},{n:"Ovos",q:"3 unidades"},{n:"Óleo",q:"1/2 xícara"}],
+   modo:["Misture os secos.","Junte os ovos, o óleo e a água fervente aos poucos.","Asse a 180°C por 40 min — a massa fica bem líquida, é normal."],
+   dicas:"A água fervente é o segredo do nome 'maluca' — não pule essa etapa.",conservacao:"Até 4 dias em pote fechado, fora da geladeira."},
+  {id:"r73",name:"Beijinho de Limão",category:"Docinhos",emoji:"🍋",essencial:true,rendimento:"18 unidades",tempo:"20 min",
+   ingredientes:[{n:"Leite condensado",q:"1 lata"},{n:"Coco ralado",q:"80g"},{n:"Raspas de limão",q:"1 unidade"},{n:"Manteiga",q:"1 colher (sopa)"}],
+   modo:["Cozinhe o leite condensado, o coco e a manteiga até desgrudar da panela.","Misture as raspas de limão no final.","Deixe esfriar e enrole as bolinhas."],
+   dicas:"Adicione as raspas só no final pra não amargar com o cozimento.",conservacao:"5 dias em temperatura ambiente, em pote fechado."},
+  {id:"r74",name:"Brigadeiro de Ninho",category:"Docinhos",emoji:"🤍",essencial:false,rendimento:"20 unidades",tempo:"20 min",
+   ingredientes:[{n:"Leite condensado",q:"1 lata"},{n:"Leite ninho",q:"3 colheres (sopa)"},{n:"Manteiga",q:"1 colher (sopa)"}],
+   modo:["Cozinhe o leite condensado e a manteiga em fogo baixo.","Adicione o leite ninho e misture até desgrudar da panela.","Deixe esfriar e enrole as bolinhas."],
+   dicas:"Passe as bolinhas em leite ninho extra pra um acabamento mais bonito.",conservacao:"5 dias em temperatura ambiente, em pote fechado."},
+  {id:"r75",name:"Bala de Leite Condensado",category:"Docinhos",emoji:"🍬",essencial:true,rendimento:"25 unidades",tempo:"30 min",
+   ingredientes:[{n:"Leite condensado",q:"1 lata"},{n:"Manteiga",q:"1 colher (sopa)"},{n:"Açúcar",q:"2 colheres (sopa)"}],
+   modo:["Cozinhe todos os ingredientes em fogo baixo até dar ponto firme.","Despeje numa superfície untada e deixe esfriar.","Corte em quadradinhos e embale em papel celofane."],
+   dicas:"O ponto certo é quando a massa desgruda bem do fundo da panela.",conservacao:"Até 3 semanas em local seco, embaladas."},
+  {id:"r76",name:"Doce de Amendoim (Paçoquinha Caseira)",category:"Docinhos",emoji:"🥜",essencial:false,rendimento:"20 unidades",tempo:"20 min",
+   ingredientes:[{n:"Amendoim torrado moído",q:"300g"},{n:"Açúcar",q:"150g"},{n:"Manteiga",q:"1 colher (sopa)"}],
+   modo:["Misture o amendoim moído com o açúcar e a manteiga derretida.","Aperte bem a mistura em forminhas pequenas.","Desenforme com cuidado — a paçoquinha é bem quebradiça."],
+   dicas:"Moa o amendoim ainda morno (recém torrado) — fica mais fácil de dar liga.",conservacao:"Até 2 semanas em pote bem fechado."},
+  {id:"r77",name:"Trufa de Café",category:"Docinhos",emoji:"☕",essencial:true,rendimento:"18 unidades",tempo:"30 min + 2h geladeira",
+   ingredientes:[{n:"Chocolate meio amargo picado",q:"200g"},{n:"Creme de leite",q:"100g"},{n:"Café solúvel",q:"1 colher (sopa)"},{n:"Chocolate meio amargo (casquinha)",q:"200g"}],
+   modo:["Derreta o chocolate com o creme de leite e o café.","Leve à geladeira por 2h.","Modele bolinhas e banhe na casquinha derretida."],
+   dicas:"Dissolva o café num pouquinho de água quente antes de misturar, fica mais uniforme.",conservacao:"7 dias na geladeira, em pote fechado."},
+  {id:"r78",name:"Bicho-de-Pé",category:"Docinhos",emoji:"🥥",essencial:false,rendimento:"18 unidades",tempo:"25 min",
+   ingredientes:[{n:"Leite condensado",q:"1 lata"},{n:"Amendoim moído",q:"80g"},{n:"Coco ralado",q:"80g"},{n:"Manteiga",q:"1 colher (sopa)"}],
+   modo:["Cozinhe o leite condensado com a manteiga, o amendoim e o coco até desgrudar da panela.","Deixe esfriar e enrole as bolinhas.","Passe em açúcar cristal ou coco extra."],
+   dicas:"Use metade amendoim, metade coco na cobertura pra decorar diferente cada bolinha.",conservacao:"5 dias em temperatura ambiente, em pote fechado."},
+  {id:"r79",name:"Recheio de Chocolate Branco com Morango",category:"Recheios",emoji:"🍓",essencial:true,rendimento:"Rende 1 bolo médio",tempo:"20 min",
+   ingredientes:[{n:"Chocolate branco picado",q:"150g"},{n:"Creme de leite",q:"1 caixa"},{n:"Morango picado",q:"150g"}],
+   modo:["Derreta o chocolate branco em banho-maria.","Misture o creme de leite aos poucos.","Junte o morango picado só na hora de rechear."],
+   dicas:"Adicione o morango por último e use logo — ele solta água com o tempo.",conservacao:"2 dias na geladeira."},
+  {id:"r80",name:"Recheio de Amendoim com Doce de Leite",category:"Recheios",emoji:"🥜",essencial:false,rendimento:"Rende 1 bolo médio",tempo:"15 min",
+   ingredientes:[{n:"Doce de leite",q:"1 lata"},{n:"Amendoim torrado picado",q:"1/2 xícara"},{n:"Creme de leite",q:"1 caixa"}],
+   modo:["Misture o doce de leite com o creme de leite.","Junte o amendoim picado, reservando um pouco pra decorar.","Use gelado."],
+   dicas:"Torre e pique o amendoim na hora — fica bem mais crocante.",conservacao:"4 dias na geladeira."},
+  {id:"r81",name:"Recheio de Ninho com Morango",category:"Recheios",emoji:"🍓",essencial:true,rendimento:"Rende 1 bolo médio",tempo:"15 min",
+   ingredientes:[{n:"Leite ninho",q:"1 xícara"},{n:"Leite condensado",q:"1/2 lata"},{n:"Creme de leite",q:"1 caixa"},{n:"Morango picado",q:"150g"}],
+   modo:["Misture o leite ninho, o leite condensado e o creme de leite.","Bata até ficar homogêneo.","Junte o morango picado só na hora de rechear."],
+   dicas:"Reserve metade do creme sem morango pra fazer camadas alternadas.",conservacao:"2 dias na geladeira."},
+  {id:"r82",name:"Recheio de Brigadeiro Preto Tradicional",category:"Recheios",emoji:"🍫",essencial:false,rendimento:"Rende 1 bolo médio",tempo:"20 min",
+   ingredientes:[{n:"Leite condensado",q:"1 lata"},{n:"Chocolate em pó 50%",q:"4 colheres (sopa)"},{n:"Manteiga",q:"1 colher (sopa)"},{n:"Creme de leite",q:"1 caixa"}],
+   modo:["Cozinhe o leite condensado, o chocolate e a manteiga até engrossar.","Deixe esfriar e misture o creme de leite.","Use gelado pra rechear."],
+   dicas:"Esse é o recheio clássico — vale ter sempre pronto, é o mais pedido.",conservacao:"4 dias na geladeira."},
+  {id:"r83",name:"Recheio de Abacaxi com Coco",category:"Recheios",emoji:"🍍",essencial:false,rendimento:"Rende 1 bolo médio",tempo:"25 min",
+   ingredientes:[{n:"Abacaxi picado",q:"1 xícara"},{n:"Açúcar",q:"1/2 xícara"},{n:"Coco ralado",q:"1/2 xícara"},{n:"Creme de leite",q:"1 caixa"}],
+   modo:["Cozinhe o abacaxi com o açúcar até reduzir e formar uma compota.","Deixe esfriar e misture o coco ralado e o creme de leite.","Use gelado."],
+   dicas:"Escorra bem o abacaxi depois de cozido, pra não ficar recheio aguado.",conservacao:"3 dias na geladeira."},
+  {id:"r84",name:"Cobertura de Chocolate Branco com Raspas",category:"Coberturas",emoji:"🤍",essencial:true,rendimento:"Cobre 1 bolo médio",tempo:"15 min",
+   ingredientes:[{n:"Chocolate branco picado",q:"200g"},{n:"Creme de leite",q:"80g"},{n:"Chocolate meio amargo (raspas)",q:"30g"}],
+   modo:["Derreta o chocolate branco com o creme de leite.","Deixe amornar até engrossar levemente.","Cubra o bolo e finalize com raspas de chocolate meio amargo."],
+   dicas:"As raspas escuras contrastando com o branco deixam a decoração bem elegante.",conservacao:"Até 4 dias fora da geladeira, coberta."},
+  {id:"r85",name:"Glacê de Limão",category:"Coberturas",emoji:"🍋",essencial:false,rendimento:"Cobre 1 bolo médio",tempo:"10 min",
+   ingredientes:[{n:"Açúcar de confeiteiro",q:"1 e 1/2 xícara"},{n:"Suco de limão",q:"3 colheres (sopa)"},{n:"Raspas de limão",q:"1 unidade"}],
+   modo:["Misture o açúcar de confeiteiro com o suco de limão aos poucos.","Ajuste a consistência com mais açúcar ou suco.","Finalize com as raspas por cima do bolo já coberto."],
+   dicas:"O glacê deve escorrer devagar da colher — se estiver muito líquido, adicione mais açúcar.",conservacao:"2 dias em temperatura ambiente, coberto."},
+  {id:"r86",name:"Cobertura de Doce de Leite",category:"Coberturas",emoji:"🍯",essencial:true,rendimento:"Cobre 1 bolo médio",tempo:"10 min",
+   ingredientes:[{n:"Doce de leite",q:"1 lata"},{n:"Creme de leite",q:"3 colheres (sopa)"}],
+   modo:["Misture o doce de leite com o creme de leite até ficar homogêneo e brilhante.","Ajuste a consistência conforme necessário.","Use em temperatura ambiente pra espalhar melhor."],
+   dicas:"Se ficar muito grosso, aqueça levemente no micro-ondas por 10 segundos.",conservacao:"Até 5 dias na geladeira."},
+  {id:"r87",name:"Chantilly de Chocolate",category:"Coberturas",emoji:"🍫",essencial:false,rendimento:"Cobre 1 bolo médio",tempo:"10 min",
+   ingredientes:[{n:"Creme de leite fresco gelado",q:"300ml"},{n:"Chocolate em pó",q:"3 colheres (sopa)"},{n:"Açúcar de confeiteiro",q:"2 colheres (sopa)"}],
+   modo:["Bata o creme de leite gelado até começar a firmar.","Adicione o chocolate em pó e o açúcar peneirados.","Continue batendo até dar ponto de chantilly."],
+   dicas:"Peneire bem o chocolate em pó pra não empelotar no chantilly.",conservacao:"Até 2 dias na geladeira, bem coberto."},
+  {id:"r88",name:"Cobertura Crocante de Amendoim",category:"Coberturas",emoji:"🥜",essencial:true,rendimento:"Cobre 1 bolo médio",tempo:"15 min",
+   ingredientes:[{n:"Amendoim torrado picado",q:"150g"},{n:"Açúcar",q:"1/2 xícara"},{n:"Água",q:"2 colheres (sopa)"}],
+   modo:["Derreta o açúcar com a água até dourar (caramelo).","Misture o amendoim picado rapidamente.","Despeje sobre papel manteiga, deixe esfriar e quebre em pedaços pra decorar o bolo."],
+   dicas:"Trabalhe rápido, o caramelo endurece em segundos fora do fogo.",conservacao:"Até 1 semana em pote fechado, fora da geladeira."},
+  {id:"r89",name:"Calda de Chocolate Meio Amargo",category:"Coberturas",emoji:"🍫",essencial:false,rendimento:"Cobre 1 bolo médio",tempo:"10 min",
+   ingredientes:[{n:"Chocolate meio amargo picado",q:"150g"},{n:"Água",q:"1/2 xícara"},{n:"Açúcar",q:"3 colheres (sopa)"}],
+   modo:["Ferva a água com o açúcar.","Retire do fogo e misture o chocolate picado até derreter.","Use morna, ela engrossa ao esfriar."],
+   dicas:"Ótima pra regar bolos simples e dar um efeito brilhante e molhadinho.",conservacao:"Até 5 dias na geladeira, aqueça antes de usar."},
+  {id:"r90",name:"Coxinha de Catupiry",category:"Salgados",emoji:"🍗",essencial:true,rendimento:"25 unidades",tempo:"1h30",
+   ingredientes:[{n:"Frango cozido desfiado",q:"400g"},{n:"Caldo do cozimento",q:"1 litro"},{n:"Farinha de trigo",q:"500g"},{n:"Catupiry",q:"250g"}],
+   modo:["Cozinhe a massa com o caldo e a farinha até desgrudar da panela.","Recheie o frango generosamente com catupiry.","Modele, empane e frite até dourar."],
+   dicas:"Capriche no catupiry — é o que faz essa versão se destacar da coxinha tradicional.",conservacao:"2 dias na geladeira antes de fritar."},
+  {id:"r91",name:"Pastel Assado de Carne",category:"Salgados",emoji:"🥟",essencial:false,rendimento:"20 unidades",tempo:"1h",
+   ingredientes:[{n:"Massa de pastel",q:"20 discos"},{n:"Carne moída refogada",q:"400g"},{n:"Cebola picada",q:"1 unidade"},{n:"Gema (pra pincelar)",q:"1 unidade"}],
+   modo:["Recheie os discos de massa com a carne já fria.","Feche as bordas com um garfo.","Pincele com gema e asse a 200°C por 25 min até dourar."],
+   dicas:"Deixe o recheio esfriar completamente antes de fechar — evita que a massa murche.",conservacao:"Até 2 dias na geladeira crus, ou congele."},
+  {id:"r92",name:"Bolinho de Bacalhau",category:"Salgados",emoji:"🐟",essencial:true,rendimento:"20 unidades",tempo:"1h",
+   ingredientes:[{n:"Bacalhau dessalgado desfiado",q:"300g"},{n:"Batata cozida amassada",q:"400g"},{n:"Ovo",q:"1 unidade"},{n:"Salsinha picada",q:"2 colheres (sopa)"}],
+   modo:["Misture o bacalhau desfiado com a batata amassada.","Junte o ovo e a salsinha.","Modele bolinhas com duas colheres e frite até dourar."],
+   dicas:"Dessalgue o bacalhau trocando a água pelo menos 3 vezes ao longo de 24h.",conservacao:"Até 2 dias na geladeira crus, ou congele."},
+  {id:"r93",name:"Folhado de Frango com Catupiry",category:"Salgados",emoji:"🥐",essencial:false,rendimento:"18 unidades",tempo:"50 min",
+   ingredientes:[{n:"Massa folhada",q:"2 placas"},{n:"Frango cozido desfiado",q:"300g"},{n:"Catupiry",q:"150g"},{n:"Gema (pra pincelar)",q:"1 unidade"}],
+   modo:["Misture o frango com o catupiry.","Corte a massa em quadrados, recheie e feche em triângulo.","Pincele com gema e asse a 200°C por 20 min."],
+   dicas:"Mantenha a massa folhada gelada até o último momento pra ela crescer bem no forno.",conservacao:"Até 2 dias na geladeira crus, ou congele."},
+  {id:"r94",name:"Rissole de Queijo",category:"Salgados",emoji:"🧀",essencial:true,rendimento:"25 unidades",tempo:"1h20",
+   ingredientes:[{n:"Leite",q:"500ml"},{n:"Farinha de trigo",q:"250g"},{n:"Manteiga",q:"1 colher (sopa)"},{n:"Queijo mussarela picado",q:"250g"},{n:"Farinha de rosca",q:"200g"}],
+   modo:["Cozinhe o leite, a farinha e a manteiga em fogo baixo até formar uma massa lisa.","Abra a massa fria, recheie com o queijo e feche em meia-lua.","Empane na farinha de rosca e frite até dourar."],
+   dicas:"Use queijo em cubos pequenos — derrete melhor por dentro sem vazar.",conservacao:"2 dias na geladeira antes de fritar."},
+  {id:"r95",name:"Torta de Ricota com Goiabada",category:"Tortas",emoji:"🍈",essencial:true,rendimento:"1 torta (14 fatias)",tempo:"1h",
+   ingredientes:[{n:"Massa podre",q:"1 disco"},{n:"Ricota amassada",q:"400g"},{n:"Goiabada em cubos",q:"200g"},{n:"Açúcar",q:"1/2 xícara"},{n:"Ovos",q:"2 unidades"}],
+   modo:["Forre a forma com a massa.","Misture a ricota, o açúcar e os ovos e espalhe sobre a massa.","Distribua os cubos de goiabada por cima e asse a 180°C por 40 min."],
+   dicas:"Use ricota fresca e bem amassada, sem grumos, pra um recheio mais liso.",conservacao:"Até 4 dias na geladeira."},
+  {id:"r96",name:"Torta Dois Amores",category:"Tortas",emoji:"⚫",essencial:false,rendimento:"1 torta (16 fatias)",tempo:"30 min + 4h geladeira",
+   ingredientes:[{n:"Biscoito triturado",q:"200g"},{n:"Manteiga",q:"80g"},{n:"Chocolate meio amargo",q:"150g"},{n:"Chocolate branco",q:"150g"},{n:"Creme de leite",q:"2 caixas"}],
+   modo:["Forre a forma com a base de biscoito.","Derreta os chocolates separadamente, cada um com uma caixa de creme de leite.","Despeje as duas camadas separadamente sobre a base e leve à geladeira por 4h."],
+   dicas:"Espere a primeira camada firmar um pouco antes de despejar a segunda, pra elas não se misturarem.",conservacao:"Até 5 dias na geladeira."},
+  {id:"r97",name:"Torta de Doce de Leite com Nozes",category:"Tortas",emoji:"🌰",essencial:true,rendimento:"1 torta (14 fatias)",tempo:"30 min + 3h geladeira",
+   ingredientes:[{n:"Biscoito triturado",q:"200g"},{n:"Manteiga",q:"80g"},{n:"Doce de leite",q:"1 lata"},{n:"Creme de leite",q:"1 caixa"},{n:"Nozes picadas",q:"1/2 xícara"}],
+   modo:["Forre a forma com a base de biscoito.","Misture o doce de leite com o creme de leite e despeje sobre a base.","Finalize com as nozes picadas e leve à geladeira por 3h."],
+   dicas:"Torre levemente as nozes antes de picar — realça bastante o sabor.",conservacao:"Até 4 dias na geladeira."},
+  {id:"r98",name:"Torta Salgada de Palmito",category:"Tortas",emoji:"🥬",essencial:false,rendimento:"1 torta (12 fatias)",tempo:"1h",
+   ingredientes:[{n:"Massa podre salgada",q:"2 discos"},{n:"Palmito picado",q:"300g"},{n:"Molho branco",q:"1 xícara"},{n:"Queijo ralado",q:"1/2 xícara"}],
+   modo:["Forre a forma com um disco de massa.","Misture o palmito com o molho branco e espalhe sobre a massa.","Cubra com o segundo disco, polvilhe queijo e asse a 200°C por 35 min."],
+   dicas:"Escorra bem o palmito antes de misturar, pra não deixar o recheio aguado.",conservacao:"Até 3 dias na geladeira."},
+  {id:"r99",name:"Torta de Frango com Catupiry",category:"Tortas",emoji:"🍗",essencial:true,rendimento:"1 torta (12 fatias)",tempo:"1h",
+   ingredientes:[{n:"Massa podre salgada",q:"2 discos"},{n:"Frango cozido desfiado",q:"400g"},{n:"Catupiry",q:"200g"},{n:"Milho",q:"1/2 xícara"}],
+   modo:["Forre a forma com um disco de massa.","Misture o frango, o catupiry e o milho e espalhe sobre a massa.","Cubra com o segundo disco e asse a 200°C por 35 min."],
+   dicas:"Reserve um pouco de catupiry pra pincelar por cima antes de assar — fica dourado e brilhante.",conservacao:"Até 3 dias na geladeira."},
+  {id:"r100",name:"Torta de Morango com Chantilly",category:"Tortas",emoji:"🍓",essencial:false,rendimento:"1 torta (16 fatias)",tempo:"30 min + 3h geladeira",
+   ingredientes:[{n:"Biscoito triturado",q:"200g"},{n:"Manteiga",q:"80g"},{n:"Creme de confeiteiro",q:"1 receita"},{n:"Morango fatiado",q:"300g"},{n:"Chantilly",q:"200g"}],
+   modo:["Forre a forma com a base de biscoito.","Espalhe o creme de confeiteiro já frio sobre a base.","Cubra com morangos fatiados e finalize com chantilly. Leve à geladeira por 3h."],
+   dicas:"Pincele os morangos com um pouco de geleia pra dar brilho e evitar que oxidem.",conservacao:"Até 2 dias na geladeira, consumir logo pelo morango fresco."},
+  {id:"r101",name:"Bolo de Chocolate com Avelã",category:"Bolos",emoji:"🌰",essencial:false,rendimento:"1 bolo (12 fatias)",tempo:"50 min",
+   ingredientes:[{n:"Farinha de trigo",q:"2 xícaras"},{n:"Chocolate em pó",q:"1/2 xícara"},{n:"Creme de avelã",q:"3 colheres (sopa)"},{n:"Açúcar",q:"1 e 1/2 xícara"},{n:"Ovos",q:"3 unidades"},{n:"Óleo",q:"1/2 xícara"}],
+   modo:["Misture os secos.","Junte os ovos, o óleo e o creme de avelã.","Asse a 180°C por 40 min."],
+   dicas:"Use o creme de avelã também pra cobrir o bolo depois de assado.",conservacao:"Até 4 dias em pote fechado, fora da geladeira."},
+  {id:"r102",name:"Bolo de Maçã com Canela",category:"Bolos",emoji:"🍎",essencial:false,rendimento:"1 bolo (12 fatias)",tempo:"55 min",
+   ingredientes:[{n:"Maçã picada",q:"3 unidades"},{n:"Farinha de trigo",q:"2 xícaras"},{n:"Açúcar",q:"1 e 1/2 xícara"},{n:"Canela em pó",q:"1 colher (chá)"},{n:"Ovos",q:"3 unidades"},{n:"Óleo",q:"1/2 xícara"}],
+   modo:["Misture os líquidos e ovos.","Junte os secos e a canela.","Incorpore a maçã picada e asse a 180°C por 45 min."],
+   dicas:"Deixe pedaços de maçã visíveis na massa — dá umidade e textura.",conservacao:"Até 4 dias na geladeira."},
+  {id:"r103",name:"Bolo Vulcão de Doce de Leite",category:"Bolos",emoji:"🌋",essencial:false,rendimento:"6 unidades individuais",tempo:"30 min",
+   ingredientes:[{n:"Farinha de trigo",q:"1 xícara"},{n:"Açúcar",q:"1/2 xícara"},{n:"Ovos",q:"2 unidades"},{n:"Manteiga derretida",q:"80g"},{n:"Doce de leite",q:"6 colheres (sopa)"}],
+   modo:["Misture a massa base e divida em forminhas.","Adicione uma colher de doce de leite no centro de cada uma.","Asse a 200°C por 12 min — o centro deve ficar cremoso."],
+   dicas:"Sirva morno, é quando o centro cremoso fica no ponto certo.",conservacao:"Sirva na hora — não é receita pra guardar."},
+  {id:"r104",name:"Bolo de Cenoura com Doce de Leite",category:"Bolos",emoji:"🥕",essencial:false,rendimento:"1 bolo (12 fatias)",tempo:"50 min",
+   ingredientes:[{n:"Cenoura média",q:"3 unidades"},{n:"Ovos",q:"3 unidades"},{n:"Óleo",q:"1 xícara"},{n:"Açúcar",q:"2 xícaras"},{n:"Farinha de trigo",q:"2 xícaras"},{n:"Doce de leite",q:"1/2 lata"}],
+   modo:["Bata a cenoura, os ovos e o óleo no liquidificador.","Misture aos secos e asse a 180°C por 40 min.","Cubra com o doce de leite ainda morno."],
+   dicas:"Fure o bolo antes de cobrir pra o doce de leite penetrar melhor.",conservacao:"Até 4 dias na geladeira."},
+  {id:"r105",name:"Bolo Gelado de Coco",category:"Bolos",emoji:"🥥",essencial:false,rendimento:"1 bolo (14 fatias)",tempo:"1h + 4h geladeira",
+   ingredientes:[{n:"Massa branca (1 disco)",q:"1 unidade"},{n:"Leite condensado",q:"1 lata"},{n:"Leite de coco",q:"1 lata"},{n:"Leite",q:"1 xícara"},{n:"Coco ralado",q:"1 xícara"}],
+   modo:["Fure a massa assada e regue com a mistura de leites.","Deixe absorver na geladeira por 2h.","Cubra com chantilly e coco ralado e volte à geladeira por mais 2h."],
+   dicas:"A massa precisa estar bem furada pra absorver toda a calda.",conservacao:"Até 3 dias na geladeira."},
+  {id:"r106",name:"Bolo de Chocolate com Cereja",category:"Bolos",emoji:"🍒",essencial:false,rendimento:"1 bolo (12 fatias)",tempo:"55 min",
+   ingredientes:[{n:"Farinha de trigo",q:"2 xícaras"},{n:"Chocolate em pó",q:"1/2 xícara"},{n:"Cereja em calda picada",q:"1/2 xícara"},{n:"Açúcar",q:"1 e 1/2 xícara"},{n:"Ovos",q:"3 unidades"},{n:"Óleo",q:"1/2 xícara"}],
+   modo:["Misture os secos.","Junte os ovos, o óleo e incorpore as cerejas picadas.","Asse a 180°C por 40 min."],
+   dicas:"Escorra bem a calda das cerejas antes de picar, pra não deixar a massa pesada.",conservacao:"Até 4 dias na geladeira."},
+  {id:"r107",name:"Bolo de Iogurte com Frutas Vermelhas",category:"Bolos",emoji:"🫐",essencial:false,rendimento:"1 bolo (12 fatias)",tempo:"50 min",
+   ingredientes:[{n:"Iogurte natural",q:"1 pote"},{n:"Frutas vermelhas",q:"1 xícara"},{n:"Farinha de trigo",q:"2 xícaras"},{n:"Açúcar",q:"1 e 1/2 xícara"},{n:"Ovos",q:"3 unidades"},{n:"Óleo",q:"1/2 xícara"}],
+   modo:["Bata o iogurte, os ovos, o óleo e o açúcar.","Junte a farinha e incorpore as frutas delicadamente.","Asse a 180°C por 40 min."],
+   dicas:"Passe as frutas numa colher de farinha antes de incorporar — evita que afundem na massa.",conservacao:"Até 3 dias na geladeira."},
+  {id:"r108",name:"Bolo de Chocolate com Menta",category:"Bolos",emoji:"🌿",essencial:false,rendimento:"1 bolo (12 fatias)",tempo:"50 min",
+   ingredientes:[{n:"Farinha de trigo",q:"2 xícaras"},{n:"Chocolate em pó",q:"1/2 xícara"},{n:"Essência de menta",q:"1/2 colher (chá)"},{n:"Açúcar",q:"1 e 1/2 xícara"},{n:"Ovos",q:"3 unidades"},{n:"Óleo",q:"1/2 xícara"}],
+   modo:["Misture os secos.","Junte os ovos, o óleo e a essência de menta.","Asse a 180°C por 40 min e cubra com ganache."],
+   dicas:"Use a essência com moderação — menta demais deixa a massa amarga.",conservacao:"Até 4 dias na geladeira."},
+  {id:"r109",name:"Bolo de Limão Siciliano",category:"Bolos",emoji:"🍋",essencial:false,rendimento:"1 bolo (12 fatias)",tempo:"45 min",
+   ingredientes:[{n:"Suco de limão siciliano",q:"1/2 xícara"},{n:"Raspas de limão siciliano",q:"1 unidade"},{n:"Farinha de trigo",q:"2 xícaras"},{n:"Açúcar",q:"1 e 1/2 xícara"},{n:"Ovos",q:"3 unidades"},{n:"Óleo",q:"1/2 xícara"}],
+   modo:["Bata o suco, as raspas, os ovos e o óleo.","Misture aos secos.","Asse a 180°C por 35 min e finalize com glacê de limão."],
+   dicas:"O limão siciliano é mais adocicado que o comum — ajuste o açúcar se usar o comum.",conservacao:"Até 4 dias na geladeira."},
+  {id:"r110",name:"Beijinho de Chocolate Branco",category:"Docinhos",emoji:"🤍",essencial:false,rendimento:"18 unidades",tempo:"25 min",
+   ingredientes:[{n:"Leite condensado",q:"1 lata"},{n:"Chocolate branco picado",q:"100g"},{n:"Manteiga",q:"1 colher (sopa)"},{n:"Coco ralado",q:"a gosto"}],
+   modo:["Cozinhe o leite condensado, o chocolate branco e a manteiga até desgrudar da panela.","Deixe esfriar e enrole as bolinhas.","Passe no coco ralado."],
+   dicas:"Pique bem o chocolate branco pra derreter uniformemente.",conservacao:"5 dias na geladeira, em pote fechado."},
+  {id:"r111",name:"Brigadeiro de Paçoca",category:"Docinhos",emoji:"🥜",essencial:false,rendimento:"18 unidades",tempo:"20 min",
+   ingredientes:[{n:"Leite condensado",q:"1 lata"},{n:"Paçoca triturada",q:"3 unidades"},{n:"Manteiga",q:"1 colher (sopa)"}],
+   modo:["Cozinhe o leite condensado, a paçoca e a manteiga até desgrudar da panela.","Deixe esfriar e enrole as bolinhas.","Passe em paçoca triturada extra."],
+   dicas:"Triture a paçoca fininha pra incorporar melhor na massa.",conservacao:"5 dias em temperatura ambiente, em pote fechado."},
+  {id:"r112",name:"Doce de Leite Enrolado",category:"Docinhos",emoji:"🍬",essencial:false,rendimento:"20 unidades",tempo:"25 min",
+   ingredientes:[{n:"Doce de leite firme",q:"1 lata"},{n:"Açúcar cristal",q:"a gosto"},{n:"Canela em pó",q:"1 pitada"}],
+   modo:["Deixe o doce de leite bem gelado pra facilitar o manuseio.","Enrole pequenas porções em formato de bala.","Passe em açúcar cristal com canela."],
+   dicas:"Use doce de leite tipo 'de corte', mais firme que o de colher.",conservacao:"Até 2 semanas em pote fechado."},
+  {id:"r113",name:"Trufa de Morango",category:"Docinhos",emoji:"🍓",essencial:false,rendimento:"18 unidades",tempo:"30 min + 2h geladeira",
+   ingredientes:[{n:"Chocolate branco picado",q:"200g"},{n:"Creme de leite",q:"80g"},{n:"Polpa de morango",q:"2 colheres (sopa)"},{n:"Chocolate branco (casquinha)",q:"200g"}],
+   modo:["Derreta o chocolate branco com o creme de leite.","Misture a polpa de morango e leve à geladeira por 2h.","Modele bolinhas e banhe na casquinha."],
+   dicas:"Use polpa concentrada, não morango in natura, pra não aguar o ganache.",conservacao:"7 dias na geladeira, em pote fechado."},
+  {id:"r114",name:"Amendoim Coberto de Chocolate",category:"Docinhos",emoji:"🥜",essencial:false,rendimento:"25 unidades",tempo:"20 min",
+   ingredientes:[{n:"Amendoim torrado",q:"200g"},{n:"Chocolate meio amargo picado",q:"200g"}],
+   modo:["Derreta o chocolate em banho-maria.","Misture o amendoim até cobrir bem todos os grãos.","Espalhe em colheradas sobre papel manteiga e deixe firmar."],
+   dicas:"Deixe firmar em local fresco, não na geladeira, pra o chocolate não perder o brilho.",conservacao:"Até 2 semanas em pote fechado, fora da geladeira."},
+  {id:"r115",name:"Beijinho Gourmet de Limão com Manjericão",category:"Docinhos",emoji:"🌿",essencial:false,rendimento:"18 unidades",tempo:"25 min",
+   ingredientes:[{n:"Leite condensado",q:"1 lata"},{n:"Coco ralado",q:"80g"},{n:"Raspas de limão",q:"1 unidade"},{n:"Manjericão picado bem fino",q:"1 colher (chá)"}],
+   modo:["Cozinhe o leite condensado e o coco até desgrudar da panela.","Misture as raspas de limão e o manjericão no final.","Deixe esfriar e enrole as bolinhas."],
+   dicas:"Use manjericão bem fresco e pique na hora — é sutil, mas faz diferença.",conservacao:"5 dias na geladeira, em pote fechado."},
+  {id:"r116",name:"Brigadeiro de Maracujá",category:"Docinhos",emoji:"🍈",essencial:false,rendimento:"18 unidades",tempo:"25 min",
+   ingredientes:[{n:"Leite condensado",q:"1 lata"},{n:"Polpa de maracujá",q:"3 colheres (sopa)"},{n:"Manteiga",q:"1 colher (sopa)"}],
+   modo:["Cozinhe o leite condensado, a polpa e a manteiga até desgrudar da panela.","Deixe esfriar e enrole as bolinhas.","Passe em açúcar cristal."],
+   dicas:"Coe a polpa de maracujá se não quiser sementes na massa.",conservacao:"5 dias na geladeira, em pote fechado."},
+  {id:"r117",name:"Doce de Coco com Ameixa",category:"Docinhos",emoji:"🥥",essencial:false,rendimento:"18 unidades",tempo:"25 min",
+   ingredientes:[{n:"Coco ralado",q:"200g"},{n:"Leite condensado",q:"1 lata"},{n:"Ameixa seca picada",q:"80g"}],
+   modo:["Cozinhe o coco e o leite condensado até engrossar.","Misture a ameixa picada no final.","Despeje numa travessa e corte em quadrados depois de frio."],
+   dicas:"Pique a ameixa bem miúda pra distribuir melhor no doce.",conservacao:"Até 6 dias na geladeira."},
+  {id:"r118",name:"Recheio de Nutella com Morango",category:"Recheios",emoji:"🍓",essencial:false,rendimento:"Rende 1 bolo médio",tempo:"15 min",
+   ingredientes:[{n:"Nutella",q:"4 colheres (sopa)"},{n:"Creme de leite",q:"1 caixa"},{n:"Morango picado",q:"150g"}],
+   modo:["Misture a Nutella com o creme de leite até ficar homogêneo.","Junte o morango picado só na hora de rechear.","Use gelado."],
+   dicas:"Aqueça levemente a Nutella antes de misturar, facilita incorporar ao creme.",conservacao:"2 dias na geladeira."},
+  {id:"r119",name:"Recheio de Doce de Leite com Coco",category:"Recheios",emoji:"🥥",essencial:false,rendimento:"Rende 1 bolo médio",tempo:"15 min",
+   ingredientes:[{n:"Doce de leite",q:"1 lata"},{n:"Coco ralado",q:"1/2 xícara"},{n:"Creme de leite",q:"1 caixa"}],
+   modo:["Misture o doce de leite com o creme de leite.","Junte o coco ralado, reservando um pouco pra decorar.","Use gelado."],
+   dicas:"Toste levemente o coco reservado pra decorar — fica mais bonito e saboroso.",conservacao:"4 dias na geladeira."},
+  {id:"r120",name:"Recheio de Chocolate com Laranja",category:"Recheios",emoji:"🍊",essencial:false,rendimento:"Rende 1 bolo médio",tempo:"20 min",
+   ingredientes:[{n:"Chocolate meio amargo",q:"150g"},{n:"Creme de leite",q:"1 caixa"},{n:"Raspas de laranja",q:"1 unidade"}],
+   modo:["Derreta o chocolate em banho-maria.","Misture as raspas de laranja.","Junte o creme de leite aos poucos até ficar liso."],
+   dicas:"A combinação chocolate e laranja é clássica — não exagere nas raspas pra não amargar.",conservacao:"4 dias na geladeira."},
+  {id:"r121",name:"Recheio de Banana com Doce de Leite",category:"Recheios",emoji:"🍌",essencial:false,rendimento:"Rende 1 bolo médio",tempo:"15 min",
+   ingredientes:[{n:"Banana fatiada",q:"3 unidades"},{n:"Doce de leite",q:"1 lata"},{n:"Canela em pó",q:"1 pitada"}],
+   modo:["Misture o doce de leite com a canela.","Intercale camadas de banana fatiada com o doce de leite na montagem.","Use na hora pra manter a banana firme."],
+   dicas:"Passe as bananas num pouco de limão pra não escurecerem antes de montar.",conservacao:"Até 1 dia na geladeira, pela banana fresca."},
+  {id:"r122",name:"Recheio de Morango com Nutella",category:"Recheios",emoji:"🍓",essencial:false,rendimento:"Rende 1 bolo médio",tempo:"15 min",
+   ingredientes:[{n:"Morango picado",q:"200g"},{n:"Nutella",q:"3 colheres (sopa)"},{n:"Creme de leite",q:"1 caixa"}],
+   modo:["Bata o creme de leite gelado até engrossar.","Misture a Nutella delicadamente.","Junte o morango picado por último."],
+   dicas:"Faça camadas alternadas em vez de misturar tudo — fica mais bonito ao cortar o bolo.",conservacao:"2 dias na geladeira."},
+  {id:"r123",name:"Recheio de Doce de Abóbora com Coco",category:"Recheios",emoji:"🎃",essencial:false,rendimento:"Rende 1 bolo médio",tempo:"30 min",
+   ingredientes:[{n:"Abóbora cozida amassada",q:"300g"},{n:"Açúcar",q:"1/2 xícara"},{n:"Coco ralado",q:"1/2 xícara"},{n:"Cravo",q:"2 unidades"}],
+   modo:["Cozinhe a abóbora com o açúcar e o cravo até formar uma compota.","Retire o cravo e misture o coco ralado.","Deixe esfriar antes de rechear."],
+   dicas:"Escorra bem a abóbora cozida antes de amassar, pra não ficar recheio aguado.",conservacao:"4 dias na geladeira."},
+  {id:"r124",name:"Recheio Trufado de Chocolate",category:"Recheios",emoji:"🍫",essencial:false,rendimento:"Rende 1 bolo médio",tempo:"20 min",
+   ingredientes:[{n:"Chocolate meio amargo",q:"200g"},{n:"Creme de leite",q:"150g"},{n:"Manteiga",q:"1 colher (sopa)"}],
+   modo:["Derreta o chocolate em banho-maria.","Misture o creme de leite e a manteiga aos poucos.","Deixe esfriar até dar ponto de recheio (nem muito mole, nem muito duro)."],
+   dicas:"Se ficar mole demais, leve à geladeira por 15 min antes de usar.",conservacao:"5 dias na geladeira."},
+  {id:"r125",name:"Cobertura de Limão Cristalizado",category:"Coberturas",emoji:"🍋",essencial:false,rendimento:"Cobre 1 bolo médio",tempo:"15 min",
+   ingredientes:[{n:"Açúcar de confeiteiro",q:"1 e 1/2 xícara"},{n:"Suco de limão",q:"3 colheres (sopa)"},{n:"Limão fatiado fino (pra decorar)",q:"1 unidade"}],
+   modo:["Misture o açúcar com o suco de limão até formar um glacê.","Cubra o bolo ainda morno.","Decore com fatias finas de limão cristalizado."],
+   dicas:"Pra cristalizar o limão, fatie fino e cozinhe em calda de açúcar por 10 min.",conservacao:"2 dias em temperatura ambiente, coberto."},
+  {id:"r126",name:"Ganache de Chocolate ao Leite",category:"Coberturas",emoji:"🍫",essencial:false,rendimento:"Cobre 1 bolo médio",tempo:"10 min + 2h descanso",
+   ingredientes:[{n:"Chocolate ao leite picado",q:"250g"},{n:"Creme de leite",q:"100g"}],
+   modo:["Derreta o chocolate em banho-maria.","Misture o creme de leite ainda morno.","Deixe descansar até engrossar antes de usar."],
+   dicas:"Chocolate ao leite é mais doce — reduza o açúcar da massa se quiser equilibrar.",conservacao:"Até 4 dias fora da geladeira, coberta."},
+  {id:"r127",name:"Cobertura de Frutas Vermelhas",category:"Coberturas",emoji:"🫐",essencial:false,rendimento:"Cobre 1 bolo médio",tempo:"15 min",
+   ingredientes:[{n:"Frutas vermelhas variadas",q:"250g"},{n:"Açúcar",q:"1/3 xícara"},{n:"Suco de limão",q:"1 colher (chá)"}],
+   modo:["Bata as frutas com o açúcar.","Leve ao fogo baixo até reduzir e engrossar.","Junte o limão e deixe esfriar antes de usar."],
+   dicas:"Misture frutas diferentes (morango, amora, framboesa) pra uma cor mais vibrante.",conservacao:"5 dias na geladeira, em pote fechado."},
+  {id:"r128",name:"Chantilly de Morango",category:"Coberturas",emoji:"🍓",essencial:false,rendimento:"Cobre 1 bolo médio",tempo:"15 min",
+   ingredientes:[{n:"Creme de leite fresco gelado",q:"300ml"},{n:"Morango",q:"100g"},{n:"Açúcar de confeiteiro",q:"3 colheres (sopa)"}],
+   modo:["Bata os morangos com metade do açúcar até formar um purê.","Bata o creme de leite gelado com o restante do açúcar até dar ponto.","Misture delicadamente o purê de morango ao chantilly."],
+   dicas:"Use morangos bem maduros pra um sabor mais doce e cor mais viva.",conservacao:"Até 1 dia na geladeira, consumir logo."},
+  {id:"r129",name:"Cobertura Real de Chocolate Meio Amargo",category:"Coberturas",emoji:"🖤",essencial:false,rendimento:"Cobre 1 bolo médio",tempo:"10 min",
+   ingredientes:[{n:"Chocolate meio amargo",q:"250g"},{n:"Manteiga",q:"2 colheres (sopa)"}],
+   modo:["Derreta o chocolate com a manteiga em banho-maria.","Mexa até ficar completamente liso e brilhante.","Use ainda morno para um acabamento espelhado."],
+   dicas:"Nunca deixe água entrar em contato com o chocolate — ele empedra na hora.",conservacao:"Até 5 dias fora da geladeira, coberta."},
+  {id:"r130",name:"Cobertura de Café",category:"Coberturas",emoji:"☕",essencial:false,rendimento:"Cobre 1 bolo médio",tempo:"10 min",
+   ingredientes:[{n:"Açúcar de confeiteiro",q:"1 e 1/2 xícara"},{n:"Café expresso forte e frio",q:"3 colheres (sopa)"}],
+   modo:["Misture o açúcar de confeiteiro com o café aos poucos.","Ajuste a consistência com mais café ou açúcar.","Cubra o bolo já frio."],
+   dicas:"Café coado fica mais elegante que solúvel nessa cobertura.",conservacao:"2 dias em temperatura ambiente, coberto."},
+  {id:"r131",name:"Empada de Frango",category:"Salgados",emoji:"🍗",essencial:false,rendimento:"20 unidades",tempo:"1h",
+   ingredientes:[{n:"Farinha de trigo",q:"400g"},{n:"Manteiga gelada",q:"200g"},{n:"Frango cozido desfiado",q:"300g"},{n:"Molho branco",q:"1 xícara"}],
+   modo:["Misture a farinha com a manteiga até formar farofa e junte água gelada.","Forre as forminhas e recheie com o frango no molho branco.","Cubra com a massa e asse a 200°C por 25 min."],
+   dicas:"Descanse a massa na geladeira por 20 min antes de abrir.",conservacao:"Até 3 dias na geladeira, ou congele antes de assar."},
+  {id:"r132",name:"Coxinha de Costela com Catupiry",category:"Salgados",emoji:"🍖",essencial:false,rendimento:"22 unidades",tempo:"1h40",
+   ingredientes:[{n:"Costela cozida desfiada",q:"400g"},{n:"Caldo do cozimento",q:"1 litro"},{n:"Farinha de trigo",q:"500g"},{n:"Catupiry",q:"200g"}],
+   modo:["Cozinhe a massa com o caldo e a farinha até desgrudar da panela.","Recheie a costela desfiada com catupiry.","Modele, empane e frite até dourar."],
+   dicas:"Tempere bem o caldo do cozimento da costela — ele vira a base de sabor da massa.",conservacao:"2 dias na geladeira antes de fritar."},
+  {id:"r133",name:"Pastel de Queijo Frito",category:"Salgados",emoji:"🧀",essencial:false,rendimento:"20 unidades",tempo:"1h",
+   ingredientes:[{n:"Massa de pastel",q:"20 discos"},{n:"Queijo mussarela em tiras",q:"300g"},{n:"Orégano",q:"a gosto"}],
+   modo:["Recheie os discos com tiras de queijo e orégano.","Feche bem as bordas com um garfo.","Frite em óleo quente até dourar."],
+   dicas:"Não recheie demais — o queijo derretido pode vazar e abrir o pastel.",conservacao:"Até 2 dias na geladeira crus, ou congele."},
+  {id:"r134",name:"Esfirra Aberta de Carne",category:"Salgados",emoji:"🫓",essencial:false,rendimento:"20 unidades",tempo:"1h30",
+   ingredientes:[{n:"Farinha de trigo",q:"500g"},{n:"Fermento biológico",q:"10g"},{n:"Carne moída temperada",q:"400g"},{n:"Tomate picado",q:"1 unidade"},{n:"Limão",q:"1 unidade"}],
+   modo:["Prepare a massa e deixe descansar até dobrar de volume.","Abra discos pequenos e recheie com a carne temperada.","Asse a 220°C por 15 min e finalize com um fio de limão."],
+   dicas:"Tempere a carne crua com bastante limão e cebola — é o que dá o sabor característico.",conservacao:"Até 2 dias na geladeira crua, ou congele."},
+  {id:"r135",name:"Bolinha de Feijoada",category:"Salgados",emoji:"🍖",essencial:false,rendimento:"25 unidades",tempo:"1h",
+   ingredientes:[{n:"Feijoada pronta escorrida",q:"400g"},{n:"Farinha de mandioca",q:"1/2 xícara"},{n:"Ovo",q:"1 unidade"},{n:"Farinha de rosca",q:"200g"}],
+   modo:["Bata a feijoada escorrida até formar uma pasta.","Misture a farinha de mandioca até dar liga.","Modele bolinhas, passe no ovo e na farinha de rosca e frite."],
+   dicas:"Escorra bem a feijoada — o excesso de líquido impede a massa de dar liga.",conservacao:"Até 2 dias na geladeira cruas, ou congele."},
+  {id:"r136",name:"Torta de Chocolate com Café",category:"Tortas",emoji:"☕",essencial:false,rendimento:"1 torta (16 fatias)",tempo:"30 min + 4h geladeira",
+   ingredientes:[{n:"Biscoito triturado",q:"200g"},{n:"Manteiga",q:"80g"},{n:"Chocolate meio amargo",q:"200g"},{n:"Creme de leite",q:"2 caixas"},{n:"Café expresso forte",q:"2 colheres (sopa)"}],
+   modo:["Forre a forma com a base de biscoito.","Derreta o chocolate com uma caixa de creme de leite e o café.","Despeje sobre a base e cubra com a segunda caixa de creme batida. Leve à geladeira por 4h."],
+   dicas:"O café realça o chocolate sem deixar gosto de café forte na torta.",conservacao:"Até 5 dias na geladeira."},
+  {id:"r137",name:"Torta Mousse de Chocolate Branco",category:"Tortas",emoji:"🤍",essencial:false,rendimento:"1 torta (16 fatias)",tempo:"30 min + 4h geladeira",
+   ingredientes:[{n:"Biscoito triturado",q:"200g"},{n:"Manteiga",q:"80g"},{n:"Chocolate branco",q:"250g"},{n:"Creme de leite",q:"2 caixas"},{n:"Gelatina incolor",q:"1 envelope"}],
+   modo:["Forre a forma com a base de biscoito.","Derreta o chocolate branco com uma caixa de creme de leite.","Adicione a gelatina hidratada, despeje sobre a base e leve à geladeira por 4h."],
+   dicas:"Decore com raspas de chocolate meio amargo pra dar contraste visual.",conservacao:"Até 4 dias na geladeira."},
+  {id:"r138",name:"Cheesecake de Doce de Leite",category:"Tortas",emoji:"🍯",essencial:false,rendimento:"1 torta (14 fatias)",tempo:"40 min + 4h geladeira",
+   ingredientes:[{n:"Biscoito triturado",q:"200g"},{n:"Manteiga",q:"80g"},{n:"Cream cheese",q:"400g"},{n:"Doce de leite",q:"1 lata"}],
+   modo:["Misture o biscoito com a manteiga e forre o fundo da forma.","Bata o cream cheese com metade do doce de leite até ficar liso.","Despeje sobre a base, finalize com o restante do doce de leite por cima e leve à geladeira por 4h."],
+   dicas:"Use cream cheese em temperatura ambiente pra bater sem grumos.",conservacao:"Até 4 dias na geladeira."},
+  {id:"r139",name:"Torta de Amendoim com Chocolate",category:"Tortas",emoji:"🥜",essencial:false,rendimento:"1 torta (14 fatias)",tempo:"30 min + 4h geladeira",
+   ingredientes:[{n:"Biscoito triturado",q:"200g"},{n:"Manteiga",q:"80g"},{n:"Pasta de amendoim",q:"200g"},{n:"Creme de leite",q:"2 caixas"},{n:"Chocolate meio amargo",q:"100g"}],
+   modo:["Forre a forma com a base de biscoito.","Misture a pasta de amendoim com uma caixa de creme de leite e despeje sobre a base.","Cubra com ganache (chocolate derretido com a outra caixa de creme) e leve à geladeira por 4h."],
+   dicas:"Use pasta de amendoim sem açúcar pra controlar melhor o doce final.",conservacao:"Até 4 dias na geladeira."},
+  {id:"r140",name:"Torta Salgada de Legumes",category:"Tortas",emoji:"🥦",essencial:false,rendimento:"1 torta (12 fatias)",tempo:"1h",
+   ingredientes:[{n:"Massa podre salgada",q:"2 discos"},{n:"Legumes variados picados",q:"400g"},{n:"Requeijão",q:"3 colheres (sopa)"},{n:"Queijo ralado",q:"1/2 xícara"}],
+   modo:["Refogue os legumes até ficarem macios.","Misture o requeijão e espalhe sobre um disco de massa na forma.","Cubra com o segundo disco, polvilhe queijo e asse a 200°C por 35 min."],
+   dicas:"Escorra bem os legumes refogados pra torta não ficar aguada.",conservacao:"Até 3 dias na geladeira."},
+  {id:"r141",name:"Torta de Nozes com Doce de Leite",category:"Tortas",emoji:"🌰",essencial:false,rendimento:"1 torta (14 fatias)",tempo:"50 min",
+   ingredientes:[{n:"Massa podre",q:"1 disco"},{n:"Nozes picadas",q:"150g"},{n:"Doce de leite",q:"1 lata"},{n:"Ovos",q:"2 unidades"}],
+   modo:["Forre a forma com a massa.","Misture as nozes, o doce de leite e os ovos.","Despeje sobre a massa e asse a 180°C por 35 min."],
+   dicas:"Reserve nozes inteiras pra decorar por cima antes de assar.",conservacao:"Até 5 dias na geladeira."},
+  {id:"r142",name:"Torta Holandesa de Morango",category:"Tortas",emoji:"🍓",essencial:false,rendimento:"1 torta (16 fatias)",tempo:"30 min + 4h geladeira",
+   ingredientes:[{n:"Biscoito triturado",q:"200g"},{n:"Manteiga",q:"80g"},{n:"Leite condensado",q:"1 lata"},{n:"Chocolate meio amargo",q:"150g"},{n:"Creme de leite",q:"2 caixas"},{n:"Morango picado",q:"150g"}],
+   modo:["Misture o biscoito com a manteiga e forre o fundo.","Derreta o chocolate com o leite condensado e uma caixa de creme de leite, despeje sobre a base.","Cubra com a segunda caixa de creme batida e o morango picado. Leve à geladeira por 4h."],
+   dicas:"Adicione o morango só na camada de cima, pra manter a cor viva.",conservacao:"Até 3 dias na geladeira."},
+  {id:"r143",name:"Torta Fina de Chocolate",category:"Tortas",emoji:"🍫",essencial:false,rendimento:"1 torta (14 fatias)",tempo:"40 min",
+   ingredientes:[{n:"Massa podre",q:"1 disco"},{n:"Chocolate meio amargo",q:"200g"},{n:"Creme de leite",q:"1 caixa"},{n:"Ovos",q:"2 unidades"}],
+   modo:["Forre a forma com a massa e pré-asse por 10 min.","Derreta o chocolate com o creme de leite e misture os ovos.","Despeje sobre a massa pré-assada e volte ao forno a 180°C por 20 min."],
+   dicas:"O centro deve ficar levemente mole ao sair do forno — ele firma esfriando.",conservacao:"Até 4 dias na geladeira."},
+  {id:"r144",name:"Torta de Frango com Milho",category:"Tortas",emoji:"🌽",essencial:false,rendimento:"1 torta (12 fatias)",tempo:"1h",
+   ingredientes:[{n:"Massa podre salgada",q:"2 discos"},{n:"Frango cozido desfiado",q:"400g"},{n:"Milho",q:"1 xícara"},{n:"Requeijão",q:"3 colheres (sopa)"}],
+   modo:["Forre a forma com um disco de massa.","Misture o frango, o milho e o requeijão e espalhe sobre a massa.","Cubra com o segundo disco e asse a 200°C por 35 min."],
+   dicas:"Reserve um pouco de milho pra polvilhar por cima antes de assar.",conservacao:"Até 3 dias na geladeira."},
+  {id:"r145",name:"Torta Marta Rocha",category:"Tortas",emoji:"🍨",essencial:false,rendimento:"1 torta (16 fatias)",tempo:"30 min + 4h geladeira",
+   ingredientes:[{n:"Biscoito champanhe",q:"200g"},{n:"Leite",q:"1 xícara"},{n:"Creme de baunilha",q:"1 caixa"},{n:"Abacaxi em calda picado",q:"200g"},{n:"Chantilly",q:"200g"}],
+   modo:["Molhe os biscoitos no leite e forre o fundo da travessa.","Alterne camadas de biscoito, creme e abacaxi picado.","Finalize com chantilly e leve à geladeira por 4h."],
+   dicas:"Escorra bem o abacaxi da calda antes de picar, pra não aguar as camadas.",conservacao:"Até 3 dias na geladeira."},
+  {id:"r146",name:"Torta de Chocolate com Pistache",category:"Tortas",emoji:"💚",essencial:false,rendimento:"1 torta (14 fatias)",tempo:"30 min + 4h geladeira",
+   ingredientes:[{n:"Biscoito triturado",q:"200g"},{n:"Manteiga",q:"80g"},{n:"Chocolate meio amargo",q:"200g"},{n:"Creme de leite",q:"2 caixas"},{n:"Pistache picado",q:"50g"}],
+   modo:["Forre a forma com a base de biscoito.","Derreta o chocolate com uma caixa de creme de leite e despeje sobre a base.","Cubra com a segunda caixa batida, finalize com pistache picado e leve à geladeira por 4h."],
+   dicas:"Reserve o pistache pra decorar só na hora de servir — mantém o crocante.",conservacao:"Até 4 dias na geladeira."},
+  {id:"r147",name:"Torta de Chocolate com Flor de Sal",category:"Tortas",emoji:"🧂",essencial:false,rendimento:"1 torta (14 fatias)",tempo:"30 min + 4h geladeira",
+   ingredientes:[{n:"Biscoito triturado",q:"200g"},{n:"Manteiga",q:"80g"},{n:"Chocolate meio amargo",q:"200g"},{n:"Creme de leite",q:"2 caixas"},{n:"Flor de sal",q:"1 pitada"}],
+   modo:["Forre a forma com a base de biscoito.","Derreta o chocolate com uma caixa de creme de leite e despeje sobre a base.","Cubra com a segunda caixa batida, finalize com uma pitada de flor de sal e leve à geladeira por 4h."],
+   dicas:"A flor de sal realça o amargor do chocolate — use com moderação, uma pitada já basta.",conservacao:"Até 4 dias na geladeira."},
+  {id:"r148",name:"Torta de Banana Flambada",category:"Tortas",emoji:"🍌",essencial:false,rendimento:"1 torta (14 fatias)",tempo:"50 min",
+   ingredientes:[{n:"Massa podre",q:"1 disco"},{n:"Banana fatiada",q:"4 unidades"},{n:"Açúcar mascavo",q:"1/2 xícara"},{n:"Manteiga",q:"2 colheres (sopa)"},{n:"Canela em pó",q:"1 colher (chá)"}],
+   modo:["Caramelize a banana na manteiga e açúcar mascavo até dourar.","Forre a forma com a massa e arrume a banana caramelizada por cima.","Polvilhe canela e asse a 190°C por 25 min."],
+   dicas:"Caramelize em fogo médio, mexendo pouco, pra as bananas não desmancharem.",conservacao:"Até 2 dias na geladeira, consumir logo."},
+  {id:"r149",name:"Torta de Chocolate com Framboesa",category:"Tortas",emoji:"🍇",essencial:false,rendimento:"1 torta (16 fatias)",tempo:"30 min + 4h geladeira",
+   ingredientes:[{n:"Biscoito triturado",q:"200g"},{n:"Manteiga",q:"80g"},{n:"Chocolate meio amargo",q:"200g"},{n:"Creme de leite",q:"2 caixas"},{n:"Framboesa",q:"150g"}],
+   modo:["Forre a forma com a base de biscoito.","Derreta o chocolate com uma caixa de creme de leite e despeje sobre a base.","Cubra com a segunda caixa batida, decore com framboesas e leve à geladeira por 4h."],
+   dicas:"A acidez da framboesa equilibra bem o doce do chocolate — não substitua por morango sem ajustar o açúcar.",conservacao:"Até 3 dias na geladeira."},
+  {id:"r150",name:"Torta de Queijo com Goiabada",category:"Tortas",emoji:"🧀",essencial:false,rendimento:"1 torta (14 fatias)",tempo:"40 min + 4h geladeira",
+   ingredientes:[{n:"Biscoito triturado",q:"200g"},{n:"Manteiga",q:"80g"},{n:"Cream cheese",q:"400g"},{n:"Leite condensado",q:"1 lata"},{n:"Goiabada em cubos",q:"150g"}],
+   modo:["Misture o biscoito com a manteiga e forre o fundo da forma.","Bata o cream cheese com o leite condensado até ficar liso.","Despeje sobre a base, distribua os cubos de goiabada por cima e leve à geladeira por 4h."],
+   dicas:"Aqueça levemente a goiabada antes de cortar em cubos — fica mais fácil de manusear.",conservacao:"Até 4 dias na geladeira."},
 ];
 const FAQS = [
   ["Funciona no meu celular?","Sim. O RecheioPro roda em Android e iOS, direto no navegador — sem precisar de celular potente."],
@@ -657,7 +1183,7 @@ const VALIDATION_ENDPOINT = "https://script.google.com/macros/s/AKfycbwFcmumWGNb
 /* =========================================================================
    ESTADO
 ========================================================================= */
-let state = { plan:null, favorites:[], tab:"inicio", query:"", category:null };
+let state = { plan:null, favorites:[], feitas:[], tab:"inicio", query:"", category:null };
 
 /* =========================================================================
    PERSISTÊNCIA
@@ -665,7 +1191,10 @@ let state = { plan:null, favorites:[], tab:"inicio", query:"", category:null };
 async function loadState(){
   try{ const p = await window.storage.get("recheiopro:plan"); if(p&&p.value) state.plan = JSON.parse(p.value); }catch(e){}
   try{ const f = await window.storage.get("recheiopro:favorites"); if(f&&f.value) state.favorites = JSON.parse(f.value); }catch(e){}
+  try{ const ft = await window.storage.get("recheiopro:feitas"); if(ft&&ft.value) state.feitas = JSON.parse(ft.value); }catch(e){}
+  await loadInsumos();
 }
+async function saveFeitas(){ try{ await window.storage.set("recheiopro:feitas", JSON.stringify(state.feitas)); }catch(e){} }
 async function savePlan(){ try{ await window.storage.set("recheiopro:plan", JSON.stringify(state.plan)); }catch(e){} }
 async function saveFavs(){ try{ await window.storage.set("recheiopro:favorites", JSON.stringify(state.favorites)); }catch(e){} }
 
@@ -675,6 +1204,46 @@ async function saveFavs(){ try{ await window.storage.set("recheiopro:favorites",
 function esc(s){ return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
 function isUnlocked(r){ return state.plan === "pro" || (state.plan === "essencial" && r.essencial); }
 function catSlug(cat){ return String(cat).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
+
+/* ---- ajuste de rendimento: parse e escala de quantidades em texto livre ---- */
+function parseBaseYield(rendimento){
+  let m = rendimento.match(/\((\d+)\s*fatias?\)/i);
+  if(m) return { base: parseInt(m[1]), label: "fatias" };
+  m = rendimento.match(/^(\d+)\s*unidades/i);
+  if(m) return { base: parseInt(m[1]), label: "unidades" };
+  m = rendimento.match(/^(\d+)\s*por[cç][õo]es/i);
+  if(m) return { base: parseInt(m[1]), label: "porções" };
+  return null;
+}
+function parseLeadingNumber(str){
+  str = str.trim();
+  let m = str.match(/^(\d+)\s+e\s+(\d+)\/(\d+)\s*(.*)$/i);
+  if(m) return { value: parseInt(m[1]) + parseInt(m[2])/parseInt(m[3]), rest: m[4] };
+  m = str.match(/^(\d+)\/(\d+)\s*(.*)$/);
+  if(m) return { value: parseInt(m[1])/parseInt(m[2]), rest: m[3] };
+  m = str.match(/^(\d+(?:[.,]\d+)?)\s*(.*)$/);
+  if(m) return { value: parseFloat(m[1].replace(',','.')), rest: m[2] };
+  return null;
+}
+function formatScaledNumber(v){
+  if(Math.abs(v - Math.round(v)) < 0.02) return String(Math.round(v));
+  const fracs = [[0.25,"1/4"],[0.33,"1/3"],[0.5,"1/2"],[0.67,"2/3"],[0.75,"3/4"]];
+  const whole = Math.floor(v), frac = v - whole;
+  for(const [val,label] of fracs){ if(Math.abs(frac-val)<0.05) return whole>0 ? `${whole} e ${label}` : label; }
+  return v.toFixed(2).replace('.',',').replace(/,00$/,'');
+}
+function scaleQtyText(q, factor){
+  const parsed = parseLeadingNumber(q);
+  if(!parsed) return q;
+  return formatScaledNumber(parsed.value * factor) + (parsed.rest ? " " + parsed.rest : "");
+}
+
+/* ---- compartilhar / marcar como feita ---- */
+function textoReceitaCompartilhar(r){
+  const ingredientes = r.ingredientes.map(i=>`• ${i.n} — ${i.q}`).join('\n');
+  const modo = r.modo.map((p,i)=>`${i+1}. ${p}`).join('\n');
+  return `🧁 *${r.name}*\n\n*Ingredientes:*\n${ingredientes}\n\n*Modo de preparo:*\n${modo}\n\n_Receita do app RecheioPro_ 💛`;
+}
 function showToast(msg){
   const root = document.getElementById("toast-root");
   root.innerHTML = `<div class="toast">${esc(msg)}</div>`;
@@ -746,17 +1315,21 @@ function renderInicio(){
 }
 
 function renderReceitas(){
-  const q = state.query.toLowerCase();
-  const filtered = RECIPES.filter(r => r.name.toLowerCase().includes(q) && (!state.category || r.category===state.category));
+  const q = state.query.toLowerCase().trim();
+  const filtered = RECIPES.filter(r => {
+    const matchNome = r.name.toLowerCase().includes(q);
+    const matchIngrediente = q.length>=3 && r.ingredientes.some(i=>i.n.toLowerCase().includes(q));
+    return (q==="" || matchNome || matchIngrediente) && (!state.category || r.category===state.category);
+  });
   return `
     <div class="app-px">
       <div class="app-h1">Receitas</div>
-      <div class="search-pill"><span>🔍</span><input placeholder="Buscar por nome..." value="${esc(state.query)}" oninput="RP.setQuery(this.value)"></div>
+      <div class="search-pill"><span>🔍</span><input placeholder="Buscar por nome ou ingrediente..." value="${esc(state.query)}" oninput="RP.setQuery(this.value)"></div>
       <div class="chip-row">
         <button class="chip ${!state.category?'active':''}" onclick="RP.setCategory(null)">Todas</button>
         ${CATEGORIES.map(c=>`<button class="chip ${state.category===c?'active':''}" onclick="RP.setCategory('${esc(c)}')">${esc(c)}</button>`).join('')}
       </div>
-      <div class="rgrid">${filtered.map(recipeCardHTML).join('') || '<div style="grid-column:1/-1;text-align:center;color:var(--chocolate-suave);font-size:13px;padding:30px 0;">Nenhuma receita encontrada.</div>'}</div>
+      <div class="rgrid">${filtered.map(recipeCardHTML).join('') || '<div style="grid-column:1/-1;text-align:center;color:var(--chocolate-suave);font-size:13px;padding:30px 0;">Nenhuma receita encontrada — tenta buscar por um ingrediente, tipo "chocolate".</div>'}</div>
     </div>`;
 }
 
@@ -787,6 +1360,10 @@ function renderPerfil(){
         <div style="flex:1;"><div style="font-weight:700;font-size:14px;">Minha conta</div><div style="font-size:11.5px;color:var(--chocolate-suave);">Plano atual: ${state.plan==='pro'?'Pro':'Essencial'}</div></div>
         <span class="plan-pill ${state.plan}">${state.plan==='pro'?'★ PRO':'ESSENCIAL'}</span>
       </div>
+      <div class="card" style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+        <span style="font-size:22px;">👩‍🍳</span>
+        <div><div style="font-weight:800;font-size:15px;">${state.feitas.length} receita${state.feitas.length===1?'':'s'} já feita${state.feitas.length===1?'':'s'}</div><div style="color:var(--chocolate-suave);font-size:11.5px;">Marque como feita na ficha da receita</div></div>
+      </div>
       ${state.plan==='essencial' ? `
       <div class="banner-dark" onclick="RP.openUpgrade()"><div><div class="t1" style="margin-bottom:2px;">Fazer upgrade para o Pro</div><div class="t2" style="font-size:12.5px;">Desbloqueie tudo por R$37,90</div></div><div style="color:var(--dourado);">→</div></div>
       ` : `<div class="card" style="display:flex;align-items:center;gap:10px;margin-bottom:14px;"><span style="font-size:18px;">🎁</span><div><div style="font-weight:800;font-size:12.5px;">Você já tem o RecheioPro completo</div><div style="color:var(--chocolate-suave);font-size:11px;">Aproveite todos os recursos e bônus.</div></div></div>`}
@@ -809,7 +1386,13 @@ function renderPerfil(){
 /* --- calculadoras --- */
 let calcTab = "custo";
 let custoState = { rendimento:10, itens:[{n:"",c:""}], embalagem:"", mao:"" };
-let precoState = { custo:"", margem:40 };
+let precoState = { custo:"", margem:40, produto:"" };
+let insumosState = [];
+let ultimoOrcamentoTexto = "";
+async function loadInsumos(){
+  try{ const d = await window.storage.get("recheiopro:insumos"); if(d&&d.value) insumosState = JSON.parse(d.value); }catch(e){}
+}
+async function saveInsumos(){ try{ await window.storage.set("recheiopro:insumos", JSON.stringify(insumosState)); }catch(e){} }
 
 function renderCalculadoras(){
   const pro = state.plan === "pro";
@@ -841,14 +1424,20 @@ function renderCustoCalc(pro){
   const porUnidade = custoState.rendimento>0 ? total/custoState.rendimento : 0;
   return `
     <div class="card">
+      ${insumosState.length>0 ? `
+        <div style="font-weight:800;font-size:12.5px;margin-bottom:6px;">Meus insumos salvos</div>
+        <div class="chip-row" style="margin-bottom:12px;">
+          ${insumosState.map((ins,idx)=>`<button class="chip" onclick="RP.addIngFromInsumo(${idx})">${esc(ins.n)} · R$${parseFloat(ins.c).toFixed(2)}</button>`).join('')}
+        </div>` : ''}
       <div style="font-weight:800;font-size:14px;margin-bottom:10px;">Ingredientes da receita</div>
       ${custoState.itens.map((it,i)=>`
         <div class="ing-row">
-          <input class="field" placeholder="Ingrediente" value="${esc(it.n)}" oninput="RP.updateIng(${i},'n',this.value)">
-          <input class="field" placeholder="R$" value="${esc(it.c)}" oninput="RP.updateIng(${i},'c',this.value)">
+          <input class="field" placeholder="Ingrediente" value="${esc(it.n)}" oninput="RP.updateIng(${i},'n',this.value)" onblur="RP.saveInsumoFromRow(${i})">
+          <input class="field" placeholder="R$" value="${esc(it.c)}" oninput="RP.updateIng(${i},'c',this.value)" onblur="RP.saveInsumoFromRow(${i})">
           <button class="del-btn" onclick="RP.removeIng(${i})">🗑️</button>
         </div>`).join('')}
       <div class="add-ing" onclick="RP.addIng()">＋ Adicionar ingrediente</div>
+      ${insumosState.length===0 ? `<div style="font-size:11px;color:var(--chocolate-suave);margin:-8px 0 14px;">💡 Preencha nome e preço de um ingrediente — ele fica salvo aqui pra próxima receita, sem redigitar.</div>` : ''}
       ${pro ? `
         <div style="font-weight:800;font-size:13px;margin-bottom:8px;">Custos extras (Pro)</div>
         <div style="display:flex;gap:8px;margin-bottom:14px;">
@@ -878,6 +1467,12 @@ function renderPrecoCalc(){
         <div class="row"><span class="lbl" style="color:#E9D9C4;">Preço de venda sugerido</span><span class="val" style="color:var(--dourado);font-size:16px;">R$ ${custo?preco.toFixed(2):'0.00'}</span></div>
         <div class="row"><span class="lbl" style="color:#E9D9C4;">Lucro por unidade</span><span class="val" style="color:var(--dourado);">R$ ${custo?lucro.toFixed(2):'0.00'}</span></div>
       </div>
+      ${custo>0 ? `
+      <div style="margin-top:14px;">
+        <div style="font-size:12px;font-weight:700;margin-bottom:6px;">Nome do produto (pro orçamento)</div>
+        <input class="field" placeholder="Ex: Bolo de cenoura (12 fatias)" value="${esc(precoState.produto||'')}" oninput="RP.setPrecoField('produto',this.value)" style="margin-bottom:10px;">
+        <button onclick="RP.gerarOrcamento()" style="width:100%;background:var(--framboesa);color:var(--branco);padding:12px;border-radius:100px;font-weight:800;font-size:13px;">📋 Gerar orçamento pro cliente</button>
+      </div>` : ''}
     </div>`;
 }
 function renderListaCompras(){
@@ -912,6 +1507,10 @@ function openRecipeSheet(r){
     return;
   }
   const fav = state.favorites.includes(r.id);
+  const feita = state.feitas.includes(r.id);
+  const yieldInfo = parseBaseYield(r.rendimento);
+  const atual = rendimentoAjuste[r.id] || (yieldInfo ? yieldInfo.base : null);
+  const fator = yieldInfo ? atual / yieldInfo.base : 1;
   root.innerHTML = `
     <div class="sheet-overlay"><div class="modal-bg" onclick="RP.closeSheet()"></div>
       <div class="sheet">
@@ -925,20 +1524,40 @@ function openRecipeSheet(r){
         <div class="app-px">
           <div style="color:var(--caramelo-escuro);font-size:11px;font-weight:800;text-transform:uppercase;">${esc(r.category)}</div>
           <h2 class="app-h1" style="margin-top:2px;">${esc(r.name)}</h2>
-          <div style="display:flex;gap:10px;margin-bottom:16px;">
+          <div style="display:flex;gap:10px;margin-bottom:12px;">
             <div class="stat-box">⏱️<div style="font-size:11px;font-weight:700;margin-top:2px;">${esc(r.tempo)}</div></div>
             <div class="stat-box">🍽️<div style="font-size:11px;font-weight:700;margin-top:2px;">${esc(r.rendimento)}</div></div>
           </div>
-          <div style="font-weight:800;font-size:14px;margin-bottom:8px;">Ingredientes</div>
-          ${r.ingredientes.map(i=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--creme-linha);font-size:13px;"><span>${esc(i.n)}</span><span style="font-weight:700;color:var(--chocolate-suave);">${esc(i.q)}</span></div>`).join('')}
+
+          ${yieldInfo ? `
+          <div class="card" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+            <div>
+              <div style="font-weight:800;font-size:12.5px;">Ajustar rendimento</div>
+              <div style="font-size:11px;color:var(--chocolate-suave);">Quantidades recalculam sozinhas</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <button onclick="RP.ajustarRendimento('${r.id}',-1)" style="width:28px;height:28px;border-radius:50%;background:var(--creme-card);font-weight:800;">−</button>
+              <span style="font-weight:800;font-size:14px;min-width:54px;text-align:center;">${atual} ${yieldInfo.label}</span>
+              <button onclick="RP.ajustarRendimento('${r.id}',1)" style="width:28px;height:28px;border-radius:50%;background:var(--creme-card);font-weight:800;">+</button>
+            </div>
+          </div>` : ''}
+
+          <div style="font-weight:800;font-size:14px;margin-bottom:8px;">Ingredientes ${fator!==1?`<span style="color:var(--framboesa);font-weight:700;font-size:11.5px;">(ajustado)</span>`:''}</div>
+          ${r.ingredientes.map(i=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--creme-linha);font-size:13px;"><span>${esc(i.n)}</span><span style="font-weight:700;color:${fator!==1?'var(--framboesa)':'var(--chocolate-suave)'};">${esc(fator!==1?scaleQtyText(i.q,fator):i.q)}</span></div>`).join('')}
           <div style="font-weight:800;font-size:14px;margin:16px 0 8px;">Modo de preparo</div>
           ${r.modo.map((p,i)=>`<div style="display:flex;gap:10px;margin-bottom:10px;"><span class="step-num">${i+1}</span><p style="font-size:13px;color:var(--chocolate-suave);line-height:1.5;">${esc(p)}</p></div>`).join('')}
           <div class="card" style="background:var(--creme-card);margin-top:8px;"><div style="font-weight:800;font-size:12px;margin-bottom:4px;">✨ Dica da confeiteira</div><p style="font-size:12.5px;color:var(--chocolate-suave);">${esc(r.dicas)}</p></div>
-          <div class="card" style="margin-top:8px;margin-bottom:10px;"><div style="font-weight:800;font-size:12px;margin-bottom:4px;">Conservação</div><p style="font-size:12.5px;color:var(--chocolate-suave);">${esc(r.conservacao)}</p></div>
+          <div class="card" style="margin-top:8px;margin-bottom:14px;"><div style="font-weight:800;font-size:12px;margin-bottom:4px;">Conservação</div><p style="font-size:12.5px;color:var(--chocolate-suave);">${esc(r.conservacao)}</p></div>
+
+          <div style="display:flex;gap:8px;margin-bottom:10px;">
+            <button onclick="RP.toggleFeita('${r.id}')" style="flex:1;background:${feita?'var(--framboesa)':'var(--creme-card)'};color:${feita?'var(--branco)':'var(--chocolate)'};padding:12px;border-radius:100px;font-weight:800;font-size:12.5px;border:1px solid var(--creme-linha);">${feita?'✓ Já fiz essa receita':'Marcar como feita'}</button>
+          </div>
+          <a href="https://wa.me/?text=${encodeURIComponent(textoReceitaCompartilhar(r))}" target="_blank" style="display:block;box-sizing:border-box;text-align:center;width:100%;background:#25D366;color:#fff;padding:12px;border-radius:100px;font-weight:800;font-size:12.5px;margin-bottom:10px;">💬 Compartilhar no WhatsApp</a>
         </div>
       </div>
     </div>`;
 }
+let rendimentoAjuste = {};
 function closeSheet(){ document.getElementById("sheet-root").innerHTML = ""; }
 
 /* =========================================================================
@@ -1155,7 +1774,31 @@ window.RP = {
     document.getElementById("sheet-root").innerHTML = renderDesafioSheetHTML();
   },
   openSuporte(){
-    window.location.href = "mailto:contato@recheiopro.com.br?subject=Suporte%20RecheioPro";
+    const root = document.getElementById("sheet-root");
+    const email = "contato@recheiopro.com.br";
+    root.innerHTML = `
+      <div class="sheet-overlay"><div class="modal-bg" onclick="RP.closeSheet()"></div>
+        <div class="sheet" style="text-align:center;padding:28px 22px;">
+          <div style="font-size:34px;margin-bottom:8px;">💬</div>
+          <div style="font-weight:800;font-size:16px;margin-bottom:6px;">Fale com o suporte</div>
+          <p style="color:var(--chocolate-suave);font-size:13px;margin-bottom:16px;">Manda sua dúvida pra gente por e-mail que respondemos rapidinho.</p>
+          <div style="background:var(--creme-card);border:1px solid var(--creme-linha);border-radius:12px;padding:12px;font-weight:800;font-size:14px;margin-bottom:14px;" id="suporte-email">${email}</div>
+          <button onclick="RP.copiarEmailSuporte()" id="suporte-copy-btn" style="width:100%;background:var(--framboesa);color:var(--branco);padding:13px;border-radius:100px;font-weight:800;font-size:14px;margin-bottom:8px;">Copiar e-mail</button>
+          <a href="mailto:${email}" style="display:block;width:100%;background:var(--creme-card);color:var(--chocolate);padding:13px;border-radius:100px;font-weight:800;font-size:14px;margin-bottom:8px;box-sizing:border-box;">Abrir no app de e-mail</a>
+          <button onclick="RP.closeSheet()" style="color:var(--chocolate-suave);font-weight:700;font-size:12.5px;padding:8px;">Fechar</button>
+        </div>
+      </div>`;
+  },
+  async copiarEmailSuporte(){
+    const email = "contato@recheiopro.com.br";
+    const btn = document.getElementById("suporte-copy-btn");
+    try{
+      await navigator.clipboard.writeText(email);
+      if(btn) btn.textContent = "E-mail copiado ✓";
+    }catch(e){
+      if(btn) btn.textContent = "Toque e segure o e-mail acima pra copiar";
+    }
+    setTimeout(()=>{ if(btn) btn.textContent = "Copiar e-mail"; }, 2500);
   },
   async toggleFav(id){
     state.favorites = state.favorites.includes(id) ? state.favorites.filter(f=>f!==id) : [...state.favorites, id];
@@ -1163,6 +1806,22 @@ window.RP = {
     renderApp();
     const sheetOpen = document.getElementById("sheet-root").innerHTML.trim() !== "";
     if(sheetOpen){ const r = RECIPES.find(x=>x.id===id); openRecipeSheet(r); }
+  },
+  async toggleFeita(id){
+    state.feitas = state.feitas.includes(id) ? state.feitas.filter(f=>f!==id) : [...state.feitas, id];
+    await saveFeitas();
+    const r = RECIPES.find(x=>x.id===id);
+    openRecipeSheet(r);
+    if(state.tab==="perfil") renderApp();
+  },
+  ajustarRendimento(id, delta){
+    const r = RECIPES.find(x=>x.id===id);
+    const info = parseBaseYield(r.rendimento);
+    if(!info) return;
+    const atual = rendimentoAjuste[id] || info.base;
+    const novo = Math.max(1, atual + delta);
+    rendimentoAjuste[id] = novo;
+    openRecipeSheet(r);
   },
   openUpgrade(){
     RP.exitApp();
@@ -1176,6 +1835,49 @@ window.RP = {
   setCustoField(f,v){ custoState[f]=v; renderApp(); },
   setRendimento(v){ custoState.rendimento = parseFloat(v)||0; renderApp(); },
   setPrecoField(f,v){ precoState[f] = f==='margem'?parseInt(v):v; renderApp(); },
+  async saveInsumoFromRow(i){
+    const item = custoState.itens[i];
+    if(!item || !item.n || !item.n.trim() || !item.c || parseFloat(item.c)<=0) return;
+    const nomeNorm = item.n.trim().toLowerCase();
+    const existente = insumosState.findIndex(ins => ins.n.trim().toLowerCase() === nomeNorm);
+    if(existente >= 0){ insumosState[existente] = { n:item.n.trim(), c:item.c }; }
+    else { insumosState.push({ n:item.n.trim(), c:item.c }); }
+    await saveInsumos();
+    renderApp();
+  },
+  addIngFromInsumo(idx){
+    const ins = insumosState[idx];
+    if(!ins) return;
+    const vazio = custoState.itens.findIndex(it=>!it.n && !it.c);
+    if(vazio >= 0) custoState.itens[vazio] = { n:ins.n, c:ins.c };
+    else custoState.itens.push({ n:ins.n, c:ins.c });
+    renderApp();
+  },
+  gerarOrcamento(){
+    const custo = parseFloat(precoState.custo)||0;
+    const preco = custo / (1 - precoState.margem/100);
+    const produto = (precoState.produto||"").trim() || "Encomenda";
+    const texto = `🧁 *Orçamento — ${produto}*\n\nValor: *R$ ${preco.toFixed(2)}*\nFormas de pagamento: Pix ou cartão\nOrçamento válido por 3 dias\n\nQualquer dúvida, me chama! 💛`;
+    ultimoOrcamentoTexto = texto;
+    const root = document.getElementById("sheet-root");
+    root.innerHTML = `
+      <div class="sheet-overlay"><div class="modal-bg" onclick="RP.closeSheet()"></div>
+        <div class="sheet" style="padding:24px 22px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <div class="app-h1" style="margin-bottom:0;">Orçamento pronto</div>
+            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);">✕</button>
+          </div>
+          <div style="background:var(--creme-card);border-radius:12px;padding:14px;font-size:13px;line-height:1.7;white-space:pre-wrap;margin-bottom:14px;">${esc(texto)}</div>
+          <a href="https://wa.me/?text=${encodeURIComponent(texto)}" target="_blank" style="display:block;box-sizing:border-box;text-align:center;width:100%;background:#25D366;color:#fff;padding:13px;border-radius:100px;font-weight:800;font-size:14px;margin-bottom:8px;">Enviar por WhatsApp</a>
+          <button onclick="RP.copiarOrcamento(this)" id="orc-copy-btn" style="width:100%;background:var(--framboesa);color:var(--branco);padding:13px;border-radius:100px;font-weight:800;font-size:14px;">Copiar texto</button>
+        </div>
+      </div>`;
+  },
+  async copiarOrcamento(btn){
+    try{ await navigator.clipboard.writeText(ultimoOrcamentoTexto); btn.textContent = "Copiado ✓"; }
+    catch(e){ btn.textContent = "Selecione o texto acima pra copiar"; }
+    setTimeout(()=>{ btn.textContent = "Copiar texto"; }, 2500);
+  },
 };
 
 /* =========================================================================
