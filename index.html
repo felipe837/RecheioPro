@@ -389,7 +389,7 @@
         <div><div class="plan-tag">Porta de entrada</div><div class="plan-name">Essencial</div></div>
         <div><div class="price-row"><span class="price">R$17,90</span></div><div class="price-note">pagamento único · porta de entrada</div></div>
         <ul class="plan-list">
-          <li>✅ 12 receitas selecionadas</li><li>✅ Busca e categorias</li><li>✅ Favoritos</li><li>✅ Calculadora de custo básica</li>
+          <li>✅ 18 receitas selecionadas</li><li>✅ Busca e categorias</li><li>✅ Favoritos</li><li>✅ Calculadora de custo básica</li>
         </ul>
         <a href="https://pay.kiwify.com.br/CcFq1Th" class="plan-btn" style="display:block;">Começar com o Essencial</a>
       </div>
@@ -398,7 +398,7 @@
         <div><div class="plan-tag">Melhor custo-benefício</div><div class="plan-name">Pro</div></div>
         <div><div class="price-row"><span class="price">R$37,90</span></div><div class="price-note">pagamento único · catálogo crescendo toda semana</div></div>
         <ul class="plan-list">
-          <li>✅ 24 receitas e todas categorias</li><li>✅ Calculadora completa de custos</li><li>✅ Preço de venda e lucro</li>
+          <li>✅ 36 receitas e todas categorias</li><li>✅ Calculadora completa de custos</li><li>✅ Preço de venda e lucro</li>
           <li>✅ Lista de compras automática</li><li>✅ Aulas em vídeo e bônus</li><li>✅ Todos os recursos futuros</li>
         </ul>
         <a href="https://pay.kiwify.com.br/Gyobv2U" class="plan-btn" style="display:block;">Quero o Pro completo</a>
@@ -592,6 +592,54 @@ const RECIPES = [
    ingredientes:[{n:"Biscoito triturado",q:"200g"},{n:"Manteiga",q:"80g"},{n:"Cream cheese",q:"400g"},{n:"Leite condensado",q:"1 lata"},{n:"Frutas vermelhas",q:"200g"}],
    modo:["Misture o biscoito com a manteiga e forre o fundo da forma.","Bata o cream cheese com o leite condensado até ficar liso.","Despeje sobre a base e leve à geladeira por 4h.","Finalize com as frutas vermelhas por cima."],
    dicas:"Use cream cheese em temperatura ambiente pra bater sem grumos.",conservacao:"Até 4 dias na geladeira."},
+  {id:"r25",name:"Bolo de Fubá Cremoso",category:"Bolos",emoji:"🧈",essencial:true,rendimento:"1 bolo (12 fatias)",tempo:"50 min",
+   ingredientes:[{n:"Fubá",q:"1 xícara"},{n:"Farinha de trigo",q:"1/2 xícara"},{n:"Leite",q:"3 xícaras"},{n:"Ovos",q:"3 unidades"},{n:"Queijo ralado",q:"1/2 xícara"},{n:"Açúcar",q:"1 xícara"}],
+   modo:["Bata tudo no liquidificador até ficar homogêneo.","Despeje numa forma untada.","Asse a 180°C por 40 min — o segredo é a camada cremosa no fundo."],
+   dicas:"Não abra o forno antes de 30 min, ou a camada cremosa pode não se formar direito.",conservacao:"Até 3 dias na geladeira, coberto."},
+  {id:"r26",name:"Bolo Formigueiro",category:"Bolos",emoji:"🐜",essencial:false,rendimento:"1 bolo (12 fatias)",tempo:"45 min",
+   ingredientes:[{n:"Farinha de trigo",q:"2 xícaras"},{n:"Açúcar",q:"1 e 1/2 xícara"},{n:"Chocolate granulado",q:"1/2 xícara"},{n:"Leite",q:"1 xícara"},{n:"Óleo",q:"1/2 xícara"},{n:"Ovos",q:"3 unidades"}],
+   modo:["Misture os secos com o granulado.","Junte o leite, o óleo e os ovos batendo bem.","Asse em forma de rosca a 180°C por 35 min."],
+   dicas:"Unte bem os detalhes da forma de rosca pra não grudar.",conservacao:"Até 4 dias em pote fechado, fora da geladeira."},
+  {id:"r27",name:"Olho de Sogra",category:"Docinhos",emoji:"👁️",essencial:true,rendimento:"18 unidades",tempo:"35 min",
+   ingredientes:[{n:"Ameixa seca sem caroço",q:"18 unidades"},{n:"Leite condensado",q:"1 lata"},{n:"Coco ralado",q:"100g"},{n:"Gema",q:"2 unidades"}],
+   modo:["Cozinhe o leite condensado, o coco e as gemas até desgrudar da panela.","Deixe esfriar e recheie cada ameixa com uma porção.","Passe no açúcar cristal se quiser um acabamento crocante."],
+   dicas:"Escolha ameixas macias — facilita muito na hora de rechear.",conservacao:"5 dias na geladeira, em pote fechado."},
+  {id:"r28",name:"Cocada Cremosa",category:"Docinhos",emoji:"🥥",essencial:false,rendimento:"15 porções",tempo:"25 min",
+   ingredientes:[{n:"Coco ralado fresco",q:"300g"},{n:"Leite condensado",q:"1 lata"},{n:"Leite de coco",q:"200ml"},{n:"Açúcar",q:"1/2 xícara"}],
+   modo:["Misture tudo numa panela.","Cozinhe em fogo médio mexendo sempre até engrossar.","Despeje numa travessa e deixe esfriar antes de cortar."],
+   dicas:"Fica ainda mais gostosa se descansar de um dia pro outro na geladeira.",conservacao:"Até 6 dias na geladeira, em pote fechado."},
+  {id:"r29",name:"Recheio de Paçoca",category:"Recheios",emoji:"🥜",essencial:true,rendimento:"Rende 1 bolo médio",tempo:"15 min",
+   ingredientes:[{n:"Paçoca triturada",q:"6 unidades"},{n:"Creme de leite",q:"1 caixa"},{n:"Leite condensado",q:"3 colheres (sopa)"},{n:"Doce de leite",q:"2 colheres (sopa)"}],
+   modo:["Bata o creme de leite com o leite condensado até engrossar.","Misture a paçoca triturada e o doce de leite delicadamente.","Use na hora pra manter a textura crocante."],
+   dicas:"Triture a paçoca grosseiramente — pedacinhos dão mais textura que pó fino.",conservacao:"2 dias na geladeira."},
+  {id:"r30",name:"Recheio de Chocolate Meio Amargo com Café",category:"Recheios",emoji:"☕",essencial:false,rendimento:"Rende 1 bolo médio",tempo:"20 min",
+   ingredientes:[{n:"Chocolate meio amargo",q:"200g"},{n:"Creme de leite",q:"1 caixa"},{n:"Café solúvel",q:"1 colher (sopa)"},{n:"Água quente",q:"1 colher (sopa)"}],
+   modo:["Derreta o chocolate em banho-maria.","Dissolva o café na água quente e misture ao chocolate.","Junte o creme de leite aos poucos até ficar liso."],
+   dicas:"O café não deixa gosto de café forte, só realça o chocolate.",conservacao:"4 dias na geladeira."},
+  {id:"r31",name:"Glacê Real",category:"Coberturas",emoji:"🤍",essencial:true,rendimento:"Cobre 1 bolo médio",tempo:"10 min",
+   ingredientes:[{n:"Açúcar de confeiteiro",q:"2 xícaras"},{n:"Clara de ovo",q:"1 unidade"},{n:"Suco de limão",q:"1 colher (chá)"}],
+   modo:["Bata a clara em neve.","Adicione o açúcar de confeiteiro aos poucos, batendo sempre.","Junte o limão até dar ponto de escrever."],
+   dicas:"Cubra com pano úmido se não for usar na hora — ele resseca rápido.",conservacao:"2 dias em temperatura ambiente, coberto."},
+  {id:"r32",name:"Calda de Caramelo",category:"Coberturas",emoji:"🍯",essencial:false,rendimento:"Cobre 1 bolo médio",tempo:"15 min",
+   ingredientes:[{n:"Açúcar",q:"1 xícara"},{n:"Água",q:"1/4 xícara"},{n:"Creme de leite fresco",q:"1/2 xícara"},{n:"Manteiga",q:"1 colher (sopa)"}],
+   modo:["Derreta o açúcar em fogo médio sem mexer até dourar.","Adicione o creme de leite fresco morno com cuidado (vai borbulhar muito).","Junte a manteiga e mexa até ficar liso."],
+   dicas:"Use uma panela de fundo claro pra enxergar o ponto certo do caramelo.",conservacao:"Até 1 semana na geladeira, em pote fechado."},
+  {id:"r33",name:"Kibe Frito",category:"Salgados",emoji:"🫓",essencial:true,rendimento:"20 unidades",tempo:"1h",
+   ingredientes:[{n:"Trigo para kibe",q:"1 xícara"},{n:"Carne moída",q:"400g"},{n:"Cebola picada",q:"1 unidade"},{n:"Hortelã picada",q:"2 colheres (sopa)"}],
+   modo:["Hidrate o trigo em água por 20 min e esprema bem.","Misture com a carne, cebola e hortelã até formar uma massa lisa.","Modele em formato de charuto e frite em óleo quente."],
+   dicas:"Molhe as mãos na água gelada pra modelar sem grudar.",conservacao:"Até 2 dias na geladeira crus, ou congele."},
+  {id:"r34",name:"Bolinha de Queijo",category:"Salgados",emoji:"🧀",essencial:false,rendimento:"25 unidades",tempo:"45 min",
+   ingredientes:[{n:"Batata cozida amassada",q:"500g"},{n:"Queijo mussarela ralado",q:"200g"},{n:"Farinha de trigo",q:"2 colheres (sopa)"},{n:"Ovo",q:"1 unidade"}],
+   modo:["Misture a batata amassada com o queijo e a farinha.","Modele bolinhas, passe no ovo batido e depois na farinha de rosca.","Frite em óleo quente até dourar."],
+   dicas:"A batata precisa estar bem seca — se ficar úmida, a massa desmancha ao fritar.",conservacao:"Até 2 dias na geladeira cruas."},
+  {id:"r35",name:"Torta de Maçã com Canela",category:"Tortas",emoji:"🍎",essencial:true,rendimento:"1 torta (14 fatias)",tempo:"1h",
+   ingredientes:[{n:"Massa podre",q:"1 disco"},{n:"Maçã fatiada",q:"5 unidades"},{n:"Açúcar",q:"1/2 xícara"},{n:"Canela em pó",q:"1 colher (chá)"},{n:"Manteiga",q:"1 colher (sopa)"}],
+   modo:["Forre a forma com a massa.","Misture as maçãs com açúcar e canela e arrume por cima.","Distribua flocos de manteiga e asse a 200°C por 35 min."],
+   dicas:"Use maçãs mais firmes (tipo Fuji) pra não desmancharem no forno.",conservacao:"Até 3 dias na geladeira."},
+  {id:"r36",name:"Pavê de Chocolate",category:"Tortas",emoji:"🍫",essencial:false,rendimento:"1 travessa (16 porções)",tempo:"30 min + 4h geladeira",
+   ingredientes:[{n:"Biscoito champanhe",q:"200g"},{n:"Leite",q:"1 xícara"},{n:"Creme de baunilha",q:"1 caixa"},{n:"Creme de chocolate",q:"1 caixa"},{n:"Chocolate granulado",q:"a gosto"}],
+   modo:["Molhe os biscoitos no leite e forre o fundo da travessa.","Alterne camadas de creme de baunilha, biscoito e creme de chocolate.","Finalize com granulado e leve à geladeira por 4h."],
+   dicas:"Não deixe o biscoito encharcar demais no leite, só um mergulho rápido.",conservacao:"Até 4 dias na geladeira."},
 ];
 const FAQS = [
   ["Funciona no meu celular?","Sim. O RecheioPro roda em Android e iOS, direto no navegador — sem precisar de celular potente."],
@@ -728,8 +776,8 @@ function renderFavoritos(){
 
 function renderPerfil(){
   const items = [
-    ["Guia de conservação", true],["Tabela de conversão", true],["Desafio de 7 dias", true],
-    ["Bônus exclusivos", true],["Fale com o suporte", false],
+    ["Guia de conservação", true, "conservacao"],["Tabela de conversão", true, "conversao"],["Desafio de 7 dias", true, "desafio"],
+    ["Bônus exclusivos", true, "bonus"],["Fale com o suporte", false, "suporte"],
   ];
   return `
     <div class="app-px">
@@ -743,12 +791,15 @@ function renderPerfil(){
       <div class="banner-dark" onclick="RP.openUpgrade()"><div><div class="t1" style="margin-bottom:2px;">Fazer upgrade para o Pro</div><div class="t2" style="font-size:12.5px;">Desbloqueie tudo por R$37,90</div></div><div style="color:var(--dourado);">→</div></div>
       ` : `<div class="card" style="display:flex;align-items:center;gap:10px;margin-bottom:14px;"><span style="font-size:18px;">🎁</span><div><div style="font-weight:800;font-size:12.5px;">Você já tem o RecheioPro completo</div><div style="color:var(--chocolate-suave);font-size:11px;">Aproveite todos os recursos e bônus.</div></div></div>`}
       <div style="border:1px solid var(--creme-linha);border-radius:16px;overflow:hidden;">
-        ${items.map(([label,locked],i)=>`
+        ${items.map(([label,locked,key],i)=>{
+          const isLocked = locked && state.plan!=='pro';
+          const action = key==='suporte' ? "RP.openSuporte()" : (isLocked ? "RP.openUpgrade()" : (key==='desafio' ? "RP.openDesafioSheet()" : `RP.openInfoSheet('${key}')`));
+          return `
           <div style="display:flex;justify-content:space-between;align-items:center;padding:13px 14px;background:var(--branco);${i<items.length-1?'border-bottom:1px solid var(--creme-linha);':''}cursor:pointer;"
-               onclick="${locked && state.plan!=='pro' ? "RP.openUpgrade()" : ""}">
+               onclick="${action}">
             <span style="font-size:13px;font-weight:600;">${label}</span>
-            <span>${locked && state.plan!=='pro' ? '🔒' : '›'}</span>
-          </div>`).join('')}
+            <span>${isLocked ? '🔒' : '›'}</span>
+          </div>`;}).join('')}
       </div>
       <div style="text-align:center;color:var(--chocolate-suave);font-size:10.5px;margin-top:18px;">Chave de acesso ativa nesta sessão.</div>
       <button onclick="RP.exitApp()" style="display:block;margin:14px auto 0;color:var(--framboesa);font-weight:700;font-size:12.5px;">Sair da conta</button>
@@ -891,6 +942,106 @@ function openRecipeSheet(r){
 function closeSheet(){ document.getElementById("sheet-root").innerHTML = ""; }
 
 /* =========================================================================
+   FERRAMENTAS EXCLUSIVAS DO PRO
+========================================================================= */
+const CONVERSOES = [
+  ["1 xícara de farinha de trigo","120 g"],["1 xícara de açúcar","200 g"],["1 xícara de líquido","240 ml"],
+  ["1 colher de sopa","15 ml"],["1 colher de chá","5 ml"],["1 xícara de manteiga","200 g"],
+  ["1 xícara de chocolate em pó","100 g"],["1 xícara de coco ralado","80 g"],["1 gema","≈ 18 g"],["1 clara","≈ 30 g"],
+];
+const GUIA_CONSERVACAO = [
+  ["Bolos simples (sem recheio)","Até 4 dias fora da geladeira, em recipiente fechado ou coberto com filme plástico."],
+  ["Bolos recheados com creme","Sempre na geladeira, 3 a 5 dias, bem vedados pra não pegar cheiro da geladeira."],
+  ["Docinhos (brigadeiro, beijinho)","5 a 7 dias em pote fechado — na geladeira se o clima estiver quente."],
+  ["Coberturas com chocolate puro","Fora da geladeira, em local fresco — o frio pode fazer perder o brilho."],
+  ["Salgados fritos crus","2 dias na geladeira antes de fritar, ou congele por até 2 meses."],
+  ["Tortas com creme/cream cheese","Sempre geladas, consumir em até 4 dias."],
+];
+const DESAFIO_DIAS = [
+  "Escolha 3 receitas do app e calcule o custo real de cada uma na calculadora.",
+  "Defina o preço de venda de cada uma usando a calculadora de lucro.",
+  "Fotografe (ou organize) as 3 receitas como se fosse postar pra vender.",
+  "Monte sua lista de compras da semana usando a lista automática.",
+  "Escolha 1 receita nova pra testar e favorite pra não perder.",
+  "Revise seus preços: eles cobrem seu tempo, não só o ingrediente?",
+  "Feche a semana: quantas encomendas você poderia ter fechado com esses preços?",
+];
+
+function openInfoSheet(type){
+  const root = document.getElementById("sheet-root");
+  let title, body;
+  if(type==="conversao"){
+    title = "Tabela de conversão";
+    body = `<div style="display:flex;flex-direction:column;gap:2px;">${CONVERSOES.map(([a,b])=>`
+      <div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--creme-linha);font-size:13px;">
+        <span>${a}</span><span style="font-weight:800;color:var(--framboesa);">${b}</span>
+      </div>`).join('')}</div>`;
+  } else if(type==="conservacao"){
+    title = "Guia de conservação";
+    body = `<div style="display:flex;flex-direction:column;gap:10px;">${GUIA_CONSERVACAO.map(([a,b])=>`
+      <div class="card">
+        <div style="font-weight:800;font-size:13px;margin-bottom:3px;">${a}</div>
+        <div style="font-size:12.5px;color:var(--chocolate-suave);line-height:1.5;">${b}</div>
+      </div>`).join('')}</div>`;
+  } else if(type==="bonus"){
+    title = "Bônus exclusivos";
+    body = `<div style="display:flex;flex-direction:column;gap:10px;">
+      <div class="card"><div style="font-weight:800;font-size:13px;margin-bottom:3px;">💬 Como responder "tá caro" sem baixar o preço</div><div style="font-size:12.5px;color:var(--chocolate-suave);line-height:1.5;">Explique o que compõe o valor (ingrediente + tempo + técnica), sem se desculpar pelo preço. Quem entende o processo, entende o preço.</div></div>
+      <div class="card"><div style="font-weight:800;font-size:13px;margin-bottom:3px;">📦 Etiqueta mínima que passa profissionalismo</div><div style="font-size:12.5px;color:var(--chocolate-suave);line-height:1.5;">Nome do doce, validade e um contato — só isso já muda a percepção de quem recebe a encomenda.</div></div>
+      <div class="card"><div style="font-weight:800;font-size:13px;margin-bottom:3px;">📸 Luz natural resolve 80% da foto</div><div style="font-size:12.5px;color:var(--chocolate-suave);line-height:1.5;">Fotografe perto de uma janela, sem flash. Isso sozinho já deixa qualquer doce mais vendável.</div></div>
+    </div>`;
+  }
+  root.innerHTML = `
+    <div class="sheet-overlay"><div class="modal-bg" onclick="RP.closeSheet()"></div>
+      <div class="sheet">
+        <div class="app-px" style="padding-top:20px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+            <div class="app-h1" style="margin-bottom:0;">${title}</div>
+            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);">✕</button>
+          </div>
+          ${body}
+          <div style="height:10px;"></div>
+        </div>
+      </div>
+    </div>`;
+}
+
+let desafioState = [false,false,false,false,false,false,false];
+async function loadDesafio(){
+  try{ const d = await window.storage.get("recheiopro:desafio"); if(d&&d.value) desafioState = JSON.parse(d.value); }catch(e){}
+}
+async function saveDesafio(){ try{ await window.storage.set("recheiopro:desafio", JSON.stringify(desafioState)); }catch(e){} }
+
+function renderDesafioSheetHTML(){
+  const feitos = desafioState.filter(Boolean).length;
+  return `
+    <div class="sheet-overlay"><div class="modal-bg" onclick="RP.closeSheet()"></div>
+      <div class="sheet">
+        <div class="app-px" style="padding-top:20px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+            <div class="app-h1" style="margin-bottom:0;">Desafio de 7 dias</div>
+            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);">✕</button>
+          </div>
+          <div style="color:var(--chocolate-suave);font-size:12.5px;margin-bottom:14px;">Uma tarefa por dia pra sair da teoria e começar a vender com preço certo.</div>
+          <div class="progress-card" style="margin-bottom:16px;">
+            <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:800;"><span>Seu progresso</span><span style="color:var(--caramelo-escuro)">${feitos}/7</span></div>
+            <div class="progress-track"><div class="progress-fill" style="width:${Math.round(feitos/7*100)}%"></div></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            ${DESAFIO_DIAS.map((tarefa,i)=>`
+              <div class="card" style="display:flex;gap:10px;align-items:flex-start;cursor:pointer;" onclick="RP.toggleDesafioDia(${i})">
+                <div style="width:22px;height:22px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;background:${desafioState[i]?'var(--framboesa)':'var(--creme-card)'};color:${desafioState[i]?'var(--branco)':'var(--chocolate-suave)'};border:1px solid var(--creme-linha);">${desafioState[i]?'✓':(i+1)}</div>
+                <div style="font-size:12.5px;line-height:1.5;${desafioState[i]?'color:var(--chocolate-suave);text-decoration:line-through;':''}">${tarefa}</div>
+              </div>`).join('')}
+          </div>
+          <div style="height:10px;"></div>
+        </div>
+      </div>
+    </div>`;
+}
+
+
+/* =========================================================================
    RENDER PRINCIPAL DO APP
 ========================================================================= */
 function renderApp(){
@@ -993,6 +1144,19 @@ window.RP = {
   setCategory(c){ state.category = c; renderApp(); },
   openRecipe(id){ const r = RECIPES.find(x=>x.id===id); openRecipeSheet(r); },
   closeSheet(){ closeSheet(); },
+  openInfoSheet(type){ openInfoSheet(type); },
+  async openDesafioSheet(){
+    await loadDesafio();
+    document.getElementById("sheet-root").innerHTML = renderDesafioSheetHTML();
+  },
+  async toggleDesafioDia(i){
+    desafioState[i] = !desafioState[i];
+    await saveDesafio();
+    document.getElementById("sheet-root").innerHTML = renderDesafioSheetHTML();
+  },
+  openSuporte(){
+    window.location.href = "mailto:contato@recheiopro.com.br?subject=Suporte%20RecheioPro";
+  },
   async toggleFav(id){
     state.favorites = state.favorites.includes(id) ? state.favorites.filter(f=>f!==id) : [...state.favorites, id];
     await saveFavs();
