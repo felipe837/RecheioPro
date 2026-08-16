@@ -201,7 +201,11 @@
   .chip.active{background:var(--framboesa);color:var(--branco);border-color:var(--framboesa);}
 
   .rgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;}
-  .hscroll{display:flex;gap:12px;overflow-x:auto;margin-top:10px;padding-bottom:4px;}
+  .hscroll{display:flex;gap:12px;overflow-x:auto;margin-top:10px;padding-bottom:10px;cursor:grab;scrollbar-width:thin;scrollbar-color:var(--caramelo) transparent;}
+  .hscroll:active{cursor:grabbing;}
+  .hscroll::-webkit-scrollbar{display:block;height:6px;}
+  .hscroll::-webkit-scrollbar-track{background:var(--creme-linha);border-radius:10px;}
+  .hscroll::-webkit-scrollbar-thumb{background:var(--caramelo);border-radius:10px;}
   .rcard{background:var(--branco);border:1px solid var(--creme-linha);border-radius:16px;overflow:hidden;cursor:pointer;position:relative;transition:transform .18s ease, box-shadow .18s ease;}
   .rcard:active{transform:scale(0.97);}
   .rcard .thumb{height:100px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;background-image:radial-gradient(rgba(255,255,255,0.16) 1.5px, transparent 1.5px);background-size:14px 14px;}
@@ -850,6 +854,29 @@ function renderApp(){
   else if(state.tab==="perfil") body.innerHTML = renderPerfil();
   document.querySelectorAll(".nav-btn").forEach(b=>b.classList.toggle("active", b.dataset.tab===state.tab));
   body.scrollTop = 0;
+  enableDragScroll(body);
+}
+
+/* arrastar as fileiras horizontais com o mouse (não só touch/trackpad) */
+function enableDragScroll(container){
+  container.querySelectorAll(".hscroll").forEach(el=>{
+    if(el.dataset.dragBound) return;
+    el.dataset.dragBound = "1";
+    let isDown=false, startX=0, startScroll=0, moved=false;
+    el.addEventListener("mousedown", e=>{
+      isDown=true; moved=false;
+      startX = e.pageX; startScroll = el.scrollLeft;
+    });
+    window.addEventListener("mouseup", ()=>{ isDown=false; });
+    window.addEventListener("mousemove", e=>{
+      if(!isDown) return;
+      const dx = e.pageX - startX;
+      if(Math.abs(dx) > 4) moved = true;
+      el.scrollLeft = startScroll - dx;
+    });
+    // evita disparar o clique da receita quando o usuário só arrastou
+    el.addEventListener("click", e=>{ if(moved){ e.stopPropagation(); e.preventDefault(); moved=false; } }, true);
+  });
 }
 
 /* =========================================================================
