@@ -204,9 +204,9 @@
   .hscroll{display:flex;gap:12px;overflow-x:auto;margin-top:10px;padding-bottom:4px;}
   .rcard{background:var(--branco);border:1px solid var(--creme-linha);border-radius:16px;overflow:hidden;cursor:pointer;position:relative;transition:transform .18s ease, box-shadow .18s ease;}
   .rcard:active{transform:scale(0.97);}
-  .rcard .thumb{height:96px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
-  .rcard .thumb-ico{width:52px;height:52px;filter:drop-shadow(0 4px 8px rgba(59,36,23,0.18));}
-  .rcard .thumb-emoji{position:absolute;bottom:6px;left:7px;width:24px;height:24px;border-radius:50%;background:rgba(255,253,248,0.92);display:flex;align-items:center;justify-content:center;font-size:12px;box-shadow:0 2px 6px rgba(59,36,23,0.18);}
+  .rcard .thumb{height:100px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;background-image:radial-gradient(rgba(255,255,255,0.16) 1.5px, transparent 1.5px);background-size:14px 14px;}
+  .rcard .thumb::before{content:"";position:absolute;width:72px;height:72px;border-radius:50%;background:radial-gradient(circle, rgba(255,255,255,0.32) 0%, rgba(255,255,255,0) 70%);}
+  .rcard .thumb-ico{width:58px;height:58px;filter:drop-shadow(0 6px 10px rgba(59,36,23,0.28));position:relative;z-index:1;}
   .cat-bolos{background:linear-gradient(135deg,#E3A857,#C97B3D);}
   .cat-recheios{background:linear-gradient(135deg,#D9748F,#C23B5B);}
   .cat-coberturas{background:linear-gradient(135deg,#5A3B27,#3B2417);}
@@ -243,9 +243,9 @@
   .sheet-overlay{position:fixed;inset:0;z-index:90;display:flex;align-items:flex-end;justify-content:center;}
   .sheet{position:relative;background:var(--creme);width:100%;max-width:480px;max-height:88vh;overflow-y:auto;border-radius:26px 26px 0 0;animation:sheetIn .28s cubic-bezier(.2,.8,.2,1);}
   @keyframes sheetIn{from{transform:translateY(100%);}to{transform:translateY(0);}}
-  .sheet-hero{height:150px;display:flex;align-items:center;justify-content:center;position:relative;}
-  .sheet-hero .thumb-ico{width:76px;height:76px;filter:drop-shadow(0 6px 12px rgba(59,36,23,0.22));}
-  .sheet-hero .thumb-emoji{position:absolute;bottom:14px;left:16px;width:32px;height:32px;border-radius:50%;background:rgba(255,253,248,0.92);display:flex;align-items:center;justify-content:center;font-size:15px;box-shadow:0 3px 8px rgba(59,36,23,0.2);}
+  .sheet-hero{height:150px;display:flex;align-items:center;justify-content:center;position:relative;background-image:radial-gradient(rgba(255,255,255,0.16) 1.8px, transparent 1.8px);background-size:16px 16px;}
+  .sheet-hero::before{content:"";position:absolute;width:104px;height:104px;border-radius:50%;background:radial-gradient(circle, rgba(255,255,255,0.32) 0%, rgba(255,255,255,0) 70%);}
+  .sheet-hero .thumb-ico{width:82px;height:82px;filter:drop-shadow(0 8px 14px rgba(59,36,23,0.3));position:relative;z-index:1;}
   .sheet-close,.sheet-fav{position:absolute;top:12px;width:30px;height:30px;border-radius:50%;background:rgba(255,253,248,0.92);display:flex;align-items:center;justify-content:center;}
   .sheet-close{right:12px;} .sheet-fav{left:12px;}
   .stat-box{flex:1;background:var(--branco);border:1px solid var(--creme-linha);border-radius:12px;padding:10px;text-align:center;}
@@ -258,41 +258,57 @@
 <!-- =========================== SPRITE: ícones por categoria =========================== -->
 <svg style="display:none" aria-hidden="true">
   <symbol id="ic-bolos" viewBox="0 0 100 100">
-    <path d="M28 62 L72 62 L68 88 Q50 94 32 88 Z" fill="#FFFDF8" opacity="0.95"/>
-    <rect x="26" y="52" width="48" height="12" rx="3" fill="#FFFDF8"/>
-    <path d="M30 52 Q50 40 70 52" fill="none" stroke="#FFFDF8" stroke-width="4" stroke-linecap="round"/>
-    <circle cx="50" cy="36" r="7" fill="#FFFDF8"/>
-    <path d="M50 29 Q54 20 48 14" fill="none" stroke="#FFFDF8" stroke-width="3" stroke-linecap="round"/>
+    <ellipse cx="50" cy="87" rx="27" ry="5" fill="#000" opacity="0.14"/>
+    <rect x="27" y="60" width="46" height="20" rx="4" fill="#FFFDF8"/>
+    <rect x="27" y="66" width="46" height="7" fill="#C23B5B" opacity="0.85"/>
+    <path d="M25 60 Q50 46 75 60 Q68 52 50 52 Q32 52 25 60 Z" fill="#FFFDF8"/>
+    <path d="M31 56 Q50 47 69 56 L66 60 Q50 53 34 60 Z" fill="#FFFDF8" opacity="0.7"/>
+    <circle cx="50" cy="38" r="6.5" fill="#C23B5B"/>
+    <path d="M50 32 Q54 23 48 17" fill="none" stroke="#7A9E6E" stroke-width="3" stroke-linecap="round"/>
   </symbol>
   <symbol id="ic-recheios" viewBox="0 0 100 100">
-    <path d="M50 20 C34 20 24 34 24 48 C24 66 38 80 50 86 C62 80 76 66 76 48 C76 34 66 20 50 20 Z" fill="#FFFDF8" opacity="0.18"/>
-    <path d="M38 30 Q50 22 62 30 L58 62 Q50 70 42 62 Z" fill="#FFFDF8"/>
-    <circle cx="50" cy="72" r="5" fill="#FFFDF8"/>
+    <ellipse cx="50" cy="87" rx="20" ry="4.5" fill="#000" opacity="0.14"/>
+    <path d="M36 26 L64 26 L61 62 Q50 70 39 62 Z" fill="#FFFDF8"/>
+    <path d="M40 30 L60 30 L58 58 Q50 63 42 58 Z" fill="#C97B3D" opacity="0.75"/>
+    <rect x="46" y="14" width="8" height="16" rx="3" fill="#FFFDF8"/>
+    <circle cx="50" cy="78" r="6" fill="#FFFDF8"/>
+    <circle cx="50" cy="78" r="6" fill="#C97B3D" opacity="0.55"/>
   </symbol>
   <symbol id="ic-coberturas" viewBox="0 0 100 100">
-    <path d="M40 88 L38 46 Q38 30 50 30 Q62 30 62 46 L60 88 Z" fill="#FFFDF8"/>
-    <path d="M34 46 L66 46 L60 30 L40 30 Z" fill="#FFFDF8" opacity="0.85"/>
-    <path d="M50 30 C50 18 62 18 58 8" fill="none" stroke="#FFFDF8" stroke-width="4" stroke-linecap="round"/>
+    <ellipse cx="50" cy="89" rx="19" ry="4" fill="#000" opacity="0.14"/>
+    <path d="M40 86 L37 42 Q37 27 50 27 Q63 27 63 42 L60 86 Z" fill="#FFFDF8"/>
+    <path d="M33 42 L67 42 L60 27 L40 27 Z" fill="#FFFDF8" opacity="0.88"/>
+    <path d="M44 86 L42 50 Q42 40 50 40 Q58 40 58 50 L56 86 Z" fill="#C23B5B" opacity="0.5"/>
+    <path d="M50 27 C50 14 63 15 58 4" fill="none" stroke="#FFFDF8" stroke-width="4.5" stroke-linecap="round"/>
   </symbol>
   <symbol id="ic-docinhos" viewBox="0 0 100 100">
-    <circle cx="38" cy="58" r="17" fill="#FFFDF8"/>
-    <circle cx="66" cy="42" r="13" fill="#FFFDF8" opacity="0.85"/>
-    <circle cx="33" cy="53" r="2" fill="#C23B5B"/>
-    <circle cx="43" cy="62" r="2" fill="#C23B5B"/>
-    <circle cx="39" cy="66" r="2" fill="#C23B5B"/>
-    <circle cx="62" cy="38" r="1.6" fill="#8F2942"/>
-    <circle cx="70" cy="45" r="1.6" fill="#8F2942"/>
+    <ellipse cx="48" cy="86" rx="24" ry="4.5" fill="#000" opacity="0.14"/>
+    <circle cx="38" cy="60" r="18" fill="#FFFDF8"/>
+    <circle cx="34" cy="55" r="18" fill="#FFFDF8" opacity="0.001"/>
+    <path d="M22 58 Q38 44 54 58 Q46 66 38 78 Q28 68 22 58 Z" fill="#C97B3D" opacity="0.22"/>
+    <circle cx="67" cy="40" r="13.5" fill="#FFFDF8" opacity="0.92"/>
+    <circle cx="32" cy="54" r="2.2" fill="#C23B5B"/>
+    <circle cx="44" cy="63" r="2.2" fill="#C23B5B"/>
+    <circle cx="38" cy="68" r="2.2" fill="#8F2942"/>
+    <circle cx="63" cy="36" r="1.8" fill="#8F2942"/>
+    <circle cx="72" cy="44" r="1.8" fill="#C23B5B"/>
   </symbol>
   <symbol id="ic-tortas" viewBox="0 0 100 100">
-    <path d="M50 26 L82 82 L18 82 Z" fill="#FFFDF8"/>
-    <path d="M50 26 L50 82 M34 82 L58 40 M66 82 L42 40" stroke="#C97B3D" stroke-width="2.5" opacity="0.55"/>
-    <circle cx="50" cy="34" r="4" fill="#C23B5B"/>
+    <ellipse cx="50" cy="87" rx="27" ry="4.5" fill="#000" opacity="0.14"/>
+    <path d="M50 24 L83 82 L17 82 Z" fill="#FFFDF8"/>
+    <path d="M50 24 L72 82 L28 82 Z" fill="#E3A857" opacity="0.4"/>
+    <path d="M50 24 L50 82 M36 82 L58 36 M64 82 L42 36" stroke="#8F5A33" stroke-width="2.2" opacity="0.55"/>
+    <circle cx="50" cy="31" r="4.5" fill="#C23B5B"/>
   </symbol>
   <symbol id="ic-salgados" viewBox="0 0 100 100">
-    <path d="M50 18 C68 34 74 52 62 72 C56 82 44 82 38 72 C26 52 32 34 50 18 Z" fill="#FFFDF8"/>
-    <path d="M40 58 Q50 66 60 58" fill="none" stroke="#C97B3D" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
+    <ellipse cx="50" cy="87" rx="20" ry="4.5" fill="#000" opacity="0.14"/>
+    <path d="M50 16 C69 33 76 53 63 74 C56 85 44 85 37 74 C24 53 31 33 50 16 Z" fill="#FFFDF8"/>
+    <path d="M50 26 C64 40 68 54 59 70 C54 78 46 78 41 70 C33 55 37 40 50 26 Z" fill="#E3A857" opacity="0.4"/>
+    <path d="M41 58 Q50 66 59 58" fill="none" stroke="#8F5A33" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
+    <path d="M60 30 Q68 26 66 18" fill="none" stroke="#FFFDF8" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
   </symbol>
 </svg>
+
 
 <!-- =========================== SITE (LANDING) =========================== -->
 <div id="site">
@@ -576,7 +592,6 @@ function recipeCardHTML(r){
     <div class="rcard" onclick="RP.openRecipe('${r.id}')">
       <div class="thumb cat-${slug}">
         <svg class="thumb-ico" viewBox="0 0 100 100"><use href="#ic-${slug}"/></svg>
-        <span class="thumb-emoji">${r.emoji}</span>
         <button class="fav-btn" onclick="event.stopPropagation();${unlocked ? `RP.toggleFav('${r.id}')` : "RP.openUpgrade()"}">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="${fav?'#C23B5B':'none'}" stroke="${fav?'#C23B5B':'#6B4A34'}" stroke-width="2"><path d="M12 21s-7-4.35-9.5-8.5C.5 8.5 3 5 6.5 5c2 0 3.5 1.2 4.5 2.7C12 6.2 13.5 5 15.5 5 19 5 21.5 8.5 21.5 12.5 19 16.65 12 21 12 21z"/></svg>
         </button>
@@ -799,7 +814,6 @@ function openRecipeSheet(r){
       <div class="sheet">
         <div class="sheet-hero cat-${catSlug(r.category)}">
           <svg class="thumb-ico" viewBox="0 0 100 100"><use href="#ic-${catSlug(r.category)}"/></svg>
-          <span class="thumb-emoji">${r.emoji}</span>
           <button class="sheet-close" onclick="RP.closeSheet()">✕</button>
           <button class="sheet-fav" onclick="RP.toggleFav('${r.id}')">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="${fav?'#C23B5B':'none'}" stroke="${fav?'#C23B5B':'#6B4A34'}" stroke-width="2"><path d="M12 21s-7-4.35-9.5-8.5C.5 8.5 3 5 6.5 5c2 0 3.5 1.2 4.5 2.7C12 6.2 13.5 5 15.5 5 19 5 21.5 8.5 21.5 12.5 19 16.65 12 21 12 21z"/></svg>
