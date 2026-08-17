@@ -10,16 +10,19 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,500;1,9..144,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
-    --creme: #FFF8EC; --creme-card: #FBEEDA; --creme-linha: #F0DFC0;
-    --chocolate: #3B2417; --chocolate-suave: #6B4A34;
+    --creme: #FFF8EC; --creme-card: #FBEEDA; --creme-linha: #F0DFC0; --creme-glow: #FFFCF4;
+    --chocolate: #3B2417; --chocolate-suave: #6B4A34; --panel-dark: #3B2417; --ink-on-dark: #FFFDF8;
     --caramelo: #C97B3D; --caramelo-escuro: #A85F28;
     --framboesa: #C23B5B; --framboesa-escura: #8F2942;
     --dourado: #E3A857; --branco: #FFFDF8;
     --sombra: 0 20px 50px -20px rgba(59,36,23,0.35);
   }
+  body.theme-dark{
+    --creme: #15100C; --creme-card: #241A13; --creme-linha: #3A2A1F; --creme-glow: #241A13;
+  }
   *{margin:0;padding:0;box-sizing:border-box;}
   html{scroll-behavior:smooth;}
-  body{background:radial-gradient(1200px 600px at 50% -10%, #FFFCF4 0%, var(--creme) 55%), var(--creme);color:var(--chocolate);font-family:'Plus Jakarta Sans', sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+  body{background:radial-gradient(1200px 600px at 50% -10%, var(--creme-glow) 0%, var(--creme) 55%), var(--creme);color:var(--chocolate);font-family:'Plus Jakarta Sans', sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden;transition:background .2s ease;}
   img,svg{display:block;max-width:100%;}
   h1,h2,h3,.display{font-family:'Fraunces', serif;}
   a{color:inherit;text-decoration:none;}
@@ -43,7 +46,7 @@
   .nav-right{display:flex;align-items:center;gap:14px;}
   .nav-key{font-size:12.5px;font-weight:700;color:var(--chocolate-suave);white-space:nowrap;}
   .nav-key:hover{color:var(--framboesa);}
-  .nav-cta{background:var(--chocolate);color:var(--branco);padding:10px 18px;border-radius:100px;font-weight:600;font-size:13.5px;white-space:nowrap;box-shadow:0 6px 16px -6px rgba(59,36,23,0.5);transition:transform .2s ease;}
+  .nav-cta{background:var(--panel-dark);color:var(--ink-on-dark);padding:10px 18px;border-radius:100px;font-weight:600;font-size:13.5px;white-space:nowrap;box-shadow:0 6px 16px -6px rgba(59,36,23,0.5);transition:transform .2s ease;}
   .nav-cta:hover{transform:translateY(-1px);}
 
   /* ---- hero ---- */
@@ -75,7 +78,7 @@
   /* ---- dor ---- */
   .dor{padding:60px 0;}
   .missao{padding:10px 0 20px;}
-  .missao-card{max-width:680px;margin:0 auto;background:var(--chocolate);border-radius:24px;padding:32px 28px;text-align:center;}
+  .missao-card{max-width:680px;margin:0 auto;background:var(--panel-dark);border-radius:24px;padding:32px 28px;text-align:center;}
   .missao-card p{color:#F3E6D3;font-size:15px;line-height:1.75;margin-top:10px;}
   .compare-grid{display:grid;grid-template-columns:1fr;gap:14px;max-width:680px;margin:20px auto 0;}
   @media(min-width:640px){.compare-grid{grid-template-columns:1fr 1fr;}}
@@ -114,7 +117,7 @@
   .steps-row{display:grid;grid-template-columns:1fr;gap:22px;max-width:760px;margin:0 auto;}
   @media(min-width:700px){.steps-row{grid-template-columns:1fr 1fr 1fr;}}
   .step-item{text-align:center;padding:0 10px;}
-  .step-circle{width:44px;height:44px;border-radius:50%;background:var(--chocolate);color:var(--dourado);display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-weight:700;font-size:18px;margin:0 auto 12px;}
+  .step-circle{width:44px;height:44px;border-radius:50%;background:var(--panel-dark);color:var(--dourado);display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-weight:700;font-size:18px;margin:0 auto 12px;}
   .step-item h3{font-size:15px;font-weight:700;margin-bottom:5px;}
   .step-item p{font-size:13px;color:var(--chocolate-suave);line-height:1.5;}
 
@@ -124,7 +127,7 @@
   @media(min-width:760px){.plans-grid{grid-template-columns:1fr 1.08fr;}}
   .plan-card{background:var(--branco);border-radius:22px;padding:28px 24px;border:1px solid var(--creme-linha);display:flex;flex-direction:column;gap:16px;transition:transform .25s ease;}
   .plan-card:hover{transform:translateY(-4px);}
-  .plan-card.pro{background:var(--chocolate);color:var(--branco);border:1px solid var(--chocolate);box-shadow:var(--sombra);position:relative;}
+  .plan-card.pro{background:var(--panel-dark);color:var(--ink-on-dark);border:1px solid var(--panel-dark);box-shadow:var(--sombra);position:relative;}
   .ribbon{position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:var(--dourado);color:var(--chocolate);font-size:11.5px;font-weight:800;padding:6px 16px;border-radius:100px;box-shadow:0 8px 18px -6px rgba(227,168,87,0.6);white-space:nowrap;}
   .plan-name{font-family:'Fraunces',serif;font-size:21px;font-weight:600;}
   .plan-tag{font-size:11px;font-weight:700;text-transform:uppercase;color:var(--caramelo-escuro);}
@@ -153,7 +156,7 @@
   @media(min-width:760px){.mock-grid{grid-template-columns:1fr 1fr 1fr;}}
   .mock-card{display:flex;flex-direction:column;gap:10px;}
   .mock-screen{background:var(--branco);border:1px solid var(--creme-linha);border-radius:20px;padding:16px;box-shadow:0 20px 40px -22px rgba(59,36,23,0.3);min-height:190px;}
-  .mock-screen-dark{background:var(--chocolate);border-color:var(--chocolate);}
+  .mock-screen-dark{background:var(--panel-dark);border-color:var(--panel-dark);}
   .mock-label{font-size:12.5px;font-weight:800;color:var(--chocolate);margin-bottom:8px;}
   .mock-chip-row{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;}
   .mock-chip{font-size:10px;font-weight:700;background:var(--creme-card);border:1px solid var(--creme-linha);padding:5px 9px;border-radius:100px;color:var(--caramelo-escuro);}
@@ -187,12 +190,12 @@
   .faq-a{max-height:0;overflow:hidden;transition:max-height .3s ease;}
   .faq-a-inner{padding:0 18px 16px;color:var(--chocolate-suave);font-size:13.5px;line-height:1.6;}
 
-  .cta-final{padding:66px 0 84px;background:var(--chocolate);color:var(--branco);}
+  .cta-final{padding:66px 0 84px;background:var(--panel-dark);color:var(--ink-on-dark);}
   .cta-final .wrap{text-align:center;display:flex;flex-direction:column;align-items:center;gap:16px;}
   .cta-final h2{font-family:'Fraunces',serif;font-size:clamp(26px,5vw,38px);font-weight:600;max-width:580px;line-height:1.15;}
   .cta-final p{color:#E9D9C4;max-width:460px;font-size:15px;line-height:1.6;}
   .cta-final .ps{margin-top:18px;font-size:12.5px;color:#C7A98A;max-width:460px;line-height:1.6;}
-  footer{background:var(--chocolate);border-top:1px solid rgba(255,255,255,0.08);padding:24px 0 96px;text-align:center;}
+  footer{background:var(--panel-dark);border-top:1px solid rgba(255,255,255,0.08);padding:24px 0 96px;text-align:center;}
   .footer-social{display:flex;gap:18px;justify-content:center;margin-bottom:12px;}
   .footer-social a{color:#E9D9C4;font-size:12.5px;font-weight:700;}
   footer p{color:#B99D7E;font-size:12px;}
@@ -233,7 +236,7 @@
   .app-h1{font-family:'Fraunces',serif;font-weight:700;font-size:20px;margin-bottom:12px;}
   .plan-pill{font-size:10px;font-weight:800;padding:5px 10px;border-radius:100px;display:inline-flex;align-items:center;gap:4px;}
   .plan-pill.essencial{background:var(--creme-card);color:var(--caramelo-escuro);border:1px solid var(--creme-linha);}
-  .plan-pill.pro{background:var(--chocolate);color:var(--dourado);}
+  .plan-pill.pro{background:var(--panel-dark);color:var(--dourado);}
 
   .search-pill{display:flex;align-items:center;gap:8px;background:var(--branco);border:1px solid var(--creme-linha);border-radius:100px;padding:11px 16px;margin-bottom:14px;}
   .search-pill input{border:none;background:none;outline:none;font-size:13.5px;flex:1;color:var(--chocolate);}
@@ -266,9 +269,9 @@
   .lock-pill{position:absolute;inset:0;background:rgba(59,36,23,0.55);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--branco);font-size:10px;font-weight:800;}
 
   .card{background:var(--branco);border:1px solid var(--creme-linha);border-radius:18px;padding:16px;}
-  .banner-dark{background:var(--chocolate);border-radius:18px;padding:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px;cursor:pointer;}
+  .banner-dark{background:var(--panel-dark);border-radius:18px;padding:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px;cursor:pointer;}
   .banner-dark .t1{color:var(--dourado);font-size:10.5px;font-weight:800;text-transform:uppercase;margin-bottom:4px;}
-  .banner-dark .t2{color:var(--branco);font-weight:700;font-size:14px;line-height:1.3;}
+  .banner-dark .t2{color:var(--ink-on-dark);font-weight:700;font-size:14px;line-height:1.3;}
 
   .progress-card{background:var(--creme-card);border:1px solid var(--creme-linha);border-radius:18px;padding:14px;margin-bottom:18px;}
   .progress-track{background:var(--creme-linha);height:8px;border-radius:100px;overflow:hidden;margin-top:6px;}
@@ -296,7 +299,7 @@
   .sheet-close{right:12px;} .sheet-fav{left:12px;}
   .stat-box{flex:1;background:var(--branco);border:1px solid var(--creme-linha);border-radius:12px;padding:10px;text-align:center;}
   .step-num{width:22px;height:22px;border-radius:50%;background:var(--framboesa);color:var(--branco);display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:800;flex-shrink:0;}
-  .toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--chocolate);color:var(--branco);padding:11px 18px;border-radius:100px;font-size:12.5px;font-weight:700;z-index:95;white-space:nowrap;}
+  .toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--panel-dark);color:var(--ink-on-dark);padding:11px 18px;border-radius:100px;font-size:12.5px;font-weight:700;z-index:95;white-space:nowrap;}
 </style>
 </head>
 <body>
@@ -1256,7 +1259,19 @@ const VALIDATION_ENDPOINT = "https://script.google.com/macros/s/AKfycbwFcmumWGNb
 /* =========================================================================
    ESTADO
 ========================================================================= */
-let state = { plan:null, favorites:[], feitas:[], tab:"inicio", query:"", category:null };
+let state = { plan:null, favorites:[], feitas:[], tab:"inicio", query:"", category:null, theme:"device" };
+
+async function loadTheme(){
+  try{ const t = await window.storage.get("recheiopro:theme"); if(t&&t.value) state.theme = JSON.parse(t.value); }catch(e){}
+}
+async function saveTheme(){ try{ await window.storage.set("recheiopro:theme", JSON.stringify(state.theme)); }catch(e){} }
+function applyTheme(){
+  const isDark = state.theme==="dark" || (state.theme==="device" && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+  document.body.classList.toggle("theme-dark", isDark);
+}
+if(window.matchMedia){
+  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", ()=>{ if(state.theme==="device") applyTheme(); });
+}
 
 /* =========================================================================
    PERSISTÊNCIA
@@ -1419,7 +1434,7 @@ function renderFavoritos(){
         <div style="text-align:center;padding:50px 0;">
           <div style="font-size:30px;margin-bottom:10px;">🤍</div>
           <div style="color:var(--chocolate-suave);font-size:13.5px;margin-bottom:16px;">Você ainda não favoritou nenhuma receita.</div>
-          <button class="plan-btn" style="background:var(--chocolate);color:var(--branco);display:inline-block;padding:11px 22px;" onclick="RP.goTab('receitas')">Ver receitas</button>
+          <button class="plan-btn" style="background:var(--panel-dark);color:var(--ink-on-dark);display:inline-block;padding:11px 22px;" onclick="RP.goTab('receitas')">Ver receitas</button>
         </div>` : `<div class="rgrid">${favs.map(recipeCardHTML).join('')}</div>`}
     </div>`;
 }
@@ -1427,7 +1442,7 @@ function renderFavoritos(){
 function renderPerfil(){
   const items = [
     ["Guia de conservação", true, "conservacao"],["Tabela de conversão", true, "conversao"],["Desafio de 7 dias", true, "desafio"],
-    ["Bônus exclusivos", true, "bonus"],["Fale com o suporte", false, "suporte"],
+    ["Bônus exclusivos", true, "bonus"],["Aparência", false, "aparencia"],["Fale com o suporte", false, "suporte"],
   ];
   return `
     <div class="app-px">
@@ -1447,7 +1462,7 @@ function renderPerfil(){
       <div style="border:1px solid var(--creme-linha);border-radius:16px;overflow:hidden;">
         ${items.map(([label,locked,key],i)=>{
           const isLocked = locked && state.plan!=='pro';
-          const action = key==='suporte' ? "RP.openSuporte()" : (isLocked ? "RP.openUpgrade()" : (key==='desafio' ? "RP.openDesafioSheet()" : `RP.openInfoSheet('${key}')`));
+          const action = key==='suporte' ? "RP.openSuporte()" : key==='aparencia' ? "RP.openAparencia()" : (isLocked ? "RP.openUpgrade()" : (key==='desafio' ? "RP.openDesafioSheet()" : `RP.openInfoSheet('${key}')`));
           return `
           <div style="display:flex;justify-content:space-between;align-items:center;padding:13px 14px;background:var(--branco);${i<items.length-1?'border-bottom:1px solid var(--creme-linha);':''}cursor:pointer;"
                onclick="${action}">
@@ -1550,7 +1565,7 @@ function renderPrecoCalc(){
       <input class="field" data-key="preco-custo" placeholder="Ex: 25.00" value="${esc(precoState.custo)}" oninput="RP.setPrecoField('custo',this)" style="margin-bottom:14px;">
       <div style="font-size:12px;font-weight:700;margin-bottom:6px;">Margem de lucro desejada: <span id="preco-margem-label">${precoState.margem}%</span></div>
       <input type="range" data-key="preco-margem" min="10" max="80" value="${precoState.margem}" oninput="RP.setPrecoField('margem',this)" style="width:100%;accent-color:#C23B5B;">
-      <div id="preco-resultado" style="background:var(--chocolate);border-radius:12px;padding:14px;margin-top:14px;">${precoResultadoHTML()}</div>
+      <div id="preco-resultado" style="background:var(--panel-dark);border-radius:12px;padding:14px;margin-top:14px;">${precoResultadoHTML()}</div>
       <div style="margin-top:14px;${custo>0?'':'opacity:0.45;pointer-events:none;'}" id="preco-produto-section">
         <div style="font-size:12px;font-weight:700;margin-bottom:6px;">Nome do produto (pro orçamento)</div>
         <input class="field" data-key="preco-produto" placeholder="Ex: Bolo de cenoura (12 fatias)" value="${esc(precoState.produto||'')}" oninput="RP.setPrecoField('produto',this)" style="margin-bottom:10px;">
@@ -1668,6 +1683,29 @@ const DESAFIO_DIAS = [
   "Revise seus preços: eles cobrem seu tempo, não só o ingrediente?",
   "Feche a semana: quantas encomendas você poderia ter fechado com esses preços?",
 ];
+
+function renderAparenciaSheetHTML(){
+  const opts = [["device","Usar o tema do dispositivo"],["dark","Tema escuro"],["light","Tema claro"]];
+  return `
+    <div class="sheet-overlay"><div class="modal-bg" onclick="RP.closeSheet()"></div>
+      <div class="sheet">
+        <div class="app-px" style="padding-top:20px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);flex-shrink:0;">←</button>
+            <div class="app-h1" style="margin-bottom:0;">Aparência</div>
+          </div>
+          <div style="color:var(--chocolate-suave);font-size:12px;margin:6px 0 16px 40px;">Essa escolha fica salva só neste navegador.</div>
+          <div style="border:1px solid var(--creme-linha);border-radius:16px;overflow:hidden;">
+            ${opts.map(([key,label],i)=>`
+              <div onclick="RP.setTheme('${key}')" style="display:flex;justify-content:space-between;align-items:center;padding:14px;background:var(--branco);${i<opts.length-1?'border-bottom:1px solid var(--creme-linha);':''}cursor:pointer;">
+                <span style="font-size:13.5px;font-weight:600;">${label}</span>
+                ${state.theme===key ? '<span style="color:var(--framboesa);font-weight:800;">✓</span>' : ''}
+              </div>`).join('')}
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
 
 function openInfoSheet(type){
   const root = document.getElementById("sheet-root");
@@ -1893,6 +1931,15 @@ window.RP = {
       <p style="margin-top:14px;font-size:12px;">Gostou? O RecheioPro tem mais 149 receitas assim, prontas e organizadas.</p>
       <a href="#planos" class="btn-primary" style="margin-top:8px;">Ver os planos</a>`;
   },
+  openAparencia(){
+    document.getElementById("sheet-root").innerHTML = renderAparenciaSheetHTML();
+  },
+  async setTheme(theme){
+    state.theme = theme;
+    await saveTheme();
+    applyTheme();
+    document.getElementById("sheet-root").innerHTML = renderAparenciaSheetHTML();
+  },
   openSuporte(){
     const root = document.getElementById("sheet-root");
     const email = "contato@recheiopro.com.br";
@@ -2030,6 +2077,8 @@ window.RP = {
    INIT
 ========================================================================= */
 (async function init(){
+  await loadTheme();
+  applyTheme();
   await loadState();
 
   // faq
