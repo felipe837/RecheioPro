@@ -74,6 +74,26 @@
 
   /* ---- dor ---- */
   .dor{padding:60px 0;}
+  .missao{padding:10px 0 20px;}
+  .missao-card{max-width:680px;margin:0 auto;background:var(--chocolate);border-radius:24px;padding:32px 28px;text-align:center;}
+  .missao-card p{color:#F3E6D3;font-size:15px;line-height:1.75;margin-top:10px;}
+  .compare-grid{display:grid;grid-template-columns:1fr;gap:14px;max-width:680px;margin:20px auto 0;}
+  @media(min-width:640px){.compare-grid{grid-template-columns:1fr 1fr;}}
+  .compare-col{border-radius:18px;padding:18px;}
+  .compare-sem{background:var(--creme-card);border:1px solid var(--creme-linha);}
+  .compare-com{background:var(--branco);border:2px solid var(--framboesa);}
+  .compare-title{font-weight:800;font-size:14px;margin-bottom:12px;}
+  .compare-row{font-size:12.5px;color:var(--chocolate-suave);padding:8px 0;border-bottom:1px solid var(--creme-linha);line-height:1.4;}
+  .compare-row:last-child{border-bottom:none;}
+  .lead{padding:10px 0 50px;}
+  .lead-card{max-width:520px;margin:0 auto;background:var(--creme-card);border:1px solid var(--creme-linha);border-radius:22px;padding:30px 26px;text-align:center;}
+  .lead-card h3{font-family:'Fraunces',serif;font-size:19px;font-weight:600;margin-bottom:6px;}
+  .lead-card p{font-size:13.5px;color:var(--chocolate-suave);margin-bottom:16px;}
+  .lead-form{display:flex;flex-direction:column;gap:10px;}
+  @media(min-width:520px){.lead-form{flex-direction:row;}}
+  .lead-input{flex:1;background:var(--branco);border:1.5px solid var(--creme-linha);border-radius:100px;padding:13px 18px;font-size:13.5px;outline:none;color:var(--chocolate);}
+  .lead-input:focus{border-color:var(--framboesa);}
+  .lead-btn{background:var(--framboesa);color:var(--branco);padding:13px 20px;border-radius:100px;font-weight:700;font-size:13.5px;white-space:nowrap;}
   .dor-grid{display:grid;grid-template-columns:1fr;gap:12px;max-width:700px;margin:0 auto;}
   @media(min-width:640px){.dor-grid{grid-template-columns:1fr 1fr;}}
   .dor-card{background:var(--branco);border:1px solid var(--creme-linha);border-radius:16px;padding:18px 20px;display:flex;gap:12px;align-items:flex-start;box-shadow:0 10px 24px -18px rgba(59,36,23,0.25);}
@@ -173,6 +193,8 @@
   .cta-final p{color:#E9D9C4;max-width:460px;font-size:15px;line-height:1.6;}
   .cta-final .ps{margin-top:18px;font-size:12.5px;color:#C7A98A;max-width:460px;line-height:1.6;}
   footer{background:var(--chocolate);border-top:1px solid rgba(255,255,255,0.08);padding:24px 0 96px;text-align:center;}
+  .footer-social{display:flex;gap:18px;justify-content:center;margin-bottom:12px;}
+  .footer-social a{color:#E9D9C4;font-size:12.5px;font-weight:700;}
   footer p{color:#B99D7E;font-size:12px;}
 
   .sticky-bar{position:fixed;bottom:0;left:0;right:0;z-index:45;background:var(--branco);border-top:1px solid var(--creme-linha);padding:10px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 -10px 30px -12px rgba(59,36,23,0.25);}
@@ -376,6 +398,34 @@
   </div>
 </section>
 
+<section class="missao">
+  <div class="wrap">
+    <div class="missao-card reveal">
+      <div class="kicker" style="color:var(--dourado);">Por que o RecheioPro existe</div>
+      <p>Toda confeiteira que já vendeu um bolo sem saber ao certo se sobrou lucro no fim do mês conhece essa sensação. A gente não queria criar só mais um caderno de receitas — queria juntar receita testada, calculadora que não deixa passar nenhum custo escondido, e um jeito de organizar tudo isso num lugar só, no celular, sem precisar de planilha nem calculadora separada. O RecheioPro nasceu pra isso: pra confeitaria virar negócio de verdade, não só um dom que não paga as contas.</p>
+    </div>
+
+    <div class="compare-grid reveal">
+      <div class="compare-col compare-sem">
+        <div class="compare-title">😮‍💨 Sem o RecheioPro</div>
+        <div class="compare-row">📓 Receita espalhada em caderno, print e papel solto</div>
+        <div class="compare-row">🧮 Calculadora separada, refazendo conta ingrediente por ingrediente</div>
+        <div class="compare-row">🤷‍♀️ Preço no chute, sem saber se cobre o seu tempo</div>
+        <div class="compare-row">🛒 Ir ao mercado sem lista e comprar o que já tinha</div>
+        <div class="compare-row">💬 Orçamento pro cliente escrito na mão toda vez</div>
+      </div>
+      <div class="compare-col compare-com">
+        <div class="compare-title">✅ Com o RecheioPro</div>
+        <div class="compare-row">📱 150 receitas organizadas e buscáveis no celular</div>
+        <div class="compare-row">🧮 Ingrediente salvo uma vez, reaproveitado pra sempre</div>
+        <div class="compare-row">💰 Preço calculado com margem de lucro real</div>
+        <div class="compare-row">🛒 Lista de compras automática pelas receitas favoritas</div>
+        <div class="compare-row">💬 Orçamento pronto, um toque pra mandar no WhatsApp</div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section class="solucao">
   <div class="wrap">
     <div class="sect-head reveal"><span class="kicker">A solução</span><h2>Tudo que a sua confeitaria precisa, num app só</h2><p>Receitas testadas, calculadoras que fazem a conta por você e o passo a passo pra precificar sem medo.</p></div>
@@ -503,6 +553,21 @@
   </div>
 </section>
 
+<section class="lead">
+  <div class="wrap">
+    <div class="lead-card reveal" id="lead-card">
+      <div style="font-size:30px;margin-bottom:8px;">🎁</div>
+      <h3>Ainda não decidiu? Ganhe uma receita grátis</h3>
+      <p>Deixa seu e-mail e já libera uma receita completa do RecheioPro agora mesmo — sem compromisso.</p>
+      <div class="lead-form">
+        <input type="email" id="lead-email" placeholder="seu@email.com" class="lead-input">
+        <button onclick="RP.enviarLead()" class="lead-btn">Quero minha receita grátis</button>
+      </div>
+      <div id="lead-msg" style="font-size:12px;color:var(--chocolate-suave);margin-top:10px;min-height:16px;"></div>
+    </div>
+  </div>
+</section>
+
 <section class="cta-final">
   <div class="wrap">
     <h2 class="reveal">Sua confeitaria organizada, precificada certo e pronta pra crescer.</h2>
@@ -512,7 +577,15 @@
   </div>
 </section>
 
-<footer><div class="wrap"><p>RecheioPro © 2026 — App para confeitaria. Todos os direitos reservados.</p></div></footer>
+<footer>
+  <div class="wrap">
+    <div class="footer-social">
+      <a href="#" style="opacity:0.4;pointer-events:none;">📷 Instagram</a>
+      <a href="#" style="opacity:0.4;pointer-events:none;">🎵 TikTok</a>
+    </div>
+    <p>RecheioPro © 2026 — App para confeitaria. Todos os direitos reservados.</p>
+  </div>
+</footer>
 
 <div class="sticky-bar">
   <div class="info">A partir de<strong>R$17,90</strong></div>
@@ -1314,22 +1387,26 @@ function renderInicio(){
     </div>`;
 }
 
-function renderReceitas(){
+function receitasFiltradasHTML(){
   const q = state.query.toLowerCase().trim();
   const filtered = RECIPES.filter(r => {
     const matchNome = r.name.toLowerCase().includes(q);
     const matchIngrediente = q.length>=3 && r.ingredientes.some(i=>i.n.toLowerCase().includes(q));
     return (q==="" || matchNome || matchIngrediente) && (!state.category || r.category===state.category);
   });
+  return filtered.map(recipeCardHTML).join('') || '<div style="grid-column:1/-1;text-align:center;color:var(--chocolate-suave);font-size:13px;padding:30px 0;">Nenhuma receita encontrada — tenta buscar por um ingrediente, tipo "chocolate".</div>';
+}
+
+function renderReceitas(){
   return `
     <div class="app-px">
       <div class="app-h1">Receitas</div>
-      <div class="search-pill"><span>🔍</span><input placeholder="Buscar por nome ou ingrediente..." value="${esc(state.query)}" oninput="RP.setQuery(this.value)"></div>
+      <div class="search-pill"><span>🔍</span><input data-key="q-receitas" placeholder="Buscar por nome ou ingrediente..." value="${esc(state.query)}" oninput="RP.setQuery(this)"></div>
       <div class="chip-row">
         <button class="chip ${!state.category?'active':''}" onclick="RP.setCategory(null)">Todas</button>
         ${CATEGORIES.map(c=>`<button class="chip ${state.category===c?'active':''}" onclick="RP.setCategory('${esc(c)}')">${esc(c)}</button>`).join('')}
       </div>
-      <div class="rgrid">${filtered.map(recipeCardHTML).join('') || '<div style="grid-column:1/-1;text-align:center;color:var(--chocolate-suave);font-size:13px;padding:30px 0;">Nenhuma receita encontrada — tenta buscar por um ingrediente, tipo "chocolate".</div>'}</div>
+      <div class="rgrid" id="receitas-results">${receitasFiltradasHTML()}</div>
     </div>`;
 }
 
@@ -1418,10 +1495,15 @@ function renderCalcLock(text){
     <button onclick="RP.openUpgrade()" style="background:var(--framboesa);color:var(--branco);padding:10px 18px;border-radius:100px;font-size:12.5px;font-weight:800;">Desbloquear no Pro</button>
   </div>`;
 }
-function renderCustoCalc(pro){
+function custoTotalHTML(pro){
   let total = custoState.itens.reduce((a,i)=>a+(parseFloat(i.c)||0),0);
   if(pro) total += (parseFloat(custoState.embalagem)||0) + (parseFloat(custoState.mao)||0);
   const porUnidade = custoState.rendimento>0 ? total/custoState.rendimento : 0;
+  return `
+    <div class="row"><span class="lbl">Custo total</span><span class="val">R$ ${total.toFixed(2)}</span></div>
+    <div class="row"><span class="lbl">Custo por unidade</span><span class="val" style="color:var(--framboesa);font-size:15px;">R$ ${porUnidade.toFixed(2)}</span></div>`;
+}
+function renderCustoCalc(pro){
   return `
     <div class="card">
       ${insumosState.length>0 ? `
@@ -1430,49 +1512,50 @@ function renderCustoCalc(pro){
           ${insumosState.map((ins,idx)=>`<button class="chip" onclick="RP.addIngFromInsumo(${idx})">${esc(ins.n)} · R$${parseFloat(ins.c).toFixed(2)}</button>`).join('')}
         </div>` : ''}
       <div style="font-weight:800;font-size:14px;margin-bottom:10px;">Ingredientes da receita</div>
-      ${custoState.itens.map((it,i)=>`
-        <div class="ing-row">
-          <input class="field" placeholder="Ingrediente" value="${esc(it.n)}" oninput="RP.updateIng(${i},'n',this.value)" onblur="RP.saveInsumoFromRow(${i})">
-          <input class="field" placeholder="R$" value="${esc(it.c)}" oninput="RP.updateIng(${i},'c',this.value)" onblur="RP.saveInsumoFromRow(${i})">
-          <button class="del-btn" onclick="RP.removeIng(${i})">🗑️</button>
-        </div>`).join('')}
+      <div id="custo-ing-rows">
+        ${custoState.itens.map((it,i)=>`
+          <div class="ing-row">
+            <input class="field" data-key="ing-n-${i}" placeholder="Ingrediente" value="${esc(it.n)}" oninput="RP.updateIng(this,${i},'n')" onblur="RP.saveInsumoFromRow(${i})">
+            <input class="field" data-key="ing-c-${i}" placeholder="R$" value="${esc(it.c)}" oninput="RP.updateIng(this,${i},'c')" onblur="RP.saveInsumoFromRow(${i})">
+            <button class="del-btn" onclick="RP.removeIng(${i})">🗑️</button>
+          </div>`).join('')}
+      </div>
       <div class="add-ing" onclick="RP.addIng()">＋ Adicionar ingrediente</div>
       ${insumosState.length===0 ? `<div style="font-size:11px;color:var(--chocolate-suave);margin:-8px 0 14px;">💡 Preencha nome e preço de um ingrediente — ele fica salvo aqui pra próxima receita, sem redigitar.</div>` : ''}
       ${pro ? `
         <div style="font-weight:800;font-size:13px;margin-bottom:8px;">Custos extras (Pro)</div>
         <div style="display:flex;gap:8px;margin-bottom:14px;">
-          <input class="field" placeholder="Embalagem (R$)" value="${esc(custoState.embalagem)}" oninput="RP.setCustoField('embalagem',this.value)">
-          <input class="field" placeholder="Mão de obra (R$)" value="${esc(custoState.mao)}" oninput="RP.setCustoField('mao',this.value)">
+          <input class="field" data-key="embalagem" placeholder="Embalagem (R$)" value="${esc(custoState.embalagem)}" oninput="RP.setCustoField('embalagem',this)">
+          <input class="field" data-key="mao" placeholder="Mão de obra (R$)" value="${esc(custoState.mao)}" oninput="RP.setCustoField('mao',this)">
         </div>` : ''}
       <div style="font-weight:800;font-size:13px;margin-bottom:6px;">Rendimento da receita</div>
-      <input class="field" type="number" value="${custoState.rendimento}" oninput="RP.setRendimento(this.value)" style="margin-bottom:14px;">
-      <div style="background:var(--creme-card);border-radius:12px;padding:12px;">
-        <div class="row"><span class="lbl">Custo total</span><span class="val">R$ ${total.toFixed(2)}</span></div>
-        <div class="row"><span class="lbl">Custo por unidade</span><span class="val" style="color:var(--framboesa);font-size:15px;">R$ ${porUnidade.toFixed(2)}</span></div>
-      </div>
+      <input class="field" data-key="rendimento" type="number" value="${custoState.rendimento}" oninput="RP.setRendimento(this)" style="margin-bottom:14px;">
+      <div id="custo-total" style="background:var(--creme-card);border-radius:12px;padding:12px;">${custoTotalHTML(pro)}</div>
     </div>`;
 }
-function renderPrecoCalc(){
+function precoResultadoHTML(){
   const custo = parseFloat(precoState.custo)||0;
   const preco = custo / (1 - precoState.margem/100);
   const lucro = preco - custo;
   return `
+    <div class="row"><span class="lbl" style="color:#E9D9C4;">Preço de venda sugerido</span><span class="val" style="color:var(--dourado);font-size:16px;">R$ ${custo?preco.toFixed(2):'0.00'}</span></div>
+    <div class="row"><span class="lbl" style="color:#E9D9C4;">Lucro por unidade</span><span class="val" style="color:var(--dourado);">R$ ${custo?lucro.toFixed(2):'0.00'}</span></div>`;
+}
+function renderPrecoCalc(){
+  const custo = parseFloat(precoState.custo)||0;
+  return `
     <div class="card">
       <div style="font-weight:800;font-size:14px;margin-bottom:10px;">Preço de venda e lucro</div>
       <div style="font-size:12px;font-weight:700;margin-bottom:6px;">Custo total da receita (R$)</div>
-      <input class="field" placeholder="Ex: 25.00" value="${esc(precoState.custo)}" oninput="RP.setPrecoField('custo',this.value)" style="margin-bottom:14px;">
-      <div style="font-size:12px;font-weight:700;margin-bottom:6px;">Margem de lucro desejada: ${precoState.margem}%</div>
-      <input type="range" min="10" max="80" value="${precoState.margem}" oninput="RP.setPrecoField('margem',this.value)" style="width:100%;accent-color:#C23B5B;">
-      <div style="background:var(--chocolate);border-radius:12px;padding:14px;margin-top:14px;">
-        <div class="row"><span class="lbl" style="color:#E9D9C4;">Preço de venda sugerido</span><span class="val" style="color:var(--dourado);font-size:16px;">R$ ${custo?preco.toFixed(2):'0.00'}</span></div>
-        <div class="row"><span class="lbl" style="color:#E9D9C4;">Lucro por unidade</span><span class="val" style="color:var(--dourado);">R$ ${custo?lucro.toFixed(2):'0.00'}</span></div>
-      </div>
-      ${custo>0 ? `
-      <div style="margin-top:14px;">
+      <input class="field" data-key="preco-custo" placeholder="Ex: 25.00" value="${esc(precoState.custo)}" oninput="RP.setPrecoField('custo',this)" style="margin-bottom:14px;">
+      <div style="font-size:12px;font-weight:700;margin-bottom:6px;">Margem de lucro desejada: <span id="preco-margem-label">${precoState.margem}%</span></div>
+      <input type="range" data-key="preco-margem" min="10" max="80" value="${precoState.margem}" oninput="RP.setPrecoField('margem',this)" style="width:100%;accent-color:#C23B5B;">
+      <div id="preco-resultado" style="background:var(--chocolate);border-radius:12px;padding:14px;margin-top:14px;">${precoResultadoHTML()}</div>
+      <div style="margin-top:14px;${custo>0?'':'opacity:0.45;pointer-events:none;'}" id="preco-produto-section">
         <div style="font-size:12px;font-weight:700;margin-bottom:6px;">Nome do produto (pro orçamento)</div>
-        <input class="field" placeholder="Ex: Bolo de cenoura (12 fatias)" value="${esc(precoState.produto||'')}" oninput="RP.setPrecoField('produto',this.value)" style="margin-bottom:10px;">
+        <input class="field" data-key="preco-produto" placeholder="Ex: Bolo de cenoura (12 fatias)" value="${esc(precoState.produto||'')}" oninput="RP.setPrecoField('produto',this)" style="margin-bottom:10px;">
         <button onclick="RP.gerarOrcamento()" style="width:100%;background:var(--framboesa);color:var(--branco);padding:12px;border-radius:100px;font-weight:800;font-size:13px;">📋 Gerar orçamento pro cliente</button>
-      </div>` : ''}
+      </div>
     </div>`;
 }
 function renderListaCompras(){
@@ -1663,6 +1746,12 @@ function renderDesafioSheetHTML(){
 /* =========================================================================
    RENDER PRINCIPAL DO APP
 ========================================================================= */
+function restoreFocus(dataKey, pos){
+  if(!dataKey) return;
+  const el = document.querySelector(`[data-key="${dataKey}"]`);
+  if(el){ el.focus(); try{ el.setSelectionRange(pos,pos); }catch(e){} }
+}
+
 function renderApp(){
   const body = document.getElementById("app-body");
   if(state.tab==="inicio") body.innerHTML = renderInicio();
@@ -1759,7 +1848,11 @@ window.RP = {
   },
   goTab(id){ state.tab = id; if(id!=="receitas"){} renderApp(); },
   goCategory(cat){ state.category = cat; state.tab = "receitas"; renderApp(); },
-  setQuery(v){ state.query = v; renderApp(); document.getElementById("app-body").querySelector("input")?.focus(); },
+  setQuery(el){
+    state.query = el.value;
+    const results = document.getElementById("receitas-results");
+    if(results){ results.innerHTML = receitasFiltradasHTML(); }
+  },
   setCategory(c){ state.category = c; renderApp(); },
   openRecipe(id){ const r = RECIPES.find(x=>x.id===id); openRecipeSheet(r); },
   closeSheet(){ closeSheet(); },
@@ -1772,6 +1865,33 @@ window.RP = {
     desafioState[i] = !desafioState[i];
     await saveDesafio();
     document.getElementById("sheet-root").innerHTML = renderDesafioSheetHTML();
+  },
+  async enviarLead(){
+    const input = document.getElementById("lead-email");
+    const msg = document.getElementById("lead-msg");
+    const email = input.value.trim();
+    if(!email || !email.includes("@") || !email.includes(".")){
+      msg.style.color = "var(--framboesa-escura)";
+      msg.textContent = "Digite um e-mail válido.";
+      return;
+    }
+    msg.style.color = "var(--chocolate-suave)";
+    msg.textContent = "Enviando...";
+    if(VALIDATION_ENDPOINT){
+      try{ await fetch(VALIDATION_ENDPOINT + "?lead=" + encodeURIComponent(email)); }catch(e){}
+    }
+    const receitaGratis = RECIPES.find(r=>r.id==="r2");
+    const card = document.getElementById("lead-card");
+    card.innerHTML = `
+      <div style="font-size:30px;margin-bottom:8px;">🎉</div>
+      <h3>Aqui está sua receita grátis!</h3>
+      <p style="margin-bottom:14px;">${esc(receitaGratis.name)} — direto do RecheioPro.</p>
+      <div style="background:var(--branco);border-radius:14px;padding:16px;text-align:left;font-size:12.5px;line-height:1.7;color:var(--chocolate-suave);">
+        <b style="color:var(--chocolate);">Ingredientes:</b><br>${receitaGratis.ingredientes.map(i=>`• ${esc(i.n)} — ${esc(i.q)}`).join('<br>')}
+        <br><br><b style="color:var(--chocolate);">Modo de preparo:</b><br>${receitaGratis.modo.map((p,i)=>`${i+1}. ${esc(p)}`).join('<br>')}
+      </div>
+      <p style="margin-top:14px;font-size:12px;">Gostou? O RecheioPro tem mais 149 receitas assim, prontas e organizadas.</p>
+      <a href="#planos" class="btn-primary" style="margin-top:8px;">Ver os planos</a>`;
   },
   openSuporte(){
     const root = document.getElementById("sheet-root");
@@ -1831,10 +1951,36 @@ window.RP = {
   setCalcTab(t){ calcTab = t; renderApp(); },
   addIng(){ custoState.itens.push({n:"",c:""}); renderApp(); },
   removeIng(i){ custoState.itens.splice(i,1); renderApp(); },
-  updateIng(i,field,val){ custoState.itens[i][field==='n'?'n':'c'] = val; renderApp(); },
-  setCustoField(f,v){ custoState[f]=v; renderApp(); },
-  setRendimento(v){ custoState.rendimento = parseFloat(v)||0; renderApp(); },
-  setPrecoField(f,v){ precoState[f] = f==='margem'?parseInt(v):v; renderApp(); },
+  updateIng(el,i,field){
+    custoState.itens[i][field] = el.value;
+    const t = document.getElementById("custo-total");
+    if(t) t.innerHTML = custoTotalHTML(state.plan==='pro');
+  },
+  setCustoField(f,el){
+    custoState[f]=el.value;
+    const t = document.getElementById("custo-total");
+    if(t) t.innerHTML = custoTotalHTML(state.plan==='pro');
+  },
+  setRendimento(el){
+    custoState.rendimento = parseFloat(el.value)||0;
+    const t = document.getElementById("custo-total");
+    if(t) t.innerHTML = custoTotalHTML(state.plan==='pro');
+  },
+  setPrecoField(f, el){
+    precoState[f] = f==='margem' ? parseInt(el.value) : el.value;
+    if(f==='produto') return;
+    const resultado = document.getElementById("preco-resultado");
+    if(resultado) resultado.innerHTML = precoResultadoHTML();
+    if(f==='margem'){
+      const label = document.getElementById("preco-margem-label");
+      if(label) label.textContent = precoState.margem + "%";
+    }
+    if(f==='custo'){
+      const secao = document.getElementById("preco-produto-section");
+      const ativo = (parseFloat(precoState.custo)||0) > 0;
+      if(secao) secao.style.cssText = ativo ? "margin-top:14px;" : "margin-top:14px;opacity:0.45;pointer-events:none;";
+    }
+  },
   async saveInsumoFromRow(i){
     const item = custoState.itens[i];
     if(!item || !item.n || !item.n.trim() || !item.c || parseFloat(item.c)<=0) return;
