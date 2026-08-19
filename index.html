@@ -2389,7 +2389,7 @@ function recipeCardHTML(r){
     <div class="rcard" onclick="RP.openRecipe('${r.id}')">
       <div class="thumb cat-${slug}">
         <svg class="thumb-ico" style="${iconVariationStyle(r.id)}" viewBox="0 0 100 100"><use href="#ic-${slug}"/></svg>
-        ${r.foto ? `<img class="thumb-photo" src="${r.foto}" alt="" loading="lazy" onerror="this.style.display='none'">` : ''}
+        <img class="thumb-photo" src="images/${r.id}.jpg" alt="" loading="lazy" onerror="this.style.display='none'">
         <button class="fav-btn" onclick="event.stopPropagation();${unlocked ? `RP.toggleFav('${r.id}')` : "RP.openUpgrade()"}">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="${fav?'#C23B5B':'none'}" stroke="${fav?'#C23B5B':'#6B4A34'}" stroke-width="2"><path d="M12 21s-7-4.35-9.5-8.5C.5 8.5 3 5 6.5 5c2 0 3.5 1.2 4.5 2.7C12 6.2 13.5 5 15.5 5 19 5 21.5 8.5 21.5 12.5 19 16.65 12 21 12 21z"/></svg>
         </button>
@@ -2938,7 +2938,7 @@ function openRecipeSheet(r){
       <div class="sheet">
         <div class="sheet-hero cat-${catSlug(r.category)}">
           <svg class="thumb-ico" viewBox="0 0 100 100"><use href="#ic-${catSlug(r.category)}"/></svg>
-          ${r.foto ? `<img class="thumb-photo" src="${r.foto}" alt="" loading="lazy" onerror="this.style.display='none'">` : ''}
+          <img class="thumb-photo" src="images/${r.id}.jpg" alt="" loading="lazy" onerror="this.style.display='none'">
           <button class="sheet-close" onclick="RP.closeSheet()">✕</button>
           <button class="sheet-fav" onclick="RP.toggleFav('${r.id}')">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="${fav?'#C23B5B':'none'}" stroke="${fav?'#C23B5B':'#6B4A34'}" stroke-width="2"><path d="M12 21s-7-4.35-9.5-8.5C.5 8.5 3 5 6.5 5c2 0 3.5 1.2 4.5 2.7C12 6.2 13.5 5 15.5 5 19 5 21.5 8.5 21.5 12.5 19 16.65 12 21 12 21z"/></svg>
