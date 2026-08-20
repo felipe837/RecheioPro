@@ -3578,6 +3578,7 @@ window.RP = {
   async enterApp(){
     document.getElementById("app-overlay").classList.remove("hidden");
     document.body.style.overflow = "hidden";
+    if(location.hash){ history.replaceState(null, "", location.pathname + location.search); }
     state.tab = "inicio";
     renderApp();
     let tourVisto = false;
