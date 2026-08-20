@@ -1611,11 +1611,17 @@ function coletarAlertas(){
     if(diasRestantes > 2) return null;
     return { r, diasRestantes };
   }).filter(Boolean);
-  return { followUps, aniversarios, estoqueAlertas, validadeAlertas };
+  const pesquisasSatisfacao = pedidosState.filter(p=>{
+    if(!p.dataEvento || p.pesquisaEnviada) return false;
+    if(!['confirmado','entregue'].includes(p.status)) return false;
+    const diasDepois = Math.floor((hoje - new Date(p.dataEvento)) / (1000*60*60*24));
+    return diasDepois >= 1 && diasDepois <= 5;
+  });
+  return { followUps, aniversarios, estoqueAlertas, validadeAlertas, pesquisasSatisfacao };
 }
 function totalAlertas(){
   const a = coletarAlertas();
-  return a.followUps.length + a.aniversarios.length + a.estoqueAlertas.length + a.validadeAlertas.length;
+  return a.followUps.length + a.aniversarios.length + a.estoqueAlertas.length + a.validadeAlertas.length + a.pesquisasSatisfacao.length;
 }
 function renderCentralAlertasHTML(){
   const a = coletarAlertas();
@@ -1663,6 +1669,19 @@ function renderCentralAlertasHTML(){
             <div class="card" style="border-left:4px solid ${diasRestantes<0?'var(--framboesa)':'var(--dourado)'};margin-bottom:8px;cursor:pointer;" onclick="RP.closeSheet();RP.openRecipe('${r.id}')">
               <div style="font-weight:800;font-size:12.5px;">${esc(r.name)}</div>
               <div style="font-size:11px;color:var(--chocolate-suave);">${diasRestantes<0?`Venceu há ${Math.abs(diasRestantes)} dia(s)`:diasRestantes===0?'Vence hoje':'Vence amanhã'}</div>
+            </div>`).join('')}
+          ` : ''}
+
+          ${a.pesquisasSatisfacao.length>0 ? `
+          <div style="font-weight:800;font-size:12.5px;margin:14px 0 8px;">💬 Que tal perguntar como ficou?</div>
+          ${a.pesquisasSatisfacao.map(p=>`
+            <div class="card" style="border-left:4px solid #7A9E6E;margin-bottom:8px;">
+              <div style="font-weight:800;font-size:12.5px;">${esc(p.cliente||'Cliente')} — ${esc(p.produto)}</div>
+              <div style="font-size:11px;color:var(--chocolate-suave);margin-bottom:8px;">Entregue há alguns dias, ainda sem retorno sobre a satisfação</div>
+              <div style="display:flex;gap:6px;">
+                <button onclick="RP.pesquisaSatisfacaoWhatsapp('${p.id}')" style="flex:1;background:#25D366;color:#fff;padding:9px;border-radius:100px;font-weight:800;font-size:11px;">💬 Perguntar</button>
+                <button onclick="RP.marcarPesquisaEnviada('${p.id}')" style="flex:1;background:var(--creme-card);color:var(--chocolate);padding:9px;border-radius:100px;font-weight:800;font-size:11px;">Dispensar</button>
+              </div>
             </div>`).join('')}
           ` : ''}
         </div>
@@ -1774,6 +1793,10 @@ function renderPedidosHTML(){
     </div>`;
 }
 
+function codigoCupom(nome){
+  const base = (nome||"CLIENTE").trim().split(" ")[0].toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^A-Z]/g,"");
+  return (base||"CLIENTE") + "10";
+}
 function renderPedidoDetalheHTML(id){
   const p = pedidosState.find(x=>x.id===id);
   if(!p) return "";
@@ -1819,6 +1842,20 @@ function renderPedidoDetalheHTML(id){
 
           <div style="font-size:12px;font-weight:700;margin-bottom:6px;">Observações (sabor, alergias, detalhes combinados)</div>
           <textarea id="pedido-obs" class="field" placeholder="Ex: Sabor chocolate com morango, sem lactose..." style="min-height:60px;margin-bottom:14px;">${esc(p.observacoes||'')}</textarea>
+
+          ${p.cliente ? `
+          <div class="card" style="margin-bottom:14px;">
+            <div style="font-weight:800;font-size:12.5px;margin-bottom:6px;">🎁 Programa de indicação</div>
+            <div style="font-size:11.5px;color:var(--chocolate-suave);margin-bottom:8px;">Cupom desse cliente: <b style="color:var(--framboesa);font-size:13px;">${codigoCupom(p.cliente)}</b></div>
+            <button onclick="RP.compartilharCupom('${p.id}')" class="no-print" style="width:100%;background:#25D366;color:#fff;padding:9px;border-radius:100px;font-weight:800;font-size:11.5px;margin-bottom:10px;">💬 Mandar cupom pro cliente</button>
+            <div style="font-size:11px;color:var(--chocolate-suave);margin-bottom:4px;">Créditos de indicação acumulados: <b style="color:var(--chocolate);">${p.creditosIndicacao||0}</b></div>
+            <div style="font-size:10px;color:var(--chocolate-suave);">Toda vez que uma amiga comprar mencionando esse cupom, adicione um crédito abaixo.</div>
+            <button onclick="RP.adicionarCreditoIndicacao('${p.id}')" class="no-print" style="width:100%;background:var(--creme-card);color:var(--chocolate);padding:9px;border-radius:100px;font-weight:800;font-size:11.5px;margin-top:8px;">＋ Registrar indicação usada</button>
+          </div>
+
+          <div style="font-size:12px;font-weight:700;margin-bottom:6px;">Esse pedido veio de indicação? (cupom usado)</div>
+          <input class="field" id="pedido-cupom-usado" placeholder="Ex: MARIA10" value="${esc(p.cupomUsado||'')}" style="margin-bottom:14px;">
+          ` : ''}
 
           <button onclick="RP.salvarPedido('${p.id}')" class="no-print" style="width:100%;background:var(--framboesa);color:var(--ink-on-dark);padding:13px;border-radius:100px;font-weight:800;font-size:14px;margin-bottom:8px;">Salvar</button>
           <button onclick="RP.gerarTermoEncomenda('${p.id}')" class="no-print" style="width:100%;background:var(--panel-dark);color:var(--ink-on-dark);padding:13px;border-radius:100px;font-weight:800;font-size:13px;margin-bottom:8px;">📄 Gerar termo de encomenda</button>
@@ -3876,8 +3913,24 @@ window.RP = {
     p.sinalRecebido = document.getElementById("pedido-sinal").value.trim();
     p.referencias = document.getElementById("pedido-referencias").value.split("\n").map(l=>l.trim()).filter(Boolean);
     p.observacoes = document.getElementById("pedido-obs").value.trim();
+    const cupomInput = document.getElementById("pedido-cupom-usado");
+    if(cupomInput) p.cupomUsado = cupomInput.value.trim();
     await savePedidos();
     RP.openPedidos();
+  },
+  compartilharCupom(id){
+    const p = pedidosState.find(x=>x.id===id);
+    if(!p) return;
+    const texto = `Oi ${p.cliente}! Passa esse cupom pras suas amigas: *${codigoCupom(p.cliente)}* 🎁 Quando alguma delas comprar mencionando ele, você ganha um desconto na sua próxima encomenda!`;
+    window.open("https://wa.me/?text="+encodeURIComponent(texto), "_blank");
+  },
+  async adicionarCreditoIndicacao(id){
+    const p = pedidosState.find(x=>x.id===id);
+    if(!p) return;
+    p.creditosIndicacao = (p.creditosIndicacao||0) + 1;
+    await savePedidos();
+    document.getElementById("sheet-root").innerHTML = renderPedidoDetalheHTML(id);
+    showToast("Crédito de indicação adicionado! 🎁");
   },
   gerarTermoEncomenda(id){
     const p = pedidosState.find(x=>x.id===id);
@@ -3951,6 +4004,20 @@ Confeiteira(o)                              Cliente`;
     if(!p) return;
     const texto = `Oi ${p.cliente}! Tudo bem? Lembrei que a data especial de vocês tá chegando 🎉 Esse ano também posso preparar o(a) ${p.produto} pra comemoração — quer que eu já reserve?`;
     window.open("https://wa.me/?text="+encodeURIComponent(texto), "_blank");
+  },
+  async pesquisaSatisfacaoWhatsapp(id){
+    const p = pedidosState.find(x=>x.id===id);
+    if(!p) return;
+    const texto = `Oi ${p.cliente}! Tudo bem? Passando aqui pra saber se ficou tudo gostoso com o(a) ${p.produto} 🥰 Adoraria saber sua opinião — e se puder, me manda uma fotinho de como ficou o momento!`;
+    window.open("https://wa.me/?text="+encodeURIComponent(texto), "_blank");
+    p.pesquisaEnviada = true;
+    await savePedidos();
+    document.getElementById("sheet-root").innerHTML = renderCentralAlertasHTML();
+  },
+  async marcarPesquisaEnviada(id){
+    const p = pedidosState.find(x=>x.id===id);
+    if(p){ p.pesquisaEnviada = true; await savePedidos(); }
+    document.getElementById("sheet-root").innerHTML = renderCentralAlertasHTML();
   },
   openEstoque(){
     document.getElementById("sheet-root").innerHTML = renderEstoqueHTML();
