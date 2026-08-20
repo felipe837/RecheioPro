@@ -682,6 +682,44 @@
 
 <script>
 /* =========================================================================
+   COMPATIBILIDADE — window.storage só existe dentro do preview do Claude.
+   No site publicado de verdade (GitHub Pages), ele não existe, então criamos
+   aqui um substituto que salva de verdade no navegador da pessoa, usando
+   localStorage. Isso é o que faz favoritos, plano, receitas feitas etc.
+   continuarem salvos depois de fechar ou recarregar a página.
+========================================================================= */
+if(!window.storage){
+  const RP_PREFIX = "recheiopro-storage:";
+  window.storage = {
+    async get(key){
+      const raw = localStorage.getItem(RP_PREFIX+key);
+      if(raw === null) throw new Error("chave não encontrada: "+key);
+      return { key, value: raw, shared:false };
+    },
+    async set(key, value){
+      localStorage.setItem(RP_PREFIX+key, value);
+      return { key, value, shared:false };
+    },
+    async delete(key){
+      const existia = localStorage.getItem(RP_PREFIX+key) !== null;
+      localStorage.removeItem(RP_PREFIX+key);
+      return { key, deleted:existia, shared:false };
+    },
+    async list(prefix){
+      const keys = [];
+      for(let i=0;i<localStorage.length;i++){
+        const k = localStorage.key(i);
+        if(k && k.startsWith(RP_PREFIX)){
+          const bare = k.slice(RP_PREFIX.length);
+          if(!prefix || bare.startsWith(prefix)) keys.push(bare);
+        }
+      }
+      return { keys, prefix, shared:false };
+    }
+  };
+}
+
+/* =========================================================================
    DADOS
 ========================================================================= */
 const CATEGORIES = ["Bolos","Recheios","Coberturas","Docinhos","Tortas","Salgados"];
