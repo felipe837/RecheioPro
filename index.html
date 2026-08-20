@@ -322,6 +322,9 @@
   .sheet-close{right:12px;} .sheet-fav{left:12px;}
   .stat-box{flex:1;background:var(--branco);border:1px solid var(--creme-linha);border-radius:12px;padding:10px;text-align:center;}
   .step-num{width:22px;height:22px;border-radius:50%;background:var(--framboesa);color:var(--ink-on-dark);display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:800;flex-shrink:0;}
+  .check-box{width:19px;height:19px;border-radius:6px;border:1.5px solid var(--creme-linha);display:flex;align-items:center;justify-content:center;font-size:12px;color:transparent;transition:all .15s ease;}
+  .checklist-row.checked .check-box{background:var(--framboesa);border-color:var(--framboesa);color:var(--ink-on-dark);}
+  .checklist-row.checked .check-label{text-decoration:line-through;opacity:0.5;}
   .toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--panel-dark);color:var(--ink-on-dark);padding:11px 18px;border-radius:100px;font-size:12.5px;font-weight:700;z-index:95;white-space:nowrap;}
 </style>
 </head>
@@ -457,6 +460,7 @@
           <li class="missing">❌ Aulas rápidas e bônus exclusivos</li><li class="missing">❌ Todos os recursos futuros</li>
         </ul>
         <a href="https://pay.kiwify.com.br/CcFq1Th" class="plan-btn" style="display:block;">Começar com o Essencial</a>
+        <div class="cost-per" style="margin-top:12px;">💡 Menos de R$0,36 por receita incluída.</div>
       </div>
       <div class="plan-card pro reveal">
         <div class="ribbon">★ MAIS VENDIDO</div>
@@ -1417,6 +1421,7 @@ async function loadState(){
   await loadEstoque();
   await loadMinhasReceitas();
   await loadKits();
+  await loadColecoes();
 }
 async function saveFeitas(){ try{ await window.storage.set("recheiopro:feitas", JSON.stringify(state.feitas)); }catch(e){} }
 async function saveAvaliacoes(){ try{ await window.storage.set("recheiopro:avaliacoes", JSON.stringify(state.avaliacoes)); }catch(e){} }
@@ -2189,6 +2194,78 @@ function renderKitDetalheHTML(kitId){
     </div>`;
 }
 
+/* =========================================================================
+   COLEÇÕES — pastas próprias de receitas (ex: "Sem lactose", "Pra vender no verão")
+========================================================================= */
+let colecoesState = [];
+async function loadColecoes(){
+  try{ const c = await window.storage.get("recheiopro:colecoes"); if(c&&c.value) colecoesState = JSON.parse(c.value); }catch(e){}
+}
+async function saveColecoes(){ try{ await window.storage.set("recheiopro:colecoes", JSON.stringify(colecoesState)); }catch(e){} }
+
+function renderColecoesHTML(){
+  return `
+    <div class="sheet-overlay"><div class="modal-bg" onclick="RP.closeSheet()"></div>
+      <div class="sheet">
+        <div class="app-px" style="padding-top:20px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+            <div class="app-h1" style="margin-bottom:0;">Minhas Coleções</div>
+            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);">✕</button>
+          </div>
+          <p style="color:var(--chocolate-suave);font-size:12px;margin-bottom:14px;">Organize as receitas do seu jeito — por ocasião, restrição, o que for útil pra você.</p>
+          <button onclick="RP.novaColecao()" style="width:100%;background:var(--framboesa);color:var(--ink-on-dark);padding:12px;border-radius:100px;font-weight:800;font-size:13px;margin-bottom:14px;">＋ Nova coleção</button>
+          ${colecoesState.length===0 ? `<div style="text-align:center;color:var(--chocolate-suave);font-size:13px;padding:20px 0;">Nenhuma coleção criada ainda.</div>` : ''}
+          ${colecoesState.map(c=>`
+            <div class="card" style="margin-bottom:8px;cursor:pointer;" onclick="RP.abrirColecao('${c.id}')">
+              <div style="display:flex;justify-content:space-between;align-items:center;">
+                <div style="font-weight:800;font-size:13px;">📁 ${esc(c.nome)}</div>
+                <span style="color:var(--chocolate-suave);">›</span>
+              </div>
+              <div style="font-size:11px;color:var(--chocolate-suave);margin-top:2px;">${c.receitaIds.length} receita${c.receitaIds.length===1?'':'s'}</div>
+            </div>`).join('')}
+        </div>
+      </div>
+    </div>`;
+}
+function renderColecaoDetalheHTML(colecaoId){
+  const c = colecoesState.find(x=>x.id===colecaoId);
+  if(!c) return "";
+  const receitas = c.receitaIds.map(id=>RECIPES.find(r=>r.id===id)).filter(Boolean);
+  return `
+    <div class="sheet-overlay"><div class="modal-bg" onclick="RP.closeSheet()"></div>
+      <div class="sheet">
+        <div class="app-px" style="padding-top:20px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+            <button onclick="RP.openColecoes()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);flex-shrink:0;">←</button>
+            <div class="app-h1" style="margin-bottom:0;">📁 ${esc(c.nome)}</div>
+          </div>
+          <button onclick="RP.excluirColecao('${c.id}')" style="color:var(--chocolate-suave);font-size:11.5px;font-weight:700;margin-bottom:14px;">🗑️ Excluir esta coleção</button>
+          ${receitas.length===0 ? `<div style="text-align:center;color:var(--chocolate-suave);font-size:13px;padding:20px 0;">Nenhuma receita nessa coleção ainda. Abra uma receita e toque em "Adicionar a uma coleção".</div>` : ''}
+          <div class="rgrid">
+            ${receitas.map(r=>recipeCardHTML(r)).join('')}
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+function renderAdicionarColecaoHTML(recipeId){
+  const jaTem = colecoesState.filter(c=>c.receitaIds.includes(recipeId)).map(c=>c.id);
+  return `
+    <div class="sheet-overlay"><div class="modal-bg" onclick="RP.abrirRecipeDeVolta('${recipeId}')"></div>
+      <div class="sheet" style="padding:24px 22px;">
+        <div style="font-weight:800;font-size:16px;margin-bottom:10px;">Adicionar a uma coleção</div>
+        ${colecoesState.length===0 ? `<p style="color:var(--chocolate-suave);font-size:12.5px;margin-bottom:14px;">Você ainda não tem nenhuma coleção.</p>` : ''}
+        ${colecoesState.map(c=>`
+          <label style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--creme-linha);font-size:13px;font-weight:700;">
+            <input type="checkbox" ${jaTem.includes(c.id)?'checked':''} onchange="RP.toggleReceitaNaColecao('${c.id}','${recipeId}')"> ${esc(c.nome)}
+          </label>`).join('')}
+        <input class="field" id="nova-colecao-inline" placeholder="Ou crie uma nova coleção..." style="margin-top:14px;margin-bottom:8px;">
+        <button onclick="RP.criarColecaoInline('${recipeId}')" style="width:100%;background:var(--creme-card);color:var(--chocolate);padding:11px;border-radius:100px;font-weight:800;font-size:12.5px;margin-bottom:8px;">＋ Criar e adicionar</button>
+        <button onclick="RP.abrirRecipeDeVolta('${recipeId}')" style="width:100%;background:var(--framboesa);color:var(--ink-on-dark);padding:12px;border-radius:100px;font-weight:800;font-size:13px;">Pronto</button>
+      </div>
+    </div>`;
+}
+
 function renderFornecedoresListaHTML(lista){
   const agrupado = {};
   lista.forEach(f => { (agrupado[f.ingrediente] = agrupado[f.ingrediente]||[]).push(f); });
@@ -2570,6 +2647,7 @@ function renderFavoritos(){
   return `
     <div class="app-px">
       <div class="app-h1">Favoritos</div>
+      <button onclick="RP.openColecoes()" style="width:100%;background:var(--creme-card);color:var(--chocolate);font-size:12.5px;font-weight:800;padding:11px 14px;border-radius:100px;margin-bottom:16px;">📁 Minhas Coleções</button>
       ${favs.length===0 ? `
         <div style="text-align:center;padding:50px 0;">
           <div style="font-size:30px;margin-bottom:10px;">🤍</div>
@@ -3042,15 +3120,16 @@ function openRecipeSheet(r){
           </div>` : ''}
 
           <div style="font-weight:800;font-size:14px;margin-bottom:8px;">Ingredientes ${fator!==1?`<span style="color:var(--framboesa);font-weight:700;font-size:11.5px;">(ajustado)</span>`:''}</div>
-          ${r.ingredientes.map(i=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--creme-linha);font-size:13px;"><span>${esc(i.n)}</span><span style="font-weight:700;color:${fator!==1?'var(--framboesa)':'var(--chocolate-suave)'};">${esc(fator!==1?scaleQtyText(i.q,fator):i.q)}</span></div>`).join('')}
+          ${r.ingredientes.map((i,idx)=>`<div class="checklist-row" id="ing-check-${idx}" onclick="RP.toggleChecklistItem('ing-check-${idx}')" style="display:flex;align-items:center;gap:8px;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--creme-linha);font-size:13px;cursor:pointer;"><span style="display:flex;align-items:center;gap:8px;"><span class="check-box">✓</span><span class="check-label">${esc(i.n)}</span></span><span style="font-weight:700;color:${fator!==1?'var(--framboesa)':'var(--chocolate-suave)'};">${esc(fator!==1?scaleQtyText(i.q,fator):i.q)}</span></div>`).join('')}
           <button onclick="${state.plan==='pro'?`RP.abrirTabelaNutricional('${r.id}')`:'RP.openUpgrade()'}" style="width:100%;background:var(--creme-card);color:var(--chocolate);font-size:11.5px;font-weight:800;padding:9px 14px;border-radius:100px;margin-top:10px;">🍎 Tabela nutricional (estimativa) ${state.plan==='pro'?'':'🔒'}</button>
           <button onclick="${state.plan==='pro'?`RP.abrirVerificacaoAlergenos('${r.id}')`:'RP.openUpgrade()'}" style="width:100%;background:var(--creme-card);color:var(--chocolate);font-size:11.5px;font-weight:800;padding:9px 14px;border-radius:100px;margin-top:8px;">⚠️ Verificar alérgenos (revisão) ${state.plan==='pro'?'':'🔒'}</button>
           <button onclick="${state.plan==='pro'?`RP.abrirEscalaReversa('${r.id}')`:'RP.openUpgrade()'}" style="width:100%;background:var(--creme-card);color:var(--chocolate);font-size:11.5px;font-weight:800;padding:9px 14px;border-radius:100px;margin-top:8px;">🔄 O que dá pra fazer com o que sobrou? ${state.plan==='pro'?'':'🔒'}</button>
+          <button onclick="RP.abrirAdicionarColecao('${r.id}')" style="width:100%;background:var(--creme-card);color:var(--chocolate);font-size:11.5px;font-weight:800;padding:9px 14px;border-radius:100px;margin-top:8px;">📁 Adicionar a uma coleção</button>
           <div style="display:flex;justify-content:space-between;align-items:center;margin:16px 0 8px;">
             <div style="font-weight:800;font-size:14px;">Modo de preparo</div>
             <button onclick="RP.abrirModoCozinha('${r.id}')" style="background:var(--panel-dark);color:var(--ink-on-dark);font-size:11.5px;font-weight:800;padding:8px 14px;border-radius:100px;">👩‍🍳 Modo cozinha</button>
           </div>
-          ${r.modo.map((p,i)=>`<div style="display:flex;gap:10px;margin-bottom:10px;"><span class="step-num">${i+1}</span><p style="font-size:13px;color:var(--chocolate-suave);line-height:1.5;">${esc(p)}</p></div>`).join('')}
+          ${r.modo.map((p,i)=>`<div class="checklist-row" id="passo-check-${i}" onclick="RP.toggleChecklistItem('passo-check-${i}')" style="display:flex;gap:10px;margin-bottom:10px;cursor:pointer;align-items:flex-start;"><span class="step-num">${i+1}</span><p class="check-label" style="font-size:13px;color:var(--chocolate-suave);line-height:1.5;margin:0;flex:1;">${esc(p)}</p><span class="check-box" style="flex-shrink:0;margin-top:1px;">✓</span></div>`).join('')}
           <div class="card" style="background:var(--creme-card);margin-top:8px;"><div style="font-weight:800;font-size:12px;margin-bottom:4px;">✨ Dica da confeiteira</div><p style="font-size:12.5px;color:var(--chocolate-suave);">${esc(r.dicas)}</p></div>
           <div class="card" style="margin-top:8px;margin-bottom:14px;"><div style="font-weight:800;font-size:12px;margin-bottom:4px;">Conservação</div><p style="font-size:12.5px;color:var(--chocolate-suave);">${esc(r.conservacao)}</p></div>
 
@@ -3850,6 +3929,51 @@ window.RP = {
       </div>
       <div style="font-size:10px;color:var(--chocolate-suave);margin-top:8px;text-align:center;">Estimativa aproximada. Não substitui análise laboratorial ou de nutricionista.</div>`;
   },
+  toggleChecklistItem(elId){
+    const el = document.getElementById(elId);
+    if(el) el.classList.toggle("checked");
+  },
+  openColecoes(){
+    document.getElementById("sheet-root").innerHTML = renderColecoesHTML();
+  },
+  async novaColecao(){
+    const nome = prompt("Nome da coleção (ex: Sem lactose, Pra vender no verão):");
+    if(!nome || !nome.trim()) return;
+    colecoesState.push({ id:"col"+Date.now(), nome:nome.trim(), receitaIds:[] });
+    await saveColecoes();
+    document.getElementById("sheet-root").innerHTML = renderColecoesHTML();
+  },
+  abrirColecao(id){
+    document.getElementById("sheet-root").innerHTML = renderColecaoDetalheHTML(id);
+  },
+  async excluirColecao(id){
+    colecoesState = colecoesState.filter(c=>c.id!==id);
+    await saveColecoes();
+    RP.openColecoes();
+  },
+  abrirAdicionarColecao(recipeId){
+    document.getElementById("sheet-root").innerHTML = renderAdicionarColecaoHTML(recipeId);
+  },
+  abrirRecipeDeVolta(recipeId){
+    const r = RECIPES.find(x=>x.id===recipeId);
+    if(r) openRecipeSheet(r);
+  },
+  async toggleReceitaNaColecao(colecaoId, recipeId){
+    const c = colecoesState.find(x=>x.id===colecaoId);
+    if(!c) return;
+    if(c.receitaIds.includes(recipeId)) c.receitaIds = c.receitaIds.filter(id=>id!==recipeId);
+    else c.receitaIds.push(recipeId);
+    await saveColecoes();
+  },
+  async criarColecaoInline(recipeId){
+    const input = document.getElementById("nova-colecao-inline");
+    const nome = (input.value||"").trim();
+    if(!nome) return;
+    const nova = { id:"col"+Date.now(), nome, receitaIds:[recipeId] };
+    colecoesState.push(nova);
+    await saveColecoes();
+    document.getElementById("sheet-root").innerHTML = renderAdicionarColecaoHTML(recipeId);
+  },
   abrirModoCozinha(id){
     modoCozinhaState = { recipeId:id, passo:0 };
     document.getElementById("sheet-root").innerHTML = renderModoCozinhaHTML();
@@ -4384,6 +4508,7 @@ Confeiteira(o)                              Cliente`;
       estoque: estoqueState,
       minhasReceitas: minhasReceitasState,
       kits: kitsState,
+      colecoes: colecoesState,
       negocioConfig: negocioConfig,
       freteConfig: freteConfig,
     };
@@ -4431,6 +4556,7 @@ Confeiteira(o)                              Cliente`;
         if(dados.estoque){ estoqueState = dados.estoque; await saveEstoque(); }
         if(dados.minhasReceitas){ minhasReceitasState = dados.minhasReceitas; await saveMinhasReceitas(); }
         if(dados.kits){ kitsState = dados.kits; await saveKits(); }
+        if(dados.colecoes){ colecoesState = dados.colecoes; await saveColecoes(); }
         if(dados.negocioConfig){ negocioConfig = dados.negocioConfig; await saveNegocioConfig(); }
         if(dados.theme){ state.theme = dados.theme; await saveTheme(); applyTheme(); }
         msg.style.color = "#7A9E6E";
