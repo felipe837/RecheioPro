@@ -2946,7 +2946,8 @@ function openRecipeSheet(r){
         </div>
         <div class="app-px">
           <div style="color:var(--caramelo-escuro);font-size:11px;font-weight:800;text-transform:uppercase;">${esc(r.category)}</div>
-          <h2 class="app-h1" style="margin-top:2px;">${esc(r.name)}</h2>
+          <h2 class="app-h1" style="margin-top:2px;margin-bottom:2px;">${esc(r.name)}</h2>
+          <div style="color:var(--chocolate-suave);font-size:10px;margin-bottom:10px;">código: ${r.id}</div>
           <div style="display:flex;gap:10px;margin-bottom:12px;">
             <div class="stat-box">⏱️<div style="font-size:11px;font-weight:700;margin-top:2px;">${esc(r.tempo)}</div></div>
             <div class="stat-box">🍽️<div style="font-size:11px;font-weight:700;margin-top:2px;">${esc(r.rendimento)}</div></div>
