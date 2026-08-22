@@ -1937,6 +1937,7 @@ function renderPedidoDetalheHTML(id){
           ` : ''}
 
           <button onclick="RP.salvarPedido('${p.id}')" class="no-print" style="width:100%;background:var(--framboesa);color:var(--ink-on-dark);padding:13px;border-radius:100px;font-weight:800;font-size:14px;margin-bottom:8px;">Salvar</button>
+          ${p.orcamentoPublicoId ? `<button onclick="RP.verificarRespostaOrcamento('${p.id}')" class="no-print" style="width:100%;background:#25D366;color:#fff;padding:11px;border-radius:100px;font-weight:800;font-size:12.5px;margin-bottom:8px;">🔎 Ver se o cliente já respondeu</button>` : ''}
           <button onclick="RP.gerarTermoEncomenda('${p.id}')" class="no-print" style="width:100%;background:var(--panel-dark);color:var(--ink-on-dark);padding:13px;border-radius:100px;font-weight:800;font-size:13px;margin-bottom:8px;">📄 Gerar termo de encomenda</button>
           <button onclick="window.print()" class="no-print" style="width:100%;background:var(--creme-card);color:var(--chocolate);padding:12px;border-radius:100px;font-weight:800;font-size:12.5px;margin-bottom:8px;">🖨️ Exportar PDF / imprimir</button>
           <button onclick="RP.excluirPedido('${p.id}')" class="no-print" style="width:100%;color:var(--chocolate-suave);font-weight:700;font-size:12.5px;padding:8px;">Excluir pedido</button>
@@ -2159,6 +2160,18 @@ function custoAtualReceitaSalva(receita, visitados){
 function receitasQueUsam(nomeInsumo){
   return minhasReceitasState.filter(r => r.itens.some(it => !it.subReceitaId && it.nome.trim().toLowerCase() === nomeInsumo.trim().toLowerCase()));
 }
+function margemAtualReceita(receita){
+  const precoVenda = parseFloat(receita.precoVenda);
+  if(!precoVenda) return null;
+  const custo = custoAtualReceitaSalva(receita).porUnidade;
+  return ((precoVenda - custo) / precoVenda) * 100;
+}
+function margemEmRisco(receita){
+  const margemMinima = parseFloat(receita.margemMinima);
+  if(!margemMinima) return false;
+  const margemAtual = margemAtualReceita(receita);
+  return margemAtual != null && margemAtual < margemMinima;
+}
 
 function renderMinhasReceitasHTML(){
   return `
@@ -2174,13 +2187,16 @@ function renderMinhasReceitasHTML(){
           ${minhasReceitasState.map(receita=>{
             const c = custoAtualReceitaSalva(receita);
             const temSubReceita = receita.itens.some(it=>it.subReceitaId);
+            const margemAtual = margemAtualReceita(receita);
+            const risco = margemEmRisco(receita);
             return `
-            <div class="card" style="margin-bottom:8px;">
+            <div class="card" style="margin-bottom:8px;${risco?'border-left:4px solid var(--framboesa);':''}">
               <div style="display:flex;justify-content:space-between;align-items:center;">
                 <div style="font-weight:800;font-size:12.5px;">${esc(receita.nome)} ${temSubReceita?'<span style="color:var(--framboesa);font-size:10px;">🔗 usa sub-receita</span>':''}</div>
                 <button onclick="RP.excluirReceitaSalva('${receita.id}')" style="color:var(--chocolate-suave);font-size:13px;">🗑️</button>
               </div>
               <div style="font-size:11.5px;color:var(--chocolate-suave);margin-top:4px;">Custo total: <b style="color:var(--chocolate);">R$ ${c.total.toFixed(2)}</b> · por unidade: <b style="color:var(--framboesa);">R$ ${c.porUnidade.toFixed(2)}</b></div>
+              ${margemAtual != null ? `<div style="font-size:11px;margin-top:2px;color:${risco?'var(--framboesa)':'#7A9E6E'};font-weight:700;">${risco?'⚠️':'✓'} Margem atual: ${margemAtual.toFixed(1)}% ${receita.margemMinima?`(mínima definida: ${receita.margemMinima}%)`:''}</div>` : ''}
               ${c.itensSemPreco>0 ? `<div style="font-size:10px;color:var(--dourado);margin-top:2px;">⚠️ ${c.itensSemPreco} ingrediente(s) não está mais no seu banco de insumos — usando o último preço salvo.</div>` : ''}
             </div>`;
           }).join('')}
@@ -3175,6 +3191,11 @@ function renderCustoCalc(pro){
             <input type="checkbox" id="salvar-rateio-despesas"> Incluir rateio de despesas fixas/equipamentos (R$ ${rateioDespesaPorUnidade().toFixed(2)}/unidade)
           </label>
           ${rateioDespesaPorUnidade()===0 ? `<div style="font-size:10px;color:var(--dourado);margin:-6px 0 10px;">Configure despesas fixas e produção mensal estimada no Resumo Mensal pra habilitar isso.</div>` : ''}
+          <div style="display:flex;gap:8px;margin-bottom:8px;">
+            <input class="field" id="salvar-preco-venda" type="number" placeholder="Preço de venda (R$, opcional)" style="flex:1;">
+            <input class="field" id="salvar-margem-minima" type="number" placeholder="Margem mínima (%, opcional)" style="flex:1;">
+          </div>
+          <div style="font-size:10px;color:var(--chocolate-suave);margin:-4px 0 10px;">Preenchendo isso, o app avisa se o preço de um ingrediente subir e apertar demais essa margem.</div>
           <input class="field" data-key="salvar-nome" id="salvar-receita-nome" placeholder="Nome pra salvar essa receita (ex: Brigadeiro gourmet)" style="margin-bottom:8px;">
           <button onclick="RP.salvarReceitaCalculada()" style="width:100%;background:var(--framboesa);color:var(--ink-on-dark);padding:12px;border-radius:100px;font-weight:800;font-size:12.5px;">💾 Salvar (recalcula sozinho quando o preço mudar)</button>
         </div>
@@ -4260,6 +4281,28 @@ window.RP = {
     document.getElementById("sheet-root").innerHTML = renderPedidoDetalheHTML(id);
     showToast("Crédito de indicação adicionado! 🎁");
   },
+  async verificarRespostaOrcamento(id){
+    const p = pedidosState.find(x=>x.id===id);
+    if(!p || !p.orcamentoPublicoId || !VALIDATION_ENDPOINT) return;
+    try{
+      const res = await fetch(VALIDATION_ENDPOINT + "?status_orcamento=" + encodeURIComponent(p.orcamentoPublicoId));
+      const data = await res.json();
+      if(!data.found){ showToast("Não achei esse orçamento no servidor."); return; }
+      if(data.status === "aceito"){
+        p.status = "confirmado";
+        await savePedidos();
+        showToast("🎉 O cliente aceitou o orçamento!");
+        document.getElementById("sheet-root").innerHTML = renderPedidoDetalheHTML(id);
+      } else if(data.status === "recusado"){
+        p.status = "perdido";
+        await savePedidos();
+        showToast("O cliente recusou esse orçamento.");
+        document.getElementById("sheet-root").innerHTML = renderPedidoDetalheHTML(id);
+      } else {
+        showToast("Ainda sem resposta — status: aguardando.");
+      }
+    }catch(e){ showToast("Não consegui verificar agora. Tente de novo em instantes."); }
+  },
   gerarTermoEncomenda(id){
     const p = pedidosState.find(x=>x.id===id);
     if(!p) return;
@@ -4422,10 +4465,12 @@ Confeiteira(o)                              Cliente`;
     );
     if(itens.length===0) return;
     const incluirRateio = document.getElementById("salvar-rateio-despesas")?.checked || false;
+    const precoVenda = document.getElementById("salvar-preco-venda")?.value || "";
+    const margemMinima = document.getElementById("salvar-margem-minima")?.value || "";
     minhasReceitasState.push({
       id: "mr"+Date.now(), nome, itens,
       embalagem: custoState.embalagem, mao: custoState.mao, margemPerda: custoState.margemPerda,
-      rendimento: custoState.rendimento, incluirRateio,
+      rendimento: custoState.rendimento, incluirRateio, precoVenda, margemMinima,
     });
     await saveMinhasReceitas();
     nomeInput.value = "";
@@ -4959,12 +5004,18 @@ Confeiteira(o)                              Cliente`;
         historico.push({ preco: precoAntigo, data: new Date().toISOString() });
         const variacao = ((parseFloat(precoNovo) - precoAntigo) / precoAntigo) * 100;
         const afetadas = receitasQueUsam(item.n);
+        insumosState[existente] = { n:item.n.trim(), c:precoNovo, historico };
         if(Math.abs(variacao) >= 10){
           const sufixo = afetadas.length>0 ? ` — atualizado em ${afetadas.length} receita${afetadas.length===1?'':'s'} salva${afetadas.length===1?'':'s'}` : '';
           showToast(`${item.n}: preço ${variacao>0?'subiu':'caiu'} ${Math.abs(variacao).toFixed(0)}%${sufixo}`);
         }
+        const emRisco = afetadas.filter(r=>margemEmRisco(r));
+        if(emRisco.length>0){
+          setTimeout(()=>showToast(`⚠️ Margem apertada: ${emRisco.map(r=>r.nome).join(', ')}`), 2800);
+        }
+      } else {
+        insumosState[existente] = { n:item.n.trim(), c:precoNovo, historico };
       }
-      insumosState[existente] = { n:item.n.trim(), c:precoNovo, historico };
     }
     else { insumosState.push({ n:item.n.trim(), c:precoNovo, historico:[] }); }
     await saveInsumos();
@@ -4987,34 +5038,57 @@ Confeiteira(o)                              Cliente`;
     const t = document.getElementById("custo-total");
     if(t) t.innerHTML = custoTotalHTML(state.plan==='pro');
   },
-  gerarOrcamento(){
+  async gerarOrcamento(){
     const custo = parseFloat(precoState.custo)||0;
     const preco = custo / (1 - precoState.margem/100);
     const produto = (precoState.produto||"").trim() || "Encomenda";
     const temFrete = precoState.freteValor != null;
     const total = preco + (temFrete ? precoState.freteValor : 0);
     const linhaFrete = temFrete ? `\nFrete (${precoState.freteKm.toFixed(1)} km): *R$ ${precoState.freteValor.toFixed(2)}*\nTotal: *R$ ${total.toFixed(2)}*` : '';
-    const texto = `🧁 *Orçamento — ${produto}*\n\nValor: *R$ ${preco.toFixed(2)}*${linhaFrete}\nFormas de pagamento: Pix ou cartão\nOrçamento válido por 3 dias\n\nQualquer dúvida, me chama! 💛`;
-    ultimoOrcamentoTexto = texto;
-    registrarOrcamento(produto, total, custo);
     const clienteNome = (precoState.cliente||"").trim();
+    registrarOrcamento(produto, total, custo);
+
+    const root = document.getElementById("sheet-root");
+    const montarTela = (textoFinal) => {
+      ultimoOrcamentoTexto = textoFinal;
+      root.innerHTML = `
+        <div class="sheet-overlay"><div class="modal-bg" onclick="RP.closeSheet()"></div>
+          <div class="sheet" style="padding:24px 22px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+              <div class="app-h1" style="margin-bottom:0;">Orçamento pronto</div>
+              <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);">✕</button>
+            </div>
+            <div style="background:var(--creme-card);border-radius:12px;padding:14px;font-size:13px;line-height:1.7;white-space:pre-wrap;margin-bottom:14px;">${esc(textoFinal)}</div>
+            <a href="https://wa.me/?text=${encodeURIComponent(textoFinal)}" target="_blank" style="display:block;box-sizing:border-box;text-align:center;width:100%;background:#25D366;color:#fff;padding:13px;border-radius:100px;font-weight:800;font-size:14px;margin-bottom:8px;">Enviar por WhatsApp</a>
+            <button onclick="RP.copiarOrcamento(this)" id="orc-copy-btn" style="width:100%;background:var(--framboesa);color:var(--ink-on-dark);padding:13px;border-radius:100px;font-weight:800;font-size:14px;">Copiar texto</button>
+          </div>
+        </div>`;
+    };
+
+    const textoBase = `🧁 *Orçamento — ${produto}*\n\nValor: *R$ ${preco.toFixed(2)}*${linhaFrete}\nFormas de pagamento: Pix ou cartão\nOrçamento válido por 3 dias\n\nQualquer dúvida, me chama! 💛`;
+    montarTela(textoBase); // mostra na hora, sem travar esperando o link
+
+    let orcamentoPublicoId = null;
+    if(VALIDATION_ENDPOINT){
+      try{
+        const res = await fetch(VALIDATION_ENDPOINT + "?action=criar_orcamento", {
+          method: "POST",
+          body: JSON.stringify({ cliente: clienteNome, produto, valor: total, itens: [{nome: produto}] }),
+        });
+        const data = await res.json();
+        if(data && data.ok && data.id){
+          orcamentoPublicoId = data.id;
+          const link = VALIDATION_ENDPOINT + "?orcamento=" + data.id;
+          const textoComLink = textoBase.replace("Qualquer dúvida, me chama! 💛", `👉 Veja e responda aqui: ${link}\n\nQualquer dúvida, me chama! 💛`);
+          montarTela(textoComLink);
+        }
+      }catch(e){ /* sem internet ou backend fora do ar — segue só com o texto, sem travar a confeiteira */ }
+    }
+
     if(clienteNome){
-      pedidosState.push({ id:"p"+Date.now(), cliente:clienteNome, produto, valor:total, status:"orcamento_enviado", dataPedido:new Date().toISOString(), dataEvento:null, recorrente:false, referencias:[], observacoes:"" });
+      pedidosState.push({ id:"p"+Date.now(), cliente:clienteNome, produto, valor:total, status:"orcamento_enviado", dataPedido:new Date().toISOString(), dataEvento:null, recorrente:false, referencias:[], observacoes:"", orcamentoPublicoId });
       savePedidos();
     }
-    const root = document.getElementById("sheet-root");
-    root.innerHTML = `
-      <div class="sheet-overlay"><div class="modal-bg" onclick="RP.closeSheet()"></div>
-        <div class="sheet" style="padding:24px 22px;">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-            <div class="app-h1" style="margin-bottom:0;">Orçamento pronto</div>
-            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);">✕</button>
-          </div>
-          <div style="background:var(--creme-card);border-radius:12px;padding:14px;font-size:13px;line-height:1.7;white-space:pre-wrap;margin-bottom:14px;">${esc(texto)}</div>
-          <a href="https://wa.me/?text=${encodeURIComponent(texto)}" target="_blank" style="display:block;box-sizing:border-box;text-align:center;width:100%;background:#25D366;color:#fff;padding:13px;border-radius:100px;font-weight:800;font-size:14px;margin-bottom:8px;">Enviar por WhatsApp</a>
-          <button onclick="RP.copiarOrcamento(this)" id="orc-copy-btn" style="width:100%;background:var(--framboesa);color:var(--ink-on-dark);padding:13px;border-radius:100px;font-weight:800;font-size:14px;">Copiar texto</button>
-        </div>
-      </div>`;
   },
   async copiarOrcamento(btn){
     try{ await navigator.clipboard.writeText(ultimoOrcamentoTexto); btn.textContent = "Copiado ✓"; }
