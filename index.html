@@ -308,6 +308,7 @@
   body.theme-dark input[type="date"]{color-scheme:dark;}
   .field:focus{border-color:var(--framboesa);}
   .ing-row{display:flex;gap:8px;align-items:center;margin-bottom:8px;}
+  .ing-row .field{flex:1;min-width:0;}
   .ing-row .field:first-child{flex:1;}
   .ing-row .field:last-child{width:80px;}
   .del-btn{width:30px;height:30px;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:var(--chocolate-suave);}
@@ -1424,6 +1425,7 @@ async function loadState(){
   await loadMinhasReceitas();
   await loadKits();
   await loadColecoes();
+  await loadEquipamentos();
 }
 async function saveFeitas(){ try{ await window.storage.set("recheiopro:feitas", JSON.stringify(state.feitas)); }catch(e){} }
 async function saveAvaliacoes(){ try{ await window.storage.set("recheiopro:avaliacoes", JSON.stringify(state.avaliacoes)); }catch(e){} }
@@ -1489,7 +1491,7 @@ function tempoAtivoMinutos(tempo){ return tempoMinutos(tempo.split('+')[0]); }
    FRETE POR DISTÂNCIA (OpenCage Geocoding API)
 ========================================================================= */
 let freteConfig = { apikey:"", origem:"", precoKm:"" };
-let negocioConfig = { despesasFixas:"", politicaCancelamento:"É necessário sinal de 50% para confirmar o pedido. Em caso de cancelamento com menos de 48h de antecedência, o sinal não será devolvido, já que os ingredientes já foram comprados e o preparo pode já ter sido iniciado." };
+let negocioConfig = { despesasFixas:"", producaoMensalEstimada:"", politicaCancelamento:"É necessário sinal de 50% para confirmar o pedido. Em caso de cancelamento com menos de 48h de antecedência, o sinal não será devolvido, já que os ingredientes já foram comprados e o preparo pode já ter sido iniciado." };
 async function loadNegocioConfig(){
   try{ const n = await window.storage.get("recheiopro:negocio-config"); if(n&&n.value) negocioConfig = JSON.parse(n.value); }catch(e){}
 }
@@ -1735,6 +1737,63 @@ function calcularLinhaProducao(dataInicio, dataFim){
   return { pedidosNoPeriodo, agrupado };
 }
 
+/* =========================================================================
+   CALENDÁRIO VISUAL DE ENCOMENDAS
+========================================================================= */
+let calendarioMesAtual = new Date().getMonth();
+let calendarioAnoAtual = new Date().getFullYear();
+function renderCalendarioEncomendasHTML(){
+  const nomesMeses = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+  const primeiroDia = new Date(calendarioAnoAtual, calendarioMesAtual, 1);
+  const diasNoMes = new Date(calendarioAnoAtual, calendarioMesAtual+1, 0).getDate();
+  const diaSemanaInicio = primeiroDia.getDay();
+  const hoje = new Date();
+
+  const pedidosPorDia = {};
+  pedidosState.forEach(p=>{
+    if(!p.dataEvento) return;
+    const d = new Date(p.dataEvento);
+    if(d.getMonth()===calendarioMesAtual && d.getFullYear()===calendarioAnoAtual){
+      const dia = d.getDate();
+      (pedidosPorDia[dia] = pedidosPorDia[dia] || []).push(p);
+    }
+  });
+
+  let celulas = [];
+  for(let i=0;i<diaSemanaInicio;i++) celulas.push(`<div></div>`);
+  for(let dia=1; dia<=diasNoMes; dia++){
+    const pedidosDoDia = pedidosPorDia[dia] || [];
+    const ehHoje = hoje.getDate()===dia && hoje.getMonth()===calendarioMesAtual && hoje.getFullYear()===calendarioAnoAtual;
+    celulas.push(`
+      <div onclick="${pedidosDoDia.length>0?`RP.verPedidosDoDia(${dia})`:''}" style="aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:10px;cursor:${pedidosDoDia.length>0?'pointer':'default'};background:${pedidosDoDia.length>0?'var(--framboesa)':(ehHoje?'var(--creme-card)':'transparent')};border:${ehHoje&&pedidosDoDia.length===0?'1.5px solid var(--framboesa)':'none'};">
+        <span style="font-size:11.5px;font-weight:${pedidosDoDia.length>0?'800':'600'};color:${pedidosDoDia.length>0?'var(--ink-on-dark)':'var(--chocolate)'};">${dia}</span>
+        ${pedidosDoDia.length>0?`<span style="font-size:8.5px;color:var(--ink-on-dark);">${pedidosDoDia.length}</span>`:''}
+      </div>`);
+  }
+
+  return `
+    <div class="sheet-overlay"><div class="modal-bg" onclick="RP.closeSheet()"></div>
+      <div class="sheet">
+        <div class="app-px" style="padding-top:20px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+            <div class="app-h1" style="margin-bottom:0;">Calendário</div>
+            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);">✕</button>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+            <button onclick="RP.mudarMesCalendario(-1)" style="width:32px;height:32px;border-radius:50%;background:var(--creme-card);">‹</button>
+            <div style="font-weight:800;font-size:14px;">${nomesMeses[calendarioMesAtual]} de ${calendarioAnoAtual}</div>
+            <button onclick="RP.mudarMesCalendario(1)" style="width:32px;height:32px;border-radius:50%;background:var(--creme-card);">›</button>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:6px;">
+            ${["D","S","T","Q","Q","S","S"].map(d=>`<div style="text-align:center;font-size:10px;font-weight:800;color:var(--chocolate-suave);">${d}</div>`).join('')}
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;">${celulas.join('')}</div>
+          <div id="calendario-dia-detalhe" style="margin-top:16px;"></div>
+        </div>
+      </div>
+    </div>`;
+}
+
 function renderPedidosHTML(){
   const hoje = new Date();
   const aniversariosProximos = pedidosState.filter(p => p.recorrente && p.dataEvento).map(p => {
@@ -1756,7 +1815,8 @@ function renderPedidosHTML(){
             <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);">✕</button>
           </div>
           <p style="color:var(--chocolate-suave);font-size:12px;margin-bottom:10px;">Cliente, data, status e referências — tudo numa ficha só.</p>
-          <button onclick="RP.openLinhaProducao()" style="width:100%;background:var(--panel-dark);color:var(--ink-on-dark);padding:11px;border-radius:100px;font-weight:800;font-size:12.5px;margin-bottom:14px;">📋 Ver linha de produção do período</button>
+          <button onclick="RP.openLinhaProducao()" style="width:100%;background:var(--panel-dark);color:var(--ink-on-dark);padding:11px;border-radius:100px;font-weight:800;font-size:12.5px;margin-bottom:8px;">📋 Ver linha de produção do período</button>
+          <button onclick="RP.openCalendarioEncomendas()" style="width:100%;background:var(--creme-card);color:var(--chocolate);padding:11px;border-radius:100px;font-weight:800;font-size:12.5px;margin-bottom:14px;">📅 Ver calendário de encomendas</button>
 
           ${followUps.length>0 ? `
           <div style="font-weight:800;font-size:12.5px;margin-bottom:8px;">⏰ Faz tempo que você mandou orçamento</div>
@@ -1830,6 +1890,15 @@ function renderPedidoDetalheHTML(id){
             ${PEDIDO_STATUS.map(([key,label])=>`<option value="${key}" ${p.status===key?'selected':''}>${label}</option>`).join('')}
           </select>
 
+          ${minhasReceitasState.length>0 ? `
+          <div style="font-size:12px;font-weight:700;margin-bottom:6px;">Vincular a uma receita salva (opcional)</div>
+          <select id="pedido-receita-vinculada" class="field" style="margin-bottom:10px;">
+            <option value="">Nenhuma</option>
+            ${minhasReceitasState.map(r=>`<option value="${r.id}" ${p.receitaVinculadaId===r.id?'selected':''}>${esc(r.nome)}</option>`).join('')}
+          </select>
+          <div style="font-size:10.5px;color:var(--chocolate-suave);margin:-6px 0 10px;">💡 Vinculando, ao marcar "Confirmado" o app oferece dar baixa no estoque com os ingredientes dessa receita.</div>
+          ` : ''}
+
           <div style="font-size:12px;font-weight:700;margin-bottom:6px;">Data do evento/aniversário (opcional)</div>
           <input type="date" class="field" id="pedido-data-evento" value="${p.dataEvento ? p.dataEvento.slice(0,10) : ''}" style="margin-bottom:8px;">
           <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--chocolate-suave);margin-bottom:14px;">
@@ -1901,7 +1970,22 @@ function statusEstoqueItem(item){
     if(dias < 0) return { cor:"var(--framboesa)", texto:"Tem lote vencido" };
     if(dias <= 3) return { cor:"var(--dourado)", texto:`Vence em ${dias} dia${dias===1?'':'s'}` };
   }
+  const previsao = preverRupturaEstoque(item);
+  if(previsao != null && previsao <= 7) return { cor:"var(--dourado)", texto:`No ritmo atual, acaba em ~${previsao} dia${previsao===1?'':'s'}` };
   return { cor:"#7A9E6E", texto:"OK" };
+}
+function preverRupturaEstoque(item){
+  const historico = item.historicoConsumo || [];
+  if(historico.length < 2) return null; // precisa de pelo menos 2 baixas pra estimar um ritmo
+  const trintaDiasAtras = new Date(); trintaDiasAtras.setDate(trintaDiasAtras.getDate()-30);
+  const recentes = historico.filter(h => new Date(h.data) >= trintaDiasAtras);
+  if(recentes.length < 2) return null;
+  const totalConsumido = recentes.reduce((a,h)=>a+h.quantidade,0);
+  const diasCobertos = Math.max(1, (new Date() - new Date(recentes[0].data)) / (1000*60*60*24));
+  const consumoPorDia = totalConsumido / diasCobertos;
+  if(consumoPorDia<=0) return null;
+  const totalAtual = totalEmEstoque(item);
+  return Math.round(totalAtual / consumoPorDia);
 }
 
 function renderEstoqueHTML(){
@@ -1996,7 +2080,10 @@ function renderItemEstoqueHTML(id){
 /* ---- oferece dar baixa no estoque quando uma receita é marcada como feita ---- */
 function renderBaixaEstoqueHTML(recipeId){
   const r = RECIPES.find(x=>x.id===recipeId);
-  const matches = r.ingredientes.map(ing => {
+  return renderBaixaEstoqueGenericaHTML(r.ingredientes.map(i=>({n:i.n, q:i.q})));
+}
+function renderBaixaEstoqueGenericaHTML(ingredientes){
+  const matches = ingredientes.map(ing => {
     const item = estoqueState.find(it => it.ingrediente.toLowerCase().includes(ing.n.toLowerCase()) || ing.n.toLowerCase().includes(it.ingrediente.toLowerCase()));
     return { ing, item };
   }).filter(m => m.item);
@@ -2009,10 +2096,10 @@ function renderBaixaEstoqueHTML(recipeId){
     <div class="sheet-overlay"><div class="modal-bg" onclick="RP.closeSheet()"></div>
       <div class="sheet" style="padding:24px 22px;">
         <div style="font-weight:800;font-size:16px;margin-bottom:6px;">📦 Baixar do estoque?</div>
-        <p style="color:var(--chocolate-suave);font-size:12.5px;margin-bottom:14px;">Achei ${matches.length} ingrediente${matches.length===1?'':'s'} dessa receita no seu estoque. Confirma a quantidade usada de cada um (o app desconta do lote que vence primeiro).</p>
+        <p style="color:var(--chocolate-suave);font-size:12.5px;margin-bottom:14px;">Achei ${matches.length} ingrediente${matches.length===1?'':'s'} no seu estoque. Confirma a quantidade usada de cada um (o app desconta do lote que vence primeiro).</p>
         ${matches.map((m,i)=>`
           <div style="margin-bottom:10px;">
-            <div style="font-size:12px;font-weight:700;margin-bottom:4px;">${esc(m.item.ingrediente)} <span style="color:var(--chocolate-suave);font-weight:500;">(receita pede: ${esc(m.ing.q)})</span></div>
+            <div style="font-size:12px;font-weight:700;margin-bottom:4px;">${esc(m.item.ingrediente)} ${m.ing.q?`<span style="color:var(--chocolate-suave);font-weight:500;">(receita pede: ${esc(m.ing.q)})</span>`:''}</div>
             <input class="field" id="baixa-qtd-${i}" placeholder="Quantidade a descontar (${esc(m.item.unidade)})">
           </div>`).join('')}
         <button onclick='RP.confirmarBaixaEstoque(${JSON.stringify(matches.map(m=>m.item.id))})' style="width:100%;background:var(--framboesa);color:var(--ink-on-dark);padding:13px;border-radius:100px;font-weight:800;font-size:14px;margin-bottom:8px;">Confirmar baixa</button>
@@ -2034,6 +2121,11 @@ function precoAtualInsumo(nome){
   const ins = insumosState.find(i => i.n.trim().toLowerCase() === nome.trim().toLowerCase());
   return ins ? parseFloat(ins.c) : null;
 }
+function rateioDespesaPorUnidade(){
+  const despesasFixas = (parseFloat(negocioConfig.despesasFixas)||0) + depreciacaoMensalTotal();
+  const producao = parseFloat(negocioConfig.producaoMensalEstimada)||0;
+  return producao>0 ? despesasFixas/producao : 0;
+}
 function custoAtualReceitaSalva(receita, visitados){
   visitados = visitados || new Set();
   if(visitados.has(receita.id)) return { total:0, porUnidade:0, itensSemPreco:0 }; // evita loop infinito
@@ -2052,8 +2144,13 @@ function custoAtualReceitaSalva(receita, visitados){
   });
   subtotal += (parseFloat(receita.embalagem)||0) + (parseFloat(receita.mao)||0);
   const perda = subtotal * ((parseFloat(receita.margemPerda)||0)/100);
-  const total = subtotal + perda;
-  const porUnidade = receita.rendimento>0 ? total/receita.rendimento : 0;
+  let total = subtotal + perda;
+  let porUnidade = receita.rendimento>0 ? total/receita.rendimento : 0;
+  if(receita.incluirRateio){
+    const rateio = rateioDespesaPorUnidade();
+    porUnidade += rateio;
+    total += rateio * (receita.rendimento||0);
+  }
   return { total, porUnidade, itensSemPreco };
 }
 function receitasQueUsam(nomeInsumo){
@@ -2268,6 +2365,63 @@ function renderAdicionarColecaoHTML(recipeId){
     </div>`;
 }
 
+/* =========================================================================
+   EQUIPAMENTOS — depreciação mensal (batedeira, forno etc perdem valor com o uso)
+========================================================================= */
+let equipamentosState = [];
+async function loadEquipamentos(){
+  try{ const e = await window.storage.get("recheiopro:equipamentos"); if(e&&e.value) equipamentosState = JSON.parse(e.value); }catch(e2){}
+}
+async function saveEquipamentos(){ try{ await window.storage.set("recheiopro:equipamentos", JSON.stringify(equipamentosState)); }catch(e){} }
+function depreciacaoMensalItem(eq){
+  const valor = parseFloat(eq.valorCompra)||0;
+  const vidaAnos = parseFloat(eq.vidaUtilAnos)||5;
+  return valor / (vidaAnos*12);
+}
+function depreciacaoMensalTotal(){
+  return equipamentosState.reduce((a,eq)=>a+depreciacaoMensalItem(eq), 0);
+}
+function renderEquipamentosHTML(){
+  const total = depreciacaoMensalTotal();
+  return `
+    <div class="sheet-overlay"><div class="modal-bg" onclick="RP.closeSheet()"></div>
+      <div class="sheet">
+        <div class="app-px" style="padding-top:20px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+            <div class="app-h1" style="margin-bottom:0;">Equipamentos</div>
+            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);">✕</button>
+          </div>
+          <p style="color:var(--chocolate-suave);font-size:12px;margin-bottom:14px;">Batedeira, forno, geladeira — tudo isso perde valor com o uso. Isso é custo real, mesmo que ninguém saque dinheiro do bolso todo mês por causa disso.</p>
+
+          <div class="card" style="margin-bottom:14px;">
+            <input class="field" id="eq-nome" placeholder="Nome (ex: Batedeira planetária)" style="margin-bottom:8px;">
+            <div style="display:flex;gap:8px;margin-bottom:8px;">
+              <input class="field" id="eq-valor" type="number" placeholder="Valor pago (R$)" style="flex:1;">
+              <input class="field" id="eq-vida" type="number" placeholder="Vida útil (anos)" value="5" style="flex:1;">
+            </div>
+            <button onclick="RP.addEquipamento()" style="width:100%;background:var(--framboesa);color:var(--ink-on-dark);padding:11px;border-radius:100px;font-weight:800;font-size:12.5px;">＋ Adicionar equipamento</button>
+          </div>
+
+          ${equipamentosState.length===0 ? `<div style="text-align:center;color:var(--chocolate-suave);font-size:13px;padding:14px 0;">Nenhum equipamento cadastrado ainda.</div>` : equipamentosState.map((eq,i)=>`
+            <div class="card" style="margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;">
+              <div>
+                <div style="font-weight:800;font-size:12.5px;">${esc(eq.nome)}</div>
+                <div style="font-size:11px;color:var(--chocolate-suave);">R$ ${parseFloat(eq.valorCompra).toFixed(2)} · ${eq.vidaUtilAnos} anos de vida útil → <b style="color:var(--framboesa);">R$ ${depreciacaoMensalItem(eq).toFixed(2)}/mês</b></div>
+              </div>
+              <button onclick="RP.removerEquipamento(${i})" style="color:var(--chocolate-suave);font-size:14px;">🗑️</button>
+            </div>`).join('')}
+
+          ${equipamentosState.length>0 ? `
+          <div class="card" style="background:var(--panel-dark);color:var(--ink-on-dark);margin-top:10px;">
+            <div class="row"><span class="lbl" style="color:#E9D9C4;">Depreciação total por mês</span><span class="val" style="color:var(--dourado);font-size:16px;">R$ ${total.toFixed(2)}</span></div>
+          </div>
+          <div style="font-size:10.5px;color:var(--chocolate-suave);margin-top:8px;">💡 Esse valor já entra automaticamente no Resumo Mensal, junto com suas despesas fixas.</div>
+          ` : ''}
+        </div>
+      </div>
+    </div>`;
+}
+
 function renderFornecedoresListaHTML(lista){
   const agrupado = {};
   lista.forEach(f => { (agrupado[f.ingrediente] = agrupado[f.ingrediente]||[]).push(f); });
@@ -2354,13 +2508,14 @@ function renderResumoMensalHTML(){
   const totalMes = doMes.reduce((a,o)=>a+o.valor,0);
   const totalAno = doAno.reduce((a,o)=>a+o.valor,0);
   const custoMes = doMes.reduce((a,o)=>a+(o.custo||0),0);
-  const lucroLiquidoMes = totalMes - custoMes - (parseFloat(negocioConfig.despesasFixas)||0);
+  const depreciacao = depreciacaoMensalTotal();
+  const despesasFixas = (parseFloat(negocioConfig.despesasFixas)||0) + depreciacao;
+  const lucroLiquidoMes = totalMes - custoMes - despesasFixas;
   const contagemProdutos = {};
   doMes.forEach(o=>{ contagemProdutos[o.produto] = (contagemProdutos[o.produto]||0)+1; });
   const maisPedido = Object.keys(contagemProdutos).sort((a,b)=>contagemProdutos[b]-contagemProdutos[a])[0];
   const pctLimite = Math.min(100, (totalAno/LIMITE_MEI_ANUAL)*100);
   const nomesMeses = ["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
-  const despesasFixas = parseFloat(negocioConfig.despesasFixas)||0;
   const saldoMes = totalMes - despesasFixas;
   const pctEquilibrio = despesasFixas>0 ? Math.min(100,(totalMes/despesasFixas)*100) : 0;
 
@@ -2416,9 +2571,10 @@ function renderResumoMensalHTML(){
             </div>
             ${despesasFixas>0 ? `
               <div class="progress-track" style="margin-bottom:6px;"><div class="progress-fill" style="width:${pctEquilibrio}%;background:${saldoMes>=0?'#7A9E6E':'var(--dourado)'};"></div></div>
-              <div style="font-size:11.5px;color:var(--chocolate-suave);">Despesas fixas do mês: R$ ${despesasFixas.toFixed(2)}</div>
+              <div style="font-size:11.5px;color:var(--chocolate-suave);">Despesas fixas do mês: R$ ${despesasFixas.toFixed(2)}${depreciacao>0?` <span style="font-size:10px;">(inclui R$ ${depreciacao.toFixed(2)} de depreciação de equipamentos)</span>`:''}</div>
               <div style="font-size:12.5px;font-weight:800;margin-top:6px;color:${saldoMes>=0?'#7A9E6E':'var(--framboesa)'};">${saldoMes>=0 ? `✓ Já cobriu as despesas — sobrou R$ ${saldoMes.toFixed(2)}` : `Faltam R$ ${Math.abs(saldoMes).toFixed(2)} pra cobrir as despesas fixas`}</div>
             ` : `<div style="font-size:12px;color:var(--chocolate-suave);">Configure suas despesas fixas mensais (aluguel, luz, gás) pra ver se o faturamento já cobre os custos.</div>`}
+            <button onclick="RP.openEquipamentos()" style="margin-top:10px;color:var(--framboesa);font-weight:800;font-size:11px;">🔧 Cadastrar equipamentos (depreciação)</button>
           </div>
 
           <div class="card" style="margin-bottom:10px;">
@@ -2669,14 +2825,14 @@ const PERFIL_CATEGORIAS = [
   ]},
   { key:"producao", titulo:"Produção e custos", icone:"🏭", itens:[
     ["Estoque", true, "estoque"],["Radar de fornecedores", true, "fornecedores"],
-    ["Minhas Receitas Salvas", true, "minhas-receitas"],["Calcular frete de entrega", true, "frete-config"],
+    ["Minhas Receitas Salvas", true, "minhas-receitas"],["Calcular frete de entrega", true, "frete-config"],["Equipamentos", true, "equipamentos"],
   ]},
   { key:"conta", titulo:"Conta e dados", icone:"⚙️", itens:[
     ["Indique o RecheioPro", false, "indicar"],["Exportar meus dados", false, "exportar"],
     ["Importar dados salvos", false, "importar"],["Aparência", false, "aparencia"],
   ]},
 ];
-const PERFIL_ROTAS = { suporte:"RP.openSuporte()", aparencia:"RP.openAparencia()", indicar:"RP.openIndicar()", cardapio:"RP.openCardapio()", exportar:"RP.exportarDados()", importar:"RP.importarDados()", "frete-config":"RP.openFreteConfig()", "resumo-mensal":"RP.openResumoMensal()", fornecedores:"RP.openFornecedores()", pedidos:"RP.openPedidos()", estoque:"RP.openEstoque()", "minhas-receitas":"RP.openMinhasReceitas()", respostas:"RP.openRespostasProntas()", sos:"RP.openSosCozinha()", kits:"RP.openKits()" };
+const PERFIL_ROTAS = { suporte:"RP.openSuporte()", aparencia:"RP.openAparencia()", indicar:"RP.openIndicar()", cardapio:"RP.openCardapio()", exportar:"RP.exportarDados()", importar:"RP.importarDados()", "frete-config":"RP.openFreteConfig()", "resumo-mensal":"RP.openResumoMensal()", fornecedores:"RP.openFornecedores()", pedidos:"RP.openPedidos()", estoque:"RP.openEstoque()", "minhas-receitas":"RP.openMinhasReceitas()", respostas:"RP.openRespostasProntas()", sos:"RP.openSosCozinha()", kits:"RP.openKits()", equipamentos:"RP.openEquipamentos()" };
 
 function renderPerfilCategoriaHTML(catKey){
   const cat = PERFIL_CATEGORIAS.find(c=>c.key===catKey);
@@ -3012,6 +3168,10 @@ function renderCustoCalc(pro){
       <div id="custo-total" style="background:var(--creme-card);border-radius:12px;padding:12px;">${custoTotalHTML(pro)}</div>
       ${pro ? `
         <div style="margin-top:14px;">
+          <label style="display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--chocolate-suave);margin-bottom:10px;">
+            <input type="checkbox" id="salvar-rateio-despesas"> Incluir rateio de despesas fixas/equipamentos (R$ ${rateioDespesaPorUnidade().toFixed(2)}/unidade)
+          </label>
+          ${rateioDespesaPorUnidade()===0 ? `<div style="font-size:10px;color:var(--dourado);margin:-6px 0 10px;">Configure despesas fixas e produção mensal estimada no Resumo Mensal pra habilitar isso.</div>` : ''}
           <input class="field" data-key="salvar-nome" id="salvar-receita-nome" placeholder="Nome pra salvar essa receita (ex: Brigadeiro gourmet)" style="margin-bottom:8px;">
           <button onclick="RP.salvarReceitaCalculada()" style="width:100%;background:var(--framboesa);color:var(--ink-on-dark);padding:12px;border-radius:100px;font-weight:800;font-size:12.5px;">💾 Salvar (recalcula sozinho quando o preço mudar)</button>
         </div>
@@ -3664,6 +3824,7 @@ function enableDragScroll(container){
   container.querySelectorAll(".hscroll, .chip-row").forEach(el=>{
     if(el.dataset.dragBound) return;
     el.dataset.dragBound = "1";
+    el.scrollLeft = 0; // toda fileira nova começa do início, sem cortar o item ativo
     let isDown=false, startX=0, startScroll=0, moved=false;
     el.addEventListener("mousedown", e=>{
       isDown=true; moved=false;
@@ -3992,6 +4153,32 @@ window.RP = {
   openCentralAlertas(){
     document.getElementById("sheet-root").innerHTML = renderCentralAlertasHTML();
   },
+  openCalendarioEncomendas(){
+    calendarioMesAtual = new Date().getMonth();
+    calendarioAnoAtual = new Date().getFullYear();
+    document.getElementById("sheet-root").innerHTML = renderCalendarioEncomendasHTML();
+  },
+  mudarMesCalendario(delta){
+    calendarioMesAtual += delta;
+    if(calendarioMesAtual < 0){ calendarioMesAtual = 11; calendarioAnoAtual--; }
+    if(calendarioMesAtual > 11){ calendarioMesAtual = 0; calendarioAnoAtual++; }
+    document.getElementById("sheet-root").innerHTML = renderCalendarioEncomendasHTML();
+  },
+  verPedidosDoDia(dia){
+    const pedidosDoDia = pedidosState.filter(p=>{
+      if(!p.dataEvento) return false;
+      const d = new Date(p.dataEvento);
+      return d.getDate()===dia && d.getMonth()===calendarioMesAtual && d.getFullYear()===calendarioAnoAtual;
+    });
+    const detalhe = document.getElementById("calendario-dia-detalhe");
+    detalhe.innerHTML = `
+      <div style="font-weight:800;font-size:12.5px;margin-bottom:8px;">Dia ${dia}</div>
+      ${pedidosDoDia.map(p=>`
+        <div class="card" style="margin-bottom:8px;cursor:pointer;" onclick="RP.closeSheet();RP.abrirPedido('${p.id}')">
+          <div style="font-weight:800;font-size:12.5px;">${esc(p.cliente||'Sem nome')}</div>
+          <div style="font-size:11.5px;color:var(--chocolate-suave);">${esc(p.produto)} ${p.horarioRetirada?`· ${esc(p.horarioRetirada)}`:''}</div>
+        </div>`).join('')}`;
+  },
   openLinhaProducao(){
     document.getElementById("sheet-root").innerHTML = renderLinhaProducaoHTML();
   },
@@ -4028,10 +4215,13 @@ window.RP = {
   async salvarPedido(id){
     const p = pedidosState.find(x=>x.id===id);
     if(!p) return;
+    const statusAntigo = p.status;
     p.cliente = document.getElementById("pedido-cliente").value.trim();
     p.produto = document.getElementById("pedido-produto").value.trim();
     p.valor = document.getElementById("pedido-valor").value.trim();
     p.status = document.getElementById("pedido-status").value;
+    const receitaVinculadaEl = document.getElementById("pedido-receita-vinculada");
+    if(receitaVinculadaEl) p.receitaVinculadaId = receitaVinculadaEl.value || null;
     const dataEvento = document.getElementById("pedido-data-evento").value;
     p.dataEvento = dataEvento ? dataEvento + "T12:00:00" : null;
     p.recorrente = document.getElementById("pedido-recorrente").checked;
@@ -4042,6 +4232,15 @@ window.RP = {
     const cupomInput = document.getElementById("pedido-cupom-usado");
     if(cupomInput) p.cupomUsado = cupomInput.value.trim();
     await savePedidos();
+
+    if(statusAntigo!=='confirmado' && p.status==='confirmado' && p.receitaVinculadaId){
+      const receita = minhasReceitasState.find(r=>r.id===p.receitaVinculadaId);
+      if(receita){
+        const ingredientes = receita.itens.filter(it=>!it.subReceitaId).map(it=>({n:it.nome, q:""}));
+        const html = renderBaixaEstoqueGenericaHTML(ingredientes);
+        if(html){ document.getElementById("sheet-root").innerHTML = html; return; }
+      }
+    }
     RP.openPedidos();
   },
   compartilharCupom(id){
@@ -4193,6 +4392,7 @@ Confeiteira(o)                              Cliente`;
       const qtdInput = document.getElementById(`baixa-qtd-${i}`);
       let qtd = parseFloat(qtdInput ? qtdInput.value : 0);
       if(!qtd || qtd<=0) continue;
+      const qtdOriginal = qtd;
       const lotes = lotesOrdenadosFIFO(item);
       for(const lote of lotes){
         if(qtd<=0) break;
@@ -4202,6 +4402,9 @@ Confeiteira(o)                              Cliente`;
         qtd -= usar;
       }
       item.lotes = item.lotes.filter(l=>parseFloat(l.quantidade)>0.001);
+      item.historicoConsumo = item.historicoConsumo || [];
+      item.historicoConsumo.push({ data: new Date().toISOString(), quantidade: qtdOriginal });
+      if(item.historicoConsumo.length>60) item.historicoConsumo = item.historicoConsumo.slice(-60); // mantém só os últimos 60 registros
     }
     await saveEstoque();
     closeSheet();
@@ -4215,10 +4418,11 @@ Confeiteira(o)                              Cliente`;
       it.subReceitaId ? { subReceitaId: it.subReceitaId, quantidade: it.quantidade||1 } : { nome: it.n.trim(), custoOriginal: it.c }
     );
     if(itens.length===0) return;
+    const incluirRateio = document.getElementById("salvar-rateio-despesas")?.checked || false;
     minhasReceitasState.push({
       id: "mr"+Date.now(), nome, itens,
       embalagem: custoState.embalagem, mao: custoState.mao, margemPerda: custoState.margemPerda,
-      rendimento: custoState.rendimento,
+      rendimento: custoState.rendimento, incluirRateio,
     });
     await saveMinhasReceitas();
     nomeInput.value = "";
@@ -4290,6 +4494,23 @@ Confeiteira(o)                              Cliente`;
     await saveMinhasReceitas();
     document.getElementById("sheet-root").innerHTML = renderMinhasReceitasHTML();
   },
+  openEquipamentos(){
+    document.getElementById("sheet-root").innerHTML = renderEquipamentosHTML();
+  },
+  async addEquipamento(){
+    const nome = document.getElementById("eq-nome").value.trim();
+    const valorCompra = document.getElementById("eq-valor").value;
+    const vidaUtilAnos = document.getElementById("eq-vida").value || "5";
+    if(!nome || !valorCompra) return;
+    equipamentosState.push({ nome, valorCompra, vidaUtilAnos });
+    await saveEquipamentos();
+    document.getElementById("sheet-root").innerHTML = renderEquipamentosHTML();
+  },
+  async removerEquipamento(idx){
+    equipamentosState.splice(idx,1);
+    await saveEquipamentos();
+    document.getElementById("sheet-root").innerHTML = renderEquipamentosHTML();
+  },
   openFornecedores(){
     document.getElementById("sheet-root").innerHTML = renderFornecedoresHTML();
   },
@@ -4332,12 +4553,16 @@ Confeiteira(o)                              Cliente`;
           <div style="font-weight:800;font-size:16px;margin-bottom:10px;">Despesas fixas mensais</div>
           <p style="color:var(--chocolate-suave);font-size:12.5px;margin-bottom:14px;">Soma de aluguel, luz, gás, internet — tudo que você paga todo mês, faça bolo ou não.</p>
           <input class="field" id="despesas-valor" placeholder="Ex: 350.00" value="${esc(negocioConfig.despesasFixas)}" style="margin-bottom:14px;">
+          <div style="font-weight:800;font-size:13px;margin-bottom:6px;">Quantas unidades você produz por mês, em média?</div>
+          <p style="color:var(--chocolate-suave);font-size:11.5px;margin-bottom:8px;">Usado pra diluir as despesas fixas dentro do custo de cada receita, se você quiser.</p>
+          <input class="field" id="producao-mensal" type="number" placeholder="Ex: 200" value="${esc(negocioConfig.producaoMensalEstimada)}" style="margin-bottom:14px;">
           <button onclick="RP.salvarDespesas()" style="width:100%;background:var(--framboesa);color:var(--ink-on-dark);padding:13px;border-radius:100px;font-weight:800;font-size:14px;">Salvar</button>
         </div>
       </div>`;
   },
   async salvarDespesas(){
     negocioConfig.despesasFixas = document.getElementById("despesas-valor").value.trim();
+    negocioConfig.producaoMensalEstimada = document.getElementById("producao-mensal").value.trim();
     await saveNegocioConfig();
     RP.openResumoMensal();
   },
@@ -4511,6 +4736,7 @@ Confeiteira(o)                              Cliente`;
       minhasReceitas: minhasReceitasState,
       kits: kitsState,
       colecoes: colecoesState,
+      equipamentos: equipamentosState,
       negocioConfig: negocioConfig,
       freteConfig: freteConfig,
     };
@@ -4559,6 +4785,7 @@ Confeiteira(o)                              Cliente`;
         if(dados.minhasReceitas){ minhasReceitasState = dados.minhasReceitas; await saveMinhasReceitas(); }
         if(dados.kits){ kitsState = dados.kits; await saveKits(); }
         if(dados.colecoes){ colecoesState = dados.colecoes; await saveColecoes(); }
+        if(dados.equipamentos){ equipamentosState = dados.equipamentos; await saveEquipamentos(); }
         if(dados.negocioConfig){ negocioConfig = dados.negocioConfig; await saveNegocioConfig(); }
         if(dados.theme){ state.theme = dados.theme; await saveTheme(); applyTheme(); }
         msg.style.color = "#7A9E6E";
