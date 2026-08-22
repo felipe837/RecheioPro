@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Cardápio</title>
+<style>
+  @font-face { font-family: 'system'; src: local('-apple-system'); }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#FFF8EC;color:#3B2417;padding-bottom:100px;}
+  .topo{background:#3B2417;color:#FFFDF8;padding:22px 18px;text-align:center;}
+  .topo h1{margin:0 0 4px;font-size:20px;}
+  .topo p{margin:0;font-size:12.5px;color:#E9D9C4;}
+  .lista{max-width:480px;margin:16px auto;padding:0 16px;}
+  .item{background:#fff;border:1px solid #EEE1CC;border-radius:16px;padding:14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:10px;}
+  .item-nome{font-weight:700;font-size:14px;}
+  .item-preco{color:#C23B5B;font-weight:800;font-size:13.5px;margin-top:2px;}
+  .qtd-ctrl{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+  .qtd-btn{width:30px;height:30px;border-radius:50%;border:1.5px solid #C23B5B;background:#fff;color:#C23B5B;font-size:16px;font-weight:800;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+  .qtd-val{font-weight:800;font-size:14px;min-width:16px;text-align:center;}
+  .rodape{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #EEE1CC;padding:14px 18px;box-shadow:0 -8px 24px rgba(0,0,0,0.06);}
+  .rodape-total{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-weight:800;font-size:15px;}
+  .btn-pedido{display:block;width:100%;text-align:center;background:#25D366;color:#fff;padding:14px;border-radius:100px;font-weight:800;font-size:14.5px;text-decoration:none;border:none;cursor:pointer;}
+  .btn-pedido:disabled{opacity:0.5;}
+  .vazio{text-align:center;color:#8A6C55;padding:60px 20px;font-size:14px;}
+</style>
+</head>
+<body>
+  <div class="topo">
+    <h1 id="titulo-loja">Cardápio</h1>
+    <p id="subtitulo-loja">Escolha os itens e monte seu pedido</p>
+  </div>
+  <div class="lista" id="lista-itens"></div>
+  <div class="rodape" id="rodape" style="display:none;">
+    <div class="rodape-total"><span>Total</span><span id="total-valor">R$ 0,00</span></div>
+    <button class="btn-pedido" id="btn-pedido" onclick="fazerPedido()">Fazer pedido no WhatsApp</button>
+  </div>
+
+<script>
+let dados = null;
+let quantidades = {};
+
+function lerDadosDaUrl(){
+  try{
+    const hash = location.hash.replace(/^#/, "");
+    const params = new URLSearchParams(hash);
+    const codificado = params.get("dados");
+    if(!codificado) return null;
+    const json = decodeURIComponent(escape(atob(decodeURIComponent(codificado))));
+    return JSON.parse(json);
+  }catch(e){ return null; }
+}
+
+function formatBR(n){ return "R$ " + n.toFixed(2).replace(".", ","); }
+
+function renderizar(){
+  const lista = document.getElementById("lista-itens");
+  if(!dados || !dados.itens || dados.itens.length === 0){
+    lista.innerHTML = '<div class="vazio">Cardápio não encontrado ou sem itens. Peça pra confeiteira te mandar o link de novo.</div>';
+    return;
+  }
+  document.getElementById("titulo-loja").textContent = dados.loja || "Cardápio";
+  if(dados.subtitulo) document.getElementById("subtitulo-loja").textContent = dados.subtitulo;
+  document.title = dados.loja || "Cardápio";
+
+  lista.innerHTML = dados.itens.map((it, i) => `
+    <div class="item">
+      <div>
+        <div class="item-nome">${escHtml(it.nome)}</div>
+        <div class="item-preco">${formatBR(it.preco)}</div>
+      </div>
+      <div class="qtd-ctrl">
+        <button class="qtd-btn" onclick="mudarQtd(${i}, -1)">−</button>
+        <span class="qtd-val" id="qtd-${i}">0</span>
+        <button class="qtd-btn" onclick="mudarQtd(${i}, 1)">+</button>
+      </div>
+    </div>`).join("");
+}
+
+function escHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+
+function mudarQtd(i, delta){
+  quantidades[i] = Math.max(0, (quantidades[i]||0) + delta);
+  document.getElementById("qtd-" + i).textContent = quantidades[i];
+  atualizarRodape();
+}
+
+function atualizarRodape(){
+  let total = 0, temItem = false;
+  Object.keys(quantidades).forEach(i => {
+    if(quantidades[i] > 0){ total += quantidades[i] * dados.itens[i].preco; temItem = true; }
+  });
+  document.getElementById("rodape").style.display = temItem ? "block" : "none";
+  document.getElementById("total-valor").textContent = formatBR(total);
+}
+
+function fazerPedido(){
+  const linhas = [];
+  let total = 0;
+  Object.keys(quantidades).forEach(i => {
+    if(quantidades[i] > 0){
+      const it = dados.itens[i];
+      linhas.push(`• ${quantidades[i]}x ${it.nome} — ${formatBR(it.preco * quantidades[i])}`);
+      total += it.preco * quantidades[i];
+    }
+  });
+  if(linhas.length === 0) return;
+  const texto = `🧁 *Pedido pelo cardápio* — ${dados.loja || ""}\n\n${linhas.join("\n")}\n\n*Total: ${formatBR(total)}*`;
+  const numero = (dados.whatsapp || "").replace(/\D/g, "");
+  const link = "https://wa.me/" + numero + "?text=" + encodeURIComponent(texto);
+  window.open(link, "_blank");
+}
+
+dados = lerDadosDaUrl();
+quantidades = {};
+renderizar();
+</script>
+</body>
+</html>
