@@ -1807,7 +1807,10 @@ function renderPedidosHTML(){
 
   const followUps = pedidosState.filter(p => p.status==='orcamento_enviado' && diasDesde(p.dataPedido) >= 2);
 
-  const lista = [...pedidosState].sort((a,b)=> new Date(b.dataPedido) - new Date(a.dataPedido));
+  const listaCompleta = [...pedidosState].sort((a,b)=> new Date(b.dataPedido) - new Date(a.dataPedido));
+  const antigoEEntregue = p => p.status==='entregue' && diasDesde(p.dataPedido) > 30;
+  const lista = state.mostrarPedidosAntigos ? listaCompleta : listaCompleta.filter(p=>!antigoEEntregue(p));
+  const pedidosAntigosEscondidos = listaCompleta.length - lista.length;
 
   return `
     <div class="sheet-overlay"><div class="modal-bg" onclick="RP.closeSheet()"></div>
@@ -1845,19 +1848,26 @@ function renderPedidosHTML(){
             <div style="font-weight:800;font-size:12.5px;">Todos os pedidos</div>
             <button onclick="RP.novoPedido()" style="color:var(--framboesa);font-weight:800;font-size:12px;">＋ Novo</button>
           </div>
-          ${lista.length===0 ? `<div style="text-align:center;color:var(--chocolate-suave);font-size:13px;padding:20px 0;">Nenhum pedido registrado ainda. Pedidos também aparecem aqui sozinhos quando você gera um orçamento.</div>` : ''}
-          ${lista.map(p=>{
-            const st = statusInfo(p.status);
-            return `
-            <div class="card" style="margin-bottom:8px;cursor:pointer;" onclick="RP.abrirPedido('${p.id}')">
-              <div style="display:flex;justify-content:space-between;align-items:center;">
-                <div style="font-weight:800;font-size:12.5px;">${esc(p.cliente || 'Sem nome')}</div>
-                <span style="font-size:10px;font-weight:800;color:${st[2]};">● ${st[1]}</span>
-              </div>
-              <div style="font-size:11.5px;color:var(--chocolate-suave);margin-top:2px;">${esc(p.produto)} ${p.valor?`· R$ ${parseFloat(p.valor).toFixed(2)}`:''}</div>
-              ${p.valor ? `<div style="font-size:10px;margin-top:2px;color:${(parseFloat(p.sinalRecebido)||0)>=parseFloat(p.valor)?'#7A9E6E':'var(--dourado)'};">${(parseFloat(p.sinalRecebido)||0)>=parseFloat(p.valor)?'✓ Pago integralmente':(parseFloat(p.sinalRecebido)||0)>0?`Sinal recebido: R$ ${parseFloat(p.sinalRecebido).toFixed(2)} · falta R$ ${(parseFloat(p.valor)-(parseFloat(p.sinalRecebido)||0)).toFixed(2)}`:'Sem sinal registrado'}</div>` : ''}
-            </div>`;
-          }).join('')}
+          <div class="search-pill" style="margin-bottom:10px;">
+            <span>🔍</span>
+            <input id="pedidos-busca" placeholder="Buscar por cliente ou produto..." oninput="RP.filtrarPedidosLista(this.value)" style="border:none;background:none;outline:none;flex:1;font-size:13.5px;color:var(--chocolate);">
+          </div>
+          ${pedidosAntigosEscondidos>0 ? `<button onclick="RP.mostrarPedidosAntigos()" style="color:var(--framboesa);font-weight:700;font-size:11.5px;margin-bottom:10px;">Mostrar ${pedidosAntigosEscondidos} pedido(s) entregue(s) há mais de 30 dias</button>` : ''}
+          <div id="pedidos-lista-container">
+            ${lista.length===0 ? `<div style="text-align:center;color:var(--chocolate-suave);font-size:13px;padding:20px 0;">Nenhum pedido registrado ainda. Pedidos também aparecem aqui sozinhos quando você gera um orçamento.</div>` : ''}
+            ${lista.map(p=>{
+              const st = statusInfo(p.status);
+              return `
+              <div class="card pedido-item" data-busca="${esc(((p.cliente||'')+' '+(p.produto||'')).toLowerCase())}" style="margin-bottom:8px;cursor:pointer;" onclick="RP.abrirPedido('${p.id}')">
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                  <div style="font-weight:800;font-size:12.5px;">${esc(p.cliente || 'Sem nome')}</div>
+                  <span style="font-size:10px;font-weight:800;color:${st[2]};">● ${st[1]}</span>
+                </div>
+                <div style="font-size:11.5px;color:var(--chocolate-suave);margin-top:2px;">${esc(p.produto)} ${p.valor?`· R$ ${parseFloat(p.valor).toFixed(2)}`:''}</div>
+                ${p.valor ? `<div style="font-size:10px;margin-top:2px;color:${(parseFloat(p.sinalRecebido)||0)>=parseFloat(p.valor)?'#7A9E6E':'var(--dourado)'};">${(parseFloat(p.sinalRecebido)||0)>=parseFloat(p.valor)?'✓ Pago integralmente':(parseFloat(p.sinalRecebido)||0)>0?`Sinal recebido: R$ ${parseFloat(p.sinalRecebido).toFixed(2)} · falta R$ ${(parseFloat(p.valor)-(parseFloat(p.sinalRecebido)||0)).toFixed(2)}`:'Sem sinal registrado'}</div>` : ''}
+              </div>`;
+            }).join('')}
+          </div>
         </div>
       </div>
     </div>`;
@@ -4223,6 +4233,16 @@ window.RP = {
       </div>
       <div style="font-weight:800;font-size:12px;margin-bottom:8px;">Pedidos incluídos (${pedidosNoPeriodo.length})</div>
       ${pedidosNoPeriodo.map(p=>`<div style="font-size:11.5px;color:var(--chocolate-suave);padding:4px 0;border-bottom:1px solid var(--creme-linha);">${esc(p.cliente||'Sem nome')} — ${esc(p.produto)}</div>`).join('')}`;
+  },
+  mostrarPedidosAntigos(){
+    state.mostrarPedidosAntigos = true;
+    document.getElementById("sheet-root").innerHTML = renderPedidosHTML();
+  },
+  filtrarPedidosLista(termo){
+    const t = termo.trim().toLowerCase();
+    document.querySelectorAll(".pedido-item").forEach(el=>{
+      el.style.display = el.dataset.busca.includes(t) ? "" : "none";
+    });
   },
   openPedidos(){
     document.getElementById("sheet-root").innerHTML = renderPedidosHTML();
