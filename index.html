@@ -2658,6 +2658,16 @@ function renderResumoMensalHTML(){
   const despesasFixas = (parseFloat(negocioConfig.despesasFixas)||0) + depreciacao;
   const lucroLiquidoMes = totalMes - custoMes - despesasFixas;
   const cmvPct = totalMes>0 ? (custoMes/totalMes)*100 : null;
+
+  // Histórico dos últimos 6 meses (incluindo o atual), pro gráfico de faturamento
+  const nomesMesesCurto = ["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
+  const historico6Meses = [];
+  for(let i=5; i>=0; i--){
+    const d = new Date(anoAtual, mesAtual - i, 1);
+    const total = orcamentosLog.filter(o=>{ const od=new Date(o.data); return od.getMonth()===d.getMonth() && od.getFullYear()===d.getFullYear(); }).reduce((a,o)=>a+o.valor,0);
+    historico6Meses.push({ label: nomesMesesCurto[d.getMonth()], total });
+  }
+  const maiorValorGrafico = Math.max(1, ...historico6Meses.map(h=>h.total));
   const contagemProdutos = {};
   doMes.forEach(o=>{ contagemProdutos[o.produto] = (contagemProdutos[o.produto]||0)+1; });
   const maisPedido = Object.keys(contagemProdutos).sort((a,b)=>contagemProdutos[b]-contagemProdutos[a])[0];
@@ -2698,6 +2708,21 @@ function renderResumoMensalHTML(){
             ${maisPedido ? `<div class="row"><span class="lbl">Mais pedido</span><span class="val" style="font-size:12px;">${esc(maisPedido)}</span></div>` : ''}
           </div>
           ${custoMes>0 ? `<div style="font-size:10.5px;color:var(--chocolate-suave);margin:-4px 0 10px;">💡 CMV saudável em confeitaria costuma ficar entre 25% e 35%. Bem acima disso, vale revisar preços ou desperdício.</div>` : ''}
+
+          <div class="card" style="margin-bottom:10px;">
+            <div style="font-weight:800;font-size:12.5px;margin-bottom:10px;">📊 Faturamento — últimos 6 meses</div>
+            <div style="display:flex;align-items:flex-end;gap:8px;height:100px;">
+              ${historico6Meses.map(h=>{
+                const alturaPx = Math.max(3, (h.total/maiorValorGrafico)*84);
+                const ehAtual = h === historico6Meses[historico6Meses.length-1];
+                return `
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;">
+                  <div title="R$ ${h.total.toFixed(2)}" style="width:100%;max-width:28px;height:${alturaPx}px;background:${ehAtual?'var(--framboesa)':'var(--dourado)'};border-radius:6px 6px 2px 2px;"></div>
+                  <div style="font-size:9.5px;color:var(--chocolate-suave);margin-top:4px;font-weight:${ehAtual?'800':'500'};">${h.label}</div>
+                </div>`;
+              }).join('')}
+            </div>
+          </div>
 
           ${curvaABC.length>0 ? `
           <div class="card" style="margin-bottom:10px;">
