@@ -1437,6 +1437,7 @@ async function loadState(){
   await loadKits();
   await loadColecoes();
   await loadEquipamentos();
+  await loadLivroCaixa();
 }
 async function saveFeitas(){ try{ await window.storage.set("recheiopro:feitas", JSON.stringify(state.feitas)); }catch(e){} }
 async function saveAvaliacoes(){ try{ await window.storage.set("recheiopro:avaliacoes", JSON.stringify(state.avaliacoes)); }catch(e){} }
@@ -2504,6 +2505,69 @@ function renderCardapioInterativoHTML(){
     </div>`;
 }
 
+/* =========================================================================
+   LIVRO CAIXA — todo dinheiro que entra e sai, não só vendas geradas pelo app
+========================================================================= */
+let livroCaixaState = [];
+let lancamentoTipoAtual = "entrada";
+async function loadLivroCaixa(){
+  try{ const l = await window.storage.get("recheiopro:livro-caixa"); if(l&&l.value) livroCaixaState = JSON.parse(l.value); }catch(e){}
+}
+async function saveLivroCaixa(){ try{ await window.storage.set("recheiopro:livro-caixa", JSON.stringify(livroCaixaState)); }catch(e){} }
+
+function renderLivroCaixaHTML(){
+  const ordenado = [...livroCaixaState].sort((a,b)=> new Date(b.data) - new Date(a.data));
+  const saldo = livroCaixaState.reduce((a,l)=> a + (l.tipo==='entrada' ? l.valor : -l.valor), 0);
+  const hoje = new Date(); const mesAtual = hoje.getMonth(), anoAtual = hoje.getFullYear();
+  const doMes = livroCaixaState.filter(l=>{ const d=new Date(l.data); return d.getMonth()===mesAtual && d.getFullYear()===anoAtual; });
+  const entradasMes = doMes.filter(l=>l.tipo==='entrada').reduce((a,l)=>a+l.valor,0);
+  const saidasMes = doMes.filter(l=>l.tipo==='saida').reduce((a,l)=>a+l.valor,0);
+
+  return `
+    <div class="sheet-overlay"><div class="modal-bg" onclick="RP.closeSheet()"></div>
+      <div class="sheet">
+        <div class="app-px" style="padding-top:20px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+            <div class="app-h1" style="margin-bottom:0;">Livro Caixa</div>
+            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);">✕</button>
+          </div>
+          <p style="color:var(--chocolate-suave);font-size:12px;margin-bottom:14px;">Anote qualquer dinheiro que entrou ou saiu — venda no débito, compra de ingrediente avulsa, o que for.</p>
+
+          <div class="card" style="background:var(--panel-dark);color:var(--ink-on-dark);margin-bottom:14px;">
+            <div class="row"><span class="lbl" style="color:#E9D9C4;">Saldo total</span><span class="val" style="color:${saldo>=0?'#7A9E6E':'var(--framboesa)'};font-size:18px;">R$ ${saldo.toFixed(2)}</span></div>
+            <div class="row"><span class="lbl" style="color:#E9D9C4;">Entradas do mês</span><span class="val" style="color:#7A9E6E;">R$ ${entradasMes.toFixed(2)}</span></div>
+            <div class="row"><span class="lbl" style="color:#E9D9C4;">Saídas do mês</span><span class="val" style="color:var(--framboesa);">R$ ${saidasMes.toFixed(2)}</span></div>
+          </div>
+
+          <div class="card" style="margin-bottom:14px;">
+            <div style="display:flex;gap:8px;margin-bottom:8px;">
+              <button id="lc-tipo-entrada" onclick="RP.setTipoLancamento('entrada')" class="chip active" style="flex:1;">＋ Entrada</button>
+              <button id="lc-tipo-saida" onclick="RP.setTipoLancamento('saida')" class="chip" style="flex:1;">－ Saída</button>
+            </div>
+            <input class="field" id="lc-descricao" placeholder="Descrição (ex: Venda no débito, Compra de farinha)" style="margin-bottom:8px;">
+            <div style="display:flex;gap:8px;">
+              <input class="field" id="lc-valor" type="number" placeholder="Valor (R$)" style="flex:1;">
+              <input class="field" id="lc-data" type="date" value="${new Date().toISOString().slice(0,10)}" style="flex:1;">
+            </div>
+            <button onclick="RP.addLancamentoCaixa()" style="width:100%;background:var(--framboesa);color:var(--ink-on-dark);padding:11px;border-radius:100px;font-weight:800;font-size:12.5px;margin-top:10px;">Adicionar lançamento</button>
+          </div>
+
+          ${ordenado.length===0 ? `<div style="text-align:center;color:var(--chocolate-suave);font-size:13px;padding:14px 0;">Nenhum lançamento ainda.</div>` : ordenado.map((l,idx)=>`
+            <div class="card" style="margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;">
+              <div>
+                <div style="font-weight:800;font-size:12.5px;">${esc(l.descricao)}</div>
+                <div style="font-size:10.5px;color:var(--chocolate-suave);">${new Date(l.data+"T12:00:00").toLocaleDateString('pt-BR')}</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span style="font-weight:800;font-size:13px;color:${l.tipo==='entrada'?'#7A9E6E':'var(--framboesa)'};">${l.tipo==='entrada'?'+':'−'} R$ ${l.valor.toFixed(2)}</span>
+                <button onclick="RP.removerLancamentoCaixa('${l.id}')" style="color:var(--chocolate-suave);">🗑️</button>
+              </div>
+            </div>`).join('')}
+        </div>
+      </div>
+    </div>`;
+}
+
 function renderFornecedoresListaHTML(lista){
   const agrupado = {};
   lista.forEach(f => { (agrupado[f.ingrediente] = agrupado[f.ingrediente]||[]).push(f); });
@@ -2593,6 +2657,7 @@ function renderResumoMensalHTML(){
   const depreciacao = depreciacaoMensalTotal();
   const despesasFixas = (parseFloat(negocioConfig.despesasFixas)||0) + depreciacao;
   const lucroLiquidoMes = totalMes - custoMes - despesasFixas;
+  const cmvPct = totalMes>0 ? (custoMes/totalMes)*100 : null;
   const contagemProdutos = {};
   doMes.forEach(o=>{ contagemProdutos[o.produto] = (contagemProdutos[o.produto]||0)+1; });
   const maisPedido = Object.keys(contagemProdutos).sort((a,b)=>contagemProdutos[b]-contagemProdutos[a])[0];
@@ -2628,9 +2693,11 @@ function renderResumoMensalHTML(){
             <div class="row"><span class="lbl">Orçamentos gerados</span><span class="val">${doMes.length}</span></div>
             <div class="row"><span class="lbl">Faturamento estimado</span><span class="val" style="color:var(--framboesa);font-size:16px;">R$ ${totalMes.toFixed(2)}</span></div>
             ${custoMes>0 ? `<div class="row"><span class="lbl">Custo dos produtos</span><span class="val">R$ ${custoMes.toFixed(2)}</span></div>
-            <div class="row"><span class="lbl">Lucro líquido (com despesas fixas)</span><span class="val" style="color:${lucroLiquidoMes>=0?'#7A9E6E':'var(--framboesa)'};font-size:15px;">R$ ${lucroLiquidoMes.toFixed(2)}</span></div>` : ''}
+            <div class="row"><span class="lbl">Lucro líquido (com despesas fixas)</span><span class="val" style="color:${lucroLiquidoMes>=0?'#7A9E6E':'var(--framboesa)'};font-size:15px;">R$ ${lucroLiquidoMes.toFixed(2)}</span></div>
+            <div class="row"><span class="lbl">CMV (custo ÷ faturamento)</span><span class="val" style="color:${cmvPct<=35?'#7A9E6E':'var(--dourado)'};">${cmvPct.toFixed(1)}%</span></div>` : ''}
             ${maisPedido ? `<div class="row"><span class="lbl">Mais pedido</span><span class="val" style="font-size:12px;">${esc(maisPedido)}</span></div>` : ''}
           </div>
+          ${custoMes>0 ? `<div style="font-size:10.5px;color:var(--chocolate-suave);margin:-4px 0 10px;">💡 CMV saudável em confeitaria costuma ficar entre 25% e 35%. Bem acima disso, vale revisar preços ou desperdício.</div>` : ''}
 
           ${curvaABC.length>0 ? `
           <div class="card" style="margin-bottom:10px;">
@@ -2903,7 +2970,7 @@ const PERFIL_CATEGORIAS = [
     ["Desafio de 7 dias", true, "desafio"],["Bônus exclusivos", true, "bonus"],["Respostas Prontas", true, "respostas"],["S.O.S. Cozinha", true, "sos"],
   ]},
   { key:"vendas", titulo:"Vendas e clientes", icone:"🤝", itens:[
-    ["Meus Pedidos", true, "pedidos"],["Cardápio para clientes", true, "cardapio"],["Cardápio Interativo (link)", true, "cardapio-interativo"],["Resumo Mensal", true, "resumo-mensal"],["Kits Festa", true, "kits"],
+    ["Meus Pedidos", true, "pedidos"],["Cardápio para clientes", true, "cardapio"],["Cardápio Interativo (link)", true, "cardapio-interativo"],["Resumo Mensal", true, "resumo-mensal"],["Livro Caixa", true, "livro-caixa"],["Kits Festa", true, "kits"],
   ]},
   { key:"producao", titulo:"Produção e custos", icone:"🏭", itens:[
     ["Estoque", true, "estoque"],["Radar de fornecedores", true, "fornecedores"],
@@ -2914,7 +2981,7 @@ const PERFIL_CATEGORIAS = [
     ["Importar dados salvos", false, "importar"],["Aparência", false, "aparencia"],
   ]},
 ];
-const PERFIL_ROTAS = { suporte:"RP.openSuporte()", aparencia:"RP.openAparencia()", indicar:"RP.openIndicar()", cardapio:"RP.openCardapio()", "cardapio-interativo":"RP.openCardapioInterativo()", exportar:"RP.exportarDados()", importar:"RP.importarDados()", "frete-config":"RP.openFreteConfig()", "resumo-mensal":"RP.openResumoMensal()", fornecedores:"RP.openFornecedores()", pedidos:"RP.openPedidos()", estoque:"RP.openEstoque()", "minhas-receitas":"RP.openMinhasReceitas()", respostas:"RP.openRespostasProntas()", sos:"RP.openSosCozinha()", kits:"RP.openKits()", equipamentos:"RP.openEquipamentos()" };
+const PERFIL_ROTAS = { suporte:"RP.openSuporte()", aparencia:"RP.openAparencia()", indicar:"RP.openIndicar()", cardapio:"RP.openCardapio()", "cardapio-interativo":"RP.openCardapioInterativo()", exportar:"RP.exportarDados()", importar:"RP.importarDados()", "frete-config":"RP.openFreteConfig()", "resumo-mensal":"RP.openResumoMensal()", fornecedores:"RP.openFornecedores()", pedidos:"RP.openPedidos()", estoque:"RP.openEstoque()", "minhas-receitas":"RP.openMinhasReceitas()", respostas:"RP.openRespostasProntas()", sos:"RP.openSosCozinha()", kits:"RP.openKits()", equipamentos:"RP.openEquipamentos()", "livro-caixa":"RP.openLivroCaixa()" };
 
 function renderPerfilCategoriaHTML(catKey){
   const cat = PERFIL_CATEGORIAS.find(c=>c.key===catKey);
@@ -3236,12 +3303,14 @@ function renderCustoCalc(pro){
         </div>
         <div style="font-size:11.5px;font-weight:700;margin-bottom:6px;">🗑️ Margem de perda/desperdício (%)</div>
         <input class="field" data-key="margemPerda" type="number" placeholder="Ex: 5" value="${esc(custoState.margemPerda)}" oninput="RP.setCustoField('margemPerda',this)" style="margin-bottom:6px;">
-        <div class="card" style="background:var(--creme-card);margin-bottom:14px;">
-          <div style="font-size:11px;font-weight:800;margin-bottom:4px;">Como calcular esse número?</div>
-          <div style="font-size:10.5px;color:var(--chocolate-suave);line-height:1.6;">
-            Pensa em quanto sobra na panela, na tigela ou na batedeira, ou o quanto você corta pra nivelar o bolo.<br><br>
-            <b style="color:var(--chocolate);">Exemplo:</b> se de 20 brigadeiros feitos, sempre sobra massa suficiente pra 1 a mais que fica na panela, isso é <b>5% de perda</b> (1 ÷ 20).<br><br>
-            Pra maioria das receitas, um valor entre <b>3% e 8%</b> costuma ser realista. Se você não tem certeza, comece com 5%.
+        <button onclick="RP.toggleExplicacaoPerda()" style="font-size:11px;color:var(--framboesa);font-weight:700;margin-bottom:14px;">💡 Como calcular esse número?</button>
+        <div id="explicacao-perda" style="display:none;">
+          <div class="card" style="background:var(--creme-card);margin-bottom:14px;margin-top:-6px;">
+            <div style="font-size:10.5px;color:var(--chocolate-suave);line-height:1.6;">
+              Pensa em quanto sobra na panela, na tigela ou na batedeira, ou o quanto você corta pra nivelar o bolo.<br><br>
+              <b style="color:var(--chocolate);">Exemplo:</b> se de 20 brigadeiros feitos, sempre sobra massa suficiente pra 1 a mais que fica na panela, isso é <b>5% de perda</b> (1 ÷ 20).<br><br>
+              Pra maioria das receitas, um valor entre <b>3% e 8%</b> costuma ser realista. Se você não tem certeza, comece com 5%.
+            </div>
           </div>
         </div>
       ` : ''}
@@ -3250,15 +3319,18 @@ function renderCustoCalc(pro){
       <div id="custo-total" style="background:var(--creme-card);border-radius:12px;padding:12px;">${custoTotalHTML(pro)}</div>
       ${pro ? `
         <div style="margin-top:14px;">
-          <label style="display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--chocolate-suave);margin-bottom:10px;">
-            <input type="checkbox" id="salvar-rateio-despesas"> Incluir rateio de despesas fixas/equipamentos (R$ ${rateioDespesaPorUnidade().toFixed(2)}/unidade)
-          </label>
-          ${rateioDespesaPorUnidade()===0 ? `<div style="font-size:10px;color:var(--dourado);margin:-6px 0 10px;">Configure despesas fixas e produção mensal estimada no Resumo Mensal pra habilitar isso.</div>` : ''}
-          <div style="display:flex;gap:8px;margin-bottom:8px;">
-            <input class="field" id="salvar-preco-venda" type="number" placeholder="Preço de venda (R$, opcional)" style="flex:1;">
-            <input class="field" id="salvar-margem-minima" type="number" placeholder="Margem mínima (%, opcional)" style="flex:1;">
+          <button onclick="RP.toggleOpcoesAvancadasSalvar()" style="font-size:11px;color:var(--framboesa);font-weight:700;margin-bottom:10px;">⚙️ Opções avançadas (rateio de despesas, margem mínima)</button>
+          <div id="opcoes-avancadas-salvar" style="display:none;">
+            <label style="display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--chocolate-suave);margin-bottom:10px;">
+              <input type="checkbox" id="salvar-rateio-despesas"> Incluir rateio de despesas fixas/equipamentos (R$ ${rateioDespesaPorUnidade().toFixed(2)}/unidade)
+            </label>
+            ${rateioDespesaPorUnidade()===0 ? `<div style="font-size:10px;color:var(--dourado);margin:-6px 0 10px;">Configure despesas fixas e produção mensal estimada no Resumo Mensal pra habilitar isso.</div>` : ''}
+            <div style="display:flex;gap:8px;margin-bottom:8px;">
+              <input class="field" id="salvar-preco-venda" type="number" placeholder="Preço de venda (R$, opcional)" style="flex:1;">
+              <input class="field" id="salvar-margem-minima" type="number" placeholder="Margem mínima (%, opcional)" style="flex:1;">
+            </div>
+            <div style="font-size:10px;color:var(--chocolate-suave);margin:-4px 0 10px;">Preenchendo isso, o app avisa se o preço de um ingrediente subir e apertar demais essa margem.</div>
           </div>
-          <div style="font-size:10px;color:var(--chocolate-suave);margin:-4px 0 10px;">Preenchendo isso, o app avisa se o preço de um ingrediente subir e apertar demais essa margem.</div>
           <input class="field" data-key="salvar-nome" id="salvar-receita-nome" placeholder="Nome pra salvar essa receita (ex: Brigadeiro gourmet)" style="margin-bottom:8px;">
           <button onclick="RP.salvarReceitaCalculada()" style="width:100%;background:var(--framboesa);color:var(--ink-on-dark);padding:12px;border-radius:100px;font-weight:800;font-size:12.5px;">💾 Salvar (recalcula sozinho quando o preço mudar)</button>
         </div>
@@ -4180,6 +4252,14 @@ window.RP = {
       </div>
       <div style="font-size:10px;color:var(--chocolate-suave);margin-top:8px;text-align:center;">Estimativa aproximada. Não substitui análise laboratorial ou de nutricionista.</div>`;
   },
+  toggleOpcoesAvancadasSalvar(){
+    const el = document.getElementById("opcoes-avancadas-salvar");
+    if(el) el.style.display = el.style.display==="none" ? "block" : "none";
+  },
+  toggleExplicacaoPerda(){
+    const el = document.getElementById("explicacao-perda");
+    if(el) el.style.display = el.style.display==="none" ? "block" : "none";
+  },
   toggleChecklistItem(elId){
     const el = document.getElementById(elId);
     if(el) el.classList.toggle("checked");
@@ -4649,6 +4729,29 @@ Confeiteira(o)                              Cliente`;
     await saveMinhasReceitas();
     document.getElementById("sheet-root").innerHTML = renderMinhasReceitasHTML();
   },
+  openLivroCaixa(){
+    lancamentoTipoAtual = "entrada";
+    document.getElementById("sheet-root").innerHTML = renderLivroCaixaHTML();
+  },
+  setTipoLancamento(tipo){
+    lancamentoTipoAtual = tipo;
+    document.getElementById("lc-tipo-entrada").classList.toggle("active", tipo==='entrada');
+    document.getElementById("lc-tipo-saida").classList.toggle("active", tipo==='saida');
+  },
+  async addLancamentoCaixa(){
+    const descricao = document.getElementById("lc-descricao").value.trim();
+    const valor = parseFloat(document.getElementById("lc-valor").value);
+    const data = document.getElementById("lc-data").value || new Date().toISOString().slice(0,10);
+    if(!descricao || !valor || valor<=0){ showToast("Preencha descrição e valor."); return; }
+    livroCaixaState.push({ id:"lc"+Date.now(), tipo: lancamentoTipoAtual, descricao, valor, data });
+    await saveLivroCaixa();
+    document.getElementById("sheet-root").innerHTML = renderLivroCaixaHTML();
+  },
+  async removerLancamentoCaixa(id){
+    livroCaixaState = livroCaixaState.filter(l=>l.id!==id);
+    await saveLivroCaixa();
+    document.getElementById("sheet-root").innerHTML = renderLivroCaixaHTML();
+  },
   openEquipamentos(){
     document.getElementById("sheet-root").innerHTML = renderEquipamentosHTML();
   },
@@ -4935,6 +5038,7 @@ Confeiteira(o)                              Cliente`;
       kits: kitsState,
       colecoes: colecoesState,
       equipamentos: equipamentosState,
+      livroCaixa: livroCaixaState,
       negocioConfig: negocioConfig,
       freteConfig: freteConfig,
     };
@@ -4984,6 +5088,7 @@ Confeiteira(o)                              Cliente`;
         if(dados.kits){ kitsState = dados.kits; await saveKits(); }
         if(dados.colecoes){ colecoesState = dados.colecoes; await saveColecoes(); }
         if(dados.equipamentos){ equipamentosState = dados.equipamentos; await saveEquipamentos(); }
+        if(dados.livroCaixa){ livroCaixaState = dados.livroCaixa; await saveLivroCaixa(); }
         if(dados.negocioConfig){ negocioConfig = dados.negocioConfig; await saveNegocioConfig(); }
         if(dados.theme){ state.theme = dados.theme; await saveTheme(); applyTheme(); }
         msg.style.color = "#7A9E6E";
