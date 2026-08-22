@@ -189,7 +189,7 @@
   .faq{padding:16px 0 66px;}
   .faq-list{max-width:680px;margin:0 auto;display:flex;flex-direction:column;gap:10px;}
   .faq-item{background:var(--branco);border:1px solid var(--creme-linha);border-radius:14px;overflow:hidden;}
-  .faq-q{width:100%;display:flex;justify-content:space-between;align-items:center;padding:16px 18px;text-align:left;font-weight:700;font-size:14.5px;}
+  .faq-q{width:100%;display:flex;justify-content:space-between;align-items:center;padding:16px 18px;text-align:left;font-weight:700;font-size:14.5px;color:var(--chocolate);background:none;border:none;font-family:inherit;cursor:pointer;}
   .faq-q svg{width:17px;height:17px;flex-shrink:0;transition:transform .25s ease;color:var(--framboesa);}
   .faq-item.open .faq-q svg{transform:rotate(45deg);}
   .faq-a{max-height:0;overflow:hidden;transition:max-height .3s ease;}
@@ -304,6 +304,8 @@
   .row .val{font-weight:800;}
 
   .field{width:100%;background:var(--creme);border:1px solid var(--creme-linha);border-radius:10px;padding:10px 12px;font-size:13px;outline:none;color:var(--chocolate);}
+  body:not(.theme-dark) input[type="date"]{color-scheme:light;}
+  body.theme-dark input[type="date"]{color-scheme:dark;}
   .field:focus{border-color:var(--framboesa);}
   .ing-row{display:flex;gap:8px;align-items:center;margin-bottom:8px;}
   .ing-row .field:first-child{flex:1;}
@@ -503,11 +505,11 @@
       <p>Ninguém melhor que você pra saber esse número — a gente só ajuda a somar.</p>
       <div class="calc-perda-inputs">
         <div>
-          <label>Quantos doces/bolos você vende por semana?</label>
+          <label>🧁 Quantos doces/bolos você vende por semana?</label>
           <input type="number" id="calc-vendas" class="calc-perda-input" placeholder="Ex: 10" value="10">
         </div>
         <div>
-          <label>Quanto você acha que perde por unidade sem calcular gás, luz e desperdício? (R$)</label>
+          <label>💸 Quanto você acha que perde por unidade sem calcular gás, luz e desperdício? (R$)</label>
           <input type="number" id="calc-perda-unidade" class="calc-perda-input" placeholder="Ex: 3" value="3">
         </div>
       </div>
@@ -4809,16 +4811,20 @@ Confeiteira(o)                              Cliente`;
     </div>`).join('');
 
   // calculadora de dinheiro potencialmente perdido — sempre com os números da própria visitante
+  function formatBR(n){ return n.toFixed(2).replace('.', ','); }
   function atualizarCalcPerda(){
     const vendas = parseFloat(document.getElementById("calc-vendas").value) || 0;
     const porUnidade = parseFloat(document.getElementById("calc-perda-unidade").value) || 0;
     const semanas = 4.345; // média de semanas por mês
     const totalMes = vendas * porUnidade * semanas;
+    const totalAno = totalMes * 12;
     const resultado = document.getElementById("calc-perda-resultado");
     resultado.innerHTML = `
-      <div style="font-size:11px;color:#D9B99A;margin-bottom:6px;">${vendas} doces/semana × R$ ${porUnidade.toFixed(2)} × ~4,3 semanas</div>
-      <div style="font-size:26px;font-weight:800;color:var(--dourado);font-family:'Fraunces',serif;">R$ ${totalMes.toFixed(2)} <span style="font-size:13px;color:#E9D9C4;font-family:inherit;font-weight:600;">por mês</span></div>
-      <div style="font-size:12px;color:#E9D9C4;margin-top:8px;">O RecheioPro custa a partir de R$17,90, pagamento único.</div>`;
+      <div style="font-size:11px;color:#D9B99A;margin-bottom:6px;">${vendas} doces/semana × R$ ${formatBR(porUnidade)} × ~4,3 semanas</div>
+      <div style="font-size:26px;font-weight:800;color:var(--dourado);font-family:'Fraunces',serif;">R$ ${formatBR(totalMes)} <span style="font-size:13px;color:#E9D9C4;font-family:inherit;font-weight:600;">por mês</span></div>
+      <div style="font-size:12px;color:#D9B99A;margin-top:2px;">Isso é R$ ${formatBR(totalAno)} por ano.</div>
+      <div style="font-size:12px;color:#E9D9C4;margin-top:10px;">O RecheioPro custa a partir de R$17,90, pagamento único.</div>
+      <a href="#planos" class="btn-primary" style="display:inline-block;margin-top:14px;padding:12px 28px;font-size:13px;">Ver planos</a>`;
   }
   ["calc-vendas","calc-perda-unidade"].forEach(id=>{
     const el = document.getElementById(id);
