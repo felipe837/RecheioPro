@@ -5501,40 +5501,49 @@ Confeiteira(o)                              Cliente`;
     RP.abrirNotificacoesSheet();
   },
   imprimirEtiquetas(soId){
-    let itens = state.feitas.map(f=>{
-      const id = typeof f==="string"?f:f.id;
-      const data = typeof f==="string"?null:f.data;
-      const r = RECIPES.find(x=>x.id===id);
-      if(!r || !data) return null;
-      const diasVal = parseConservacaoDias(r.conservacao);
-      const venc = diasVal!=null ? addDias(data, diasVal) : null;
-      return { r, data, venc };
-    }).filter(Boolean);
-    if(soId) itens = itens.filter(it=>it.r.id===soId);
-    if(itens.length===0) return;
+    try{
+      let itens = (state.feitas||[]).map(f=>{
+        const id = typeof f==="string"?f:f.id;
+        const data = typeof f==="string"?null:f.data;
+        const r = RECIPES.find(x=>x.id===id);
+        if(!r) return null;
+        if(!data) return { r, data:null, venc:null, semData:true };
+        const diasVal = parseConservacaoDias(r.conservacao);
+        const venc = diasVal!=null ? addDias(data, diasVal) : null;
+        return { r, data, venc, semData:false };
+      }).filter(Boolean);
+      if(soId) itens = itens.filter(it=>it.r.id===soId);
 
-    const etiquetaHTML = ({r,data,venc}) => `
-      <div class="etq">
-        <div class="etq-marca">RecheioPro 🧁</div>
-        <div class="etq-nome">${esc(r.name)}</div>
-        <div class="etq-linha"><span>Fabricação:</span><b>${formatarDataCurta(data)}</b></div>
-        <div class="etq-linha"><span>Validade:</span><b>${venc ? formatarDataCurta(venc) : "Consumir no mesmo dia"}</b></div>
-      </div>`;
+      if(itens.length===0){
+        alert("Não encontrei nenhuma receita marcada como feita pra gerar etiqueta.");
+        return;
+      }
 
-    // Usa o mesmo mecanismo de impressão que já existe no site (a regra
-    // @media print deixa só o #sheet-root visível na hora de imprimir).
-    const root = document.getElementById("sheet-root");
-    root.innerHTML = `
-      <div class="sheet-overlay"><div class="modal-bg no-print" onclick="RP.closeSheet()"></div>
-        <div class="sheet" style="padding:24px 20px;">
-          <div class="no-print" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-            <div class="app-h1" style="margin-bottom:0;">Etiquetas prontas</div>
-            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);">✕</button>
+      const etiquetaHTML = ({r,data,venc,semData}) => `
+        <div class="etq">
+          <div class="etq-marca">RecheioPro 🧁</div>
+          <div class="etq-nome">${esc(r.name)}</div>
+          <div class="etq-linha"><span>Fabricação:</span><b>${semData ? "—" : formatarDataCurta(data)}</b></div>
+          <div class="etq-linha"><span>Validade:</span><b>${semData ? "Marque a data em que fez, pra calcular" : (venc ? formatarDataCurta(venc) : "Consumir no mesmo dia")}</b></div>
+        </div>`;
+
+      // Usa o mesmo mecanismo de impressão que já existe no site (a regra
+      // @media print deixa só o #sheet-root visível na hora de imprimir).
+      const root = document.getElementById("sheet-root");
+      root.innerHTML = `
+        <div class="sheet-overlay"><div class="modal-bg no-print" onclick="RP.closeSheet()"></div>
+          <div class="sheet" style="padding:24px 20px;">
+            <div class="no-print" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+              <div class="app-h1" style="margin-bottom:0;">Etiquetas prontas</div>
+              <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);">✕</button>
+            </div>
+            <button class="no-print" onclick="window.print()" style="width:100%;background:var(--framboesa);color:var(--ink-on-dark);padding:13px;border-radius:100px;font-weight:800;font-size:14px;margin-bottom:16px;">🖨️ Imprimir agora</button>
+            <div class="etq-grid">${itens.map(etiquetaHTML).join('')}</div>
           </div>
-          <button class="no-print" onclick="window.print()" style="width:100%;background:var(--framboesa);color:var(--ink-on-dark);padding:13px;border-radius:100px;font-weight:800;font-size:14px;margin-bottom:16px;">🖨️ Imprimir agora</button>
-          <div class="etq-grid">${itens.map(etiquetaHTML).join('')}</div>
-        </div>
-      </div>`;
+        </div>`;
+    }catch(err){
+      alert("Deu um erro ao gerar as etiquetas: " + err.message);
+    }
   },
   openUpgrade(){
     if(state.plan === "pro") return; // já é Pro — nada a oferecer aqui
