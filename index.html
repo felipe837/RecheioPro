@@ -217,7 +217,15 @@
     .sheet{max-height:none;overflow:visible;box-shadow:none;border-radius:0;max-width:100%;}
     .no-print, .sheet-close, .sheet-fav, .fav-btn, .del-btn, .add-ing{display:none !important;}
     input, select, textarea{border:none !important;}
+    .etq-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+    .etq{border:1.5px dashed #C9B79A;border-radius:10px;padding:12px 14px;break-inside:avoid;}
   }
+  .etq-marca{font-size:10px;font-weight:800;color:var(--framboesa);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;}
+  .etq-nome{font-size:14px;font-weight:800;color:var(--chocolate);margin-bottom:8px;line-height:1.25;}
+  .etq-linha{display:flex;justify-content:space-between;font-size:11.5px;color:var(--chocolate-suave);margin-top:2px;}
+  .etq-linha b{color:var(--chocolate);}
+  .etq-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+  .etq{border:1.5px dashed var(--creme-linha);border-radius:10px;padding:12px 14px;}
   .sticky-bar .info{font-size:12px;color:var(--chocolate-suave);}
   .sticky-bar .info strong{display:block;font-family:'Fraunces',serif;font-size:15px;color:var(--chocolate);font-weight:700;}
   .sticky-bar .btn-primary{padding:11px 20px;font-size:13.5px;white-space:nowrap;}
@@ -341,18 +349,6 @@
   .testi-dots{display:flex;justify-content:center;gap:7px;margin-top:14px;}
   .testi-dot{width:7px;height:7px;border-radius:50%;background:var(--creme-linha);opacity:.5;transition:all .2s ease;cursor:pointer;}
   .testi-dot.active{background:var(--dourado);opacity:1;width:18px;border-radius:4px;}
-  #etiquetas-print-area{ display:none; }
-  #etiquetas-print-area .etq-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
-  #etiquetas-print-area .etq{ border:1.5px dashed #C9B79A; border-radius:10px; padding:12px 14px; break-inside:avoid; background:#fff; }
-  #etiquetas-print-area .etq-marca{ font-size:10px; font-weight:800; color:#C23B5B; text-transform:uppercase; letter-spacing:.04em; margin-bottom:4px; font-family:-apple-system,sans-serif; }
-  #etiquetas-print-area .etq-nome{ font-size:14px; font-weight:800; color:#3B2417; margin-bottom:8px; line-height:1.25; font-family:-apple-system,sans-serif; }
-  #etiquetas-print-area .etq-linha{ display:flex; justify-content:space-between; font-size:11.5px; color:#6B4A34; margin-top:2px; font-family:-apple-system,sans-serif; }
-  #etiquetas-print-area .etq-linha b{ color:#3B2417; }
-  @media print{
-    body.printing-etiquetas > *:not(#etiquetas-print-area){ display:none !important; }
-    body.printing-etiquetas #etiquetas-print-area{ display:block !important; position:static; }
-    @page{ margin:10mm; }
-  }
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
@@ -5505,7 +5501,6 @@ Confeiteira(o)                              Cliente`;
     RP.abrirNotificacoesSheet();
   },
   imprimirEtiquetas(soId){
-    const hoje = new Date();
     let itens = state.feitas.map(f=>{
       const id = typeof f==="string"?f:f.id;
       const data = typeof f==="string"?null:f.data;
@@ -5526,21 +5521,20 @@ Confeiteira(o)                              Cliente`;
         <div class="etq-linha"><span>Validade:</span><b>${venc ? formatarDataCurta(venc) : "Consumir no mesmo dia"}</b></div>
       </div>`;
 
-    // Imprime a própria página, escondendo tudo menos as etiquetas (via CSS de
-    // impressão). Evita de vez qualquer bloqueio de pop-up/aba nova/iframe —
-    // funciona igual em desktop e celular, porque não abre nada novo.
-    let area = document.getElementById("etiquetas-print-area");
-    if(!area){
-      area = document.createElement("div");
-      area.id = "etiquetas-print-area";
-      document.body.appendChild(area);
-    }
-    area.innerHTML = `<div class="etq-grid">${itens.map(etiquetaHTML).join('')}</div>`;
-    document.body.classList.add("printing-etiquetas");
-    setTimeout(()=>{
-      window.print();
-      setTimeout(()=>{ document.body.classList.remove("printing-etiquetas"); }, 300);
-    }, 50);
+    // Usa o mesmo mecanismo de impressão que já existe no site (a regra
+    // @media print deixa só o #sheet-root visível na hora de imprimir).
+    const root = document.getElementById("sheet-root");
+    root.innerHTML = `
+      <div class="sheet-overlay"><div class="modal-bg no-print" onclick="RP.closeSheet()"></div>
+        <div class="sheet" style="padding:24px 20px;">
+          <div class="no-print" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+            <div class="app-h1" style="margin-bottom:0;">Etiquetas prontas</div>
+            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);">✕</button>
+          </div>
+          <button class="no-print" onclick="window.print()" style="width:100%;background:var(--framboesa);color:var(--ink-on-dark);padding:13px;border-radius:100px;font-weight:800;font-size:14px;margin-bottom:16px;">🖨️ Imprimir agora</button>
+          <div class="etq-grid">${itens.map(etiquetaHTML).join('')}</div>
+        </div>
+      </div>`;
   },
   openUpgrade(){
     if(state.plan === "pro") return; // já é Pro — nada a oferecer aqui
