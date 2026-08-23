@@ -1564,7 +1564,7 @@ const VALIDATION_ENDPOINT = "https://script.google.com/macros/s/AKfycbwebVfY6gdg
 /* =========================================================================
    ESTADO
 ========================================================================= */
-let state = { plan:null, favorites:[], feitas:[], avaliacoes:{}, tab:"inicio", query:"", category:null, tempoFiltro:null, theme:"device", novidadesFechadas:false };
+let state = { plan:null, favorites:[], feitas:[], avaliacoes:{}, tab:"inicio", query:"", category:null, tempoFiltro:null, theme:"device", novidadesFechadas:false, notificacoesAtivas:false };
 
 async function loadTheme(){
   try{ const t = await window.storage.get("recheiopro:theme"); if(t&&t.value) state.theme = JSON.parse(t.value); }catch(e){}
@@ -1588,6 +1588,7 @@ async function loadState(){
   try{ const av = await window.storage.get("recheiopro:avaliacoes"); if(av&&av.value) state.avaliacoes = JSON.parse(av.value); }catch(e){}
   try{ const nv = await window.storage.get("recheiopro:novidadesFechadas:"+NOVIDADES_A_PARTIR_DE); if(nv&&nv.value) state.novidadesFechadas = JSON.parse(nv.value); }catch(e){}
   try{ const tb = await window.storage.get("recheiopro:tab"); if(tb&&tb.value){ const t = JSON.parse(tb.value); if(["inicio","receitas","calculadoras","favoritos","perfil"].includes(t)) state.tab = t; } }catch(e){}
+  try{ const nt = await window.storage.get("recheiopro:notificacoesAtivas"); if(nt&&nt.value) state.notificacoesAtivas = JSON.parse(nt.value); }catch(e){}
   await loadInsumos();
   await loadFreteConfig();
   await loadNegocioConfig();
@@ -1602,6 +1603,62 @@ async function loadState(){
   await loadLivroCaixa();
 }
 async function saveTab(){ try{ await window.storage.set("recheiopro:tab", JSON.stringify(state.tab)); }catch(e){} }
+async function saveNotificacoesAtivas(){ try{ await window.storage.set("recheiopro:notificacoesAtivas", JSON.stringify(state.notificacoesAtivas)); }catch(e){} }
+
+/* ---------------------------------------------------------------
+   NOTIFICAÇÕES DO NAVEGADOR
+   Reaproveita coletarAlertas() (a mesma função da Central de Alertas)
+   e dispara uma notificação nativa pra cada alerta urgente ainda não
+   avisado hoje. Guarda o que já foi notificado numa pequena "memória"
+   pra não repetir o mesmo aviso a cada checagem.
+--------------------------------------------------------------- */
+async function checarEEnviarNotificacoes(){
+  if(!state.notificacoesAtivas) return;
+  if(typeof Notification === "undefined" || Notification.permission !== "granted") return;
+  const hojeStr = new Date().toISOString().slice(0,10);
+  let notificados = {};
+  try{ const n = await window.storage.get("recheiopro:notificados"); if(n&&n.value) notificados = JSON.parse(n.value); }catch(e){}
+  Object.keys(notificados).forEach(k=>{ if(notificados[k] !== hojeStr) delete notificados[k]; });
+
+  const a = coletarAlertas();
+  const paraNotificar = [];
+
+  a.followUps.forEach(p=>{
+    const chave = "followup-"+p.id+"-"+hojeStr;
+    if(!notificados[chave]) paraNotificar.push({ chave, titulo: "⏰ Cliente esperando resposta", corpo: `${p.cliente} — ${p.produto}, sem resposta há ${diasDesde(p.dataPedido)} dias.` });
+  });
+  a.aniversarios.forEach(({p,diasAte})=>{
+    if(diasAte<=1){
+      const chave = "data-"+p.id+"-"+hojeStr;
+      if(!notificados[chave]) paraNotificar.push({ chave, titulo: diasAte===0?"🎂 É hoje!":"🎂 É amanhã", corpo: `${p.cliente} — data chegando.` });
+    }
+  });
+  a.estoqueAlertas.forEach(it=>{
+    const chave = "estoque-"+it.id+"-"+hojeStr;
+    if(!notificados[chave]){ const st = statusEstoqueItem(it); paraNotificar.push({ chave, titulo: "📦 Estoque: "+it.ingrediente, corpo: st.texto }); }
+  });
+  a.validadeAlertas.forEach(({r,diasRestantes})=>{
+    if(diasRestantes <= 1){
+      const chave = "validade-"+r.id+"-"+hojeStr;
+      if(!notificados[chave]) paraNotificar.push({ chave, titulo: "🍰 Validade: "+r.name, corpo: diasRestantes<0?`Venceu há ${Math.abs(diasRestantes)} dia(s)`:diasRestantes===0?"Vence hoje":"Vence amanhã" });
+    }
+  });
+
+  paraNotificar.forEach(n=>{
+    try{ new Notification(n.titulo, { body: n.corpo }); }catch(e){}
+    notificados[n.chave] = hojeStr;
+  });
+
+  if(paraNotificar.length){
+    try{ await window.storage.set("recheiopro:notificados", JSON.stringify(notificados)); }catch(e){}
+  }
+}
+let checagemNotifInterval = null;
+function iniciarChecagemNotificacoes(){
+  checarEEnviarNotificacoes();
+  if(checagemNotifInterval) clearInterval(checagemNotifInterval);
+  checagemNotifInterval = setInterval(checarEEnviarNotificacoes, 30*60*1000); // a cada 30 min, enquanto a aba estiver aberta
+}
 async function saveFeitas(){ try{ await window.storage.set("recheiopro:feitas", JSON.stringify(state.feitas)); }catch(e){} }
 async function saveAvaliacoes(){ try{ await window.storage.set("recheiopro:avaliacoes", JSON.stringify(state.avaliacoes)); }catch(e){} }
 async function savePlan(){ try{ await window.storage.set("recheiopro:plan", JSON.stringify(state.plan)); }catch(e){} }
@@ -2783,6 +2840,7 @@ function renderValidadeHTML(){
             <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);">✕</button>
           </div>
           <p style="color:var(--chocolate-suave);font-size:12px;margin-bottom:16px;">Baseado na data em que você marcou cada receita como feita.</p>
+          ${itens.length>0 ? `<button onclick="RP.imprimirEtiquetas()" style="width:100%;background:var(--framboesa);color:var(--ink-on-dark);padding:12px;border-radius:100px;font-weight:800;font-size:13px;margin-bottom:16px;">🖨️ Imprimir etiquetas de todas</button>` : ``}
 
           ${itens.length===0 ? `
             <div style="text-align:center;padding:30px 0;color:var(--chocolate-suave);font-size:13px;">Marque receitas como feitas pra acompanhar a validade delas aqui.</div>
@@ -2796,9 +2854,12 @@ function renderValidadeHTML(){
               else { corBorda = "#7A9E6E"; texto = `Vence em ${diasRestantes} dias (${formatarDataCurta(statusInfo.vencimento)})`; }
             }
             return `
-            <div class="card" style="border-left:4px solid ${corBorda};margin-bottom:8px;cursor:pointer;" onclick="RP.closeSheet();RP.openRecipe('${r.id}')">
-              <div style="font-weight:800;font-size:13px;">${esc(r.name)}</div>
-              <div style="font-size:11.5px;color:var(--chocolate-suave);margin-top:2px;">${texto}</div>
+            <div class="card" style="border-left:4px solid ${corBorda};margin-bottom:8px;display:flex;align-items:center;gap:10px;">
+              <div style="flex:1;cursor:pointer;" onclick="RP.closeSheet();RP.openRecipe('${r.id}')">
+                <div style="font-weight:800;font-size:13px;">${esc(r.name)}</div>
+                <div style="font-size:11.5px;color:var(--chocolate-suave);margin-top:2px;">${texto}</div>
+              </div>
+              ${data ? `<button onclick="event.stopPropagation();RP.imprimirEtiquetas('${r.id}')" style="background:var(--creme-card);color:var(--chocolate);padding:8px 12px;border-radius:100px;font-size:11px;font-weight:800;white-space:nowrap;">🖨️ Etiqueta</button>` : ``}
             </div>`;
           }).join('')}
 
@@ -3176,11 +3237,11 @@ const PERFIL_CATEGORIAS = [
     ["Minhas Receitas Salvas", true, "minhas-receitas"],["Calcular frete de entrega", true, "frete-config"],["Equipamentos", true, "equipamentos"],
   ]},
   { key:"conta", titulo:"Conta e dados", icone:"⚙️", itens:[
-    ["Indique o RecheioPro", false, "indicar"],["Exportar meus dados", false, "exportar"],
+    ["Notificações", false, "notificacoes"],["Indique o RecheioPro", false, "indicar"],["Exportar meus dados", false, "exportar"],
     ["Importar dados salvos", false, "importar"],["Aparência", false, "aparencia"],
   ]},
 ];
-const PERFIL_ROTAS = { suporte:"RP.openSuporte()", aparencia:"RP.openAparencia()", indicar:"RP.openIndicar()", cardapio:"RP.openCardapio()", "cardapio-interativo":"RP.openCardapioInterativo()", exportar:"RP.exportarDados()", importar:"RP.importarDados()", "frete-config":"RP.openFreteConfig()", "resumo-mensal":"RP.openResumoMensal()", fornecedores:"RP.openFornecedores()", pedidos:"RP.openPedidos()", estoque:"RP.openEstoque()", "minhas-receitas":"RP.openMinhasReceitas()", respostas:"RP.openRespostasProntas()", sos:"RP.openSosCozinha()", kits:"RP.openKits()", equipamentos:"RP.openEquipamentos()", "livro-caixa":"RP.openLivroCaixa()" };
+const PERFIL_ROTAS = { suporte:"RP.openSuporte()", aparencia:"RP.openAparencia()", notificacoes:"RP.abrirNotificacoesSheet()", indicar:"RP.openIndicar()", cardapio:"RP.openCardapio()", "cardapio-interativo":"RP.openCardapioInterativo()", exportar:"RP.exportarDados()", importar:"RP.importarDados()", "frete-config":"RP.openFreteConfig()", "resumo-mensal":"RP.openResumoMensal()", fornecedores:"RP.openFornecedores()", pedidos:"RP.openPedidos()", estoque:"RP.openEstoque()", "minhas-receitas":"RP.openMinhasReceitas()", respostas:"RP.openRespostasProntas()", sos:"RP.openSosCozinha()", kits:"RP.openKits()", equipamentos:"RP.openEquipamentos()", "livro-caixa":"RP.openLivroCaixa()" };
 
 function renderPerfilCategoriaHTML(catKey){
   const cat = PERFIL_CATEGORIAS.find(c=>c.key===catKey);
@@ -5383,6 +5444,102 @@ Confeiteira(o)                              Cliente`;
     rendimentoAjuste[id] = novo;
     openRecipeSheet(r);
   },
+  abrirNotificacoesSheet(){
+    const root = document.getElementById("sheet-root");
+    const suportado = typeof Notification !== "undefined";
+    const permissao = suportado ? Notification.permission : "unsupported";
+    const ativo = state.notificacoesAtivas && permissao === "granted";
+    root.innerHTML = `
+      <div class="sheet-overlay"><div class="modal-bg" onclick="RP.closeSheet()"></div>
+        <div class="sheet" style="padding:26px 22px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+            <div class="app-h1" style="margin-bottom:0;">🔔 Notificações</div>
+            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);">✕</button>
+          </div>
+          <p style="color:var(--chocolate-suave);font-size:12.5px;margin-bottom:18px;">Receba um aviso no navegador quando tiver algo urgente: encomenda pra breve, receita perto de vencer ou estoque acabando — sem precisar ficar abrindo o app pra conferir.</p>
+          ${!suportado ? `
+            <div class="card" style="border-left:4px solid var(--framboesa);">Seu navegador não tem suporte a notificações.</div>
+          ` : permissao === "denied" ? `
+            <div class="card" style="border-left:4px solid var(--framboesa);">Você bloqueou as notificações pra esse site antes. Pra ativar, precisa liberar manualmente nas configurações do navegador (ícone de cadeado, ao lado do endereço do site).</div>
+          ` : `
+            <div class="card" style="display:flex;align-items:center;gap:12px;">
+              <div style="flex:1;">
+                <div style="font-weight:800;font-size:13.5px;">${ativo ? "Ativadas" : "Desativadas"}</div>
+                <div style="font-size:11.5px;color:var(--chocolate-suave);">${ativo ? "Você vai receber avisos dos alertas urgentes." : "Toque pra ativar."}</div>
+              </div>
+              <button onclick="RP.toggleNotificacoes()" style="background:${ativo?'var(--framboesa)':'var(--creme-card)'};color:${ativo?'var(--ink-on-dark)':'var(--chocolate)'};padding:10px 18px;border-radius:100px;font-weight:800;font-size:12.5px;">${ativo ? "Desativar" : "Ativar"}</button>
+            </div>
+          `}
+          <div style="font-size:11px;color:var(--chocolate-suave);margin-top:16px;">💡 Só funciona enquanto o RecheioPro estiver aberto em alguma aba do navegador — não é um app nativo, então não dispara com o navegador fechado.</div>
+        </div>
+      </div>`;
+  },
+  async toggleNotificacoes(){
+    if(state.notificacoesAtivas){
+      state.notificacoesAtivas = false;
+      await saveNotificacoesAtivas();
+      RP.abrirNotificacoesSheet();
+      return;
+    }
+    try{
+      const permissao = await Notification.requestPermission();
+      if(permissao === "granted"){
+        state.notificacoesAtivas = true;
+        await saveNotificacoesAtivas();
+        new Notification("RecheioPro", { body: "Notificações ativadas! Vamos te avisar quando tiver algo urgente. 🧁" });
+        iniciarChecagemNotificacoes();
+      }
+    }catch(e){}
+    RP.abrirNotificacoesSheet();
+  },
+  imprimirEtiquetas(soId){
+    const hoje = new Date();
+    let itens = state.feitas.map(f=>{
+      const id = typeof f==="string"?f:f.id;
+      const data = typeof f==="string"?null:f.data;
+      const r = RECIPES.find(x=>x.id===id);
+      if(!r || !data) return null;
+      const diasVal = parseConservacaoDias(r.conservacao);
+      const venc = diasVal!=null ? addDias(data, diasVal) : null;
+      return { r, data, venc };
+    }).filter(Boolean);
+    if(soId) itens = itens.filter(it=>it.r.id===soId);
+    if(itens.length===0) return;
+
+    const etiquetaHTML = ({r,data,venc}) => `
+      <div class="etq">
+        <div class="etq-marca">RecheioPro 🧁</div>
+        <div class="etq-nome">${esc(r.name)}</div>
+        <div class="etq-linha"><span>Fabricação:</span><b>${formatarDataCurta(data)}</b></div>
+        <div class="etq-linha"><span>Validade:</span><b>${venc ? formatarDataCurta(venc) : "Consumir no mesmo dia"}</b></div>
+      </div>`;
+
+    const html = `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8">
+      <title>Etiquetas — RecheioPro</title>
+      <style>
+        @page{ margin:10mm; }
+        body{ font-family:-apple-system,'Helvetica Neue',Arial,sans-serif; margin:0; padding:12px; background:#fff; }
+        .etq-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
+        .etq{ border:1.5px dashed #C9B79A; border-radius:10px; padding:12px 14px; break-inside:avoid; }
+        .etq-marca{ font-size:10px; font-weight:800; color:#C23B5B; text-transform:uppercase; letter-spacing:.04em; margin-bottom:4px; }
+        .etq-nome{ font-size:14px; font-weight:800; color:#3B2417; margin-bottom:8px; line-height:1.25; }
+        .etq-linha{ display:flex; justify-content:space-between; font-size:11.5px; color:#6B4A34; margin-top:2px; }
+        .etq-linha b{ color:#3B2417; }
+        .print-bar{ text-align:center; margin-bottom:16px; }
+        .print-bar button{ background:#C23B5B; color:#fff; border:none; padding:12px 26px; border-radius:100px; font-weight:800; font-size:14px; cursor:pointer; }
+        @media print{ .print-bar{ display:none; } }
+      </style></head>
+      <body>
+        <div class="print-bar"><button onclick="window.print()">🖨️ Imprimir agora</button></div>
+        <div class="etq-grid">${itens.map(etiquetaHTML).join('')}</div>
+      </body></html>`;
+
+    const w = window.open("", "_blank");
+    if(!w){ alert("Seu navegador bloqueou a aba de impressão. Permita pop-ups pro RecheioPro e tente de novo."); return; }
+    w.document.open();
+    w.document.write(html);
+    w.document.close();
+  },
   openUpgrade(){
     if(state.plan === "pro") return; // já é Pro — nada a oferecer aqui
     const root = document.getElementById("sheet-root");
@@ -5709,6 +5866,11 @@ Confeiteira(o)                              Cliente`;
     document.addEventListener('visibilitychange', ()=>{ if(document.hidden) stopAutoplay(); else startAutoplay(); });
     startAutoplay();
   })();
+
+  // notificações: retoma a checagem periódica se a pessoa já tinha ativado antes
+  if(state.notificacoesAtivas && typeof Notification !== "undefined" && Notification.permission === "granted"){
+    iniciarChecagemNotificacoes();
+  }
 
   // se já tinha plano salvo (chave usada antes), entra direto na área liberada
   if(state.plan){ RP.enterApp(); }
