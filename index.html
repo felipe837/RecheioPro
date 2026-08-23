@@ -341,6 +341,18 @@
   .testi-dots{display:flex;justify-content:center;gap:7px;margin-top:14px;}
   .testi-dot{width:7px;height:7px;border-radius:50%;background:var(--creme-linha);opacity:.5;transition:all .2s ease;cursor:pointer;}
   .testi-dot.active{background:var(--dourado);opacity:1;width:18px;border-radius:4px;}
+  #etiquetas-print-area{ display:none; }
+  #etiquetas-print-area .etq-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
+  #etiquetas-print-area .etq{ border:1.5px dashed #C9B79A; border-radius:10px; padding:12px 14px; break-inside:avoid; background:#fff; }
+  #etiquetas-print-area .etq-marca{ font-size:10px; font-weight:800; color:#C23B5B; text-transform:uppercase; letter-spacing:.04em; margin-bottom:4px; font-family:-apple-system,sans-serif; }
+  #etiquetas-print-area .etq-nome{ font-size:14px; font-weight:800; color:#3B2417; margin-bottom:8px; line-height:1.25; font-family:-apple-system,sans-serif; }
+  #etiquetas-print-area .etq-linha{ display:flex; justify-content:space-between; font-size:11.5px; color:#6B4A34; margin-top:2px; font-family:-apple-system,sans-serif; }
+  #etiquetas-print-area .etq-linha b{ color:#3B2417; }
+  @media print{
+    body.printing-etiquetas > *:not(#etiquetas-print-area){ display:none !important; }
+    body.printing-etiquetas #etiquetas-print-area{ display:block !important; position:static; }
+    @page{ margin:10mm; }
+  }
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
@@ -5514,39 +5526,21 @@ Confeiteira(o)                              Cliente`;
         <div class="etq-linha"><span>Validade:</span><b>${venc ? formatarDataCurta(venc) : "Consumir no mesmo dia"}</b></div>
       </div>`;
 
-    const html = `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8">
-      <title>Etiquetas — RecheioPro</title>
-      <style>
-        @page{ margin:10mm; }
-        body{ font-family:-apple-system,'Helvetica Neue',Arial,sans-serif; margin:0; padding:12px; background:#fff; }
-        .etq-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
-        .etq{ border:1.5px dashed #C9B79A; border-radius:10px; padding:12px 14px; break-inside:avoid; }
-        .etq-marca{ font-size:10px; font-weight:800; color:#C23B5B; text-transform:uppercase; letter-spacing:.04em; margin-bottom:4px; }
-        .etq-nome{ font-size:14px; font-weight:800; color:#3B2417; margin-bottom:8px; line-height:1.25; }
-        .etq-linha{ display:flex; justify-content:space-between; font-size:11.5px; color:#6B4A34; margin-top:2px; }
-        .etq-linha b{ color:#3B2417; }
-      </style></head>
-      <body>
-        <div class="etq-grid">${itens.map(etiquetaHTML).join('')}</div>
-      </body></html>`;
-
-    // imprime via iframe escondido, em vez de abrir aba nova — evita o bloqueio de
-    // pop-up dos navegadores (principalmente no celular, onde window.open falha)
-    const iframeAntigo = document.getElementById("etiquetas-print-frame");
-    if(iframeAntigo) iframeAntigo.remove();
-    const iframe = document.createElement("iframe");
-    iframe.id = "etiquetas-print-frame";
-    iframe.style.cssText = "position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden;";
-    document.body.appendChild(iframe);
-    iframe.srcdoc = html;
-    iframe.onload = () => {
-      try{
-        iframe.contentWindow.focus();
-        iframe.contentWindow.print();
-      }catch(err){
-        alert("Não consegui abrir a impressão. Tente de novo, ou confira se o navegador está bloqueando pop-ups pro RecheioPro.");
-      }
-    };
+    // Imprime a própria página, escondendo tudo menos as etiquetas (via CSS de
+    // impressão). Evita de vez qualquer bloqueio de pop-up/aba nova/iframe —
+    // funciona igual em desktop e celular, porque não abre nada novo.
+    let area = document.getElementById("etiquetas-print-area");
+    if(!area){
+      area = document.createElement("div");
+      area.id = "etiquetas-print-area";
+      document.body.appendChild(area);
+    }
+    area.innerHTML = `<div class="etq-grid">${itens.map(etiquetaHTML).join('')}</div>`;
+    document.body.classList.add("printing-etiquetas");
+    setTimeout(()=>{
+      window.print();
+      setTimeout(()=>{ document.body.classList.remove("printing-etiquetas"); }, 300);
+    }, 50);
   },
   openUpgrade(){
     if(state.plan === "pro") return; // já é Pro — nada a oferecer aqui
