@@ -217,15 +217,7 @@
     .sheet{max-height:none;overflow:visible;box-shadow:none;border-radius:0;max-width:100%;}
     .no-print, .sheet-close, .sheet-fav, .fav-btn, .del-btn, .add-ing{display:none !important;}
     input, select, textarea{border:none !important;}
-    .etq-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
-    .etq{border:1.5px dashed #C9B79A;border-radius:10px;padding:12px 14px;break-inside:avoid;}
   }
-  .etq-marca{font-size:10px;font-weight:800;color:var(--framboesa);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;}
-  .etq-nome{font-size:14px;font-weight:800;color:var(--chocolate);margin-bottom:8px;line-height:1.25;}
-  .etq-linha{display:flex;justify-content:space-between;font-size:11.5px;color:var(--chocolate-suave);margin-top:2px;}
-  .etq-linha b{color:var(--chocolate);}
-  .etq-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
-  .etq{border:1.5px dashed var(--creme-linha);border-radius:10px;padding:12px 14px;}
   .sticky-bar .info{font-size:12px;color:var(--chocolate-suave);}
   .sticky-bar .info strong{display:block;font-family:'Fraunces',serif;font-size:15px;color:var(--chocolate);font-weight:700;}
   .sticky-bar .btn-primary{padding:11px 20px;font-size:13.5px;white-space:nowrap;}
@@ -2751,6 +2743,28 @@ function renderLivroCaixaHTML(){
   const entradasMes = doMes.filter(l=>l.tipo==='entrada').reduce((a,l)=>a+l.valor,0);
   const saidasMes = doMes.filter(l=>l.tipo==='saida').reduce((a,l)=>a+l.valor,0);
 
+  // Entradas x Saídas dos últimos 6 meses, pro gráfico
+  const nomesMesesCurtoLC = ["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
+  const historico6MesesLC = [];
+  for(let i=5; i>=0; i--){
+    const d = new Date(anoAtual, mesAtual - i, 1);
+    const doMesRef = livroCaixaState.filter(l=>{ const ld=new Date(l.data+"T12:00:00"); return ld.getMonth()===d.getMonth() && ld.getFullYear()===d.getFullYear(); });
+    const entradas = doMesRef.filter(l=>l.tipo==='entrada').reduce((a,l)=>a+l.valor,0);
+    const saidas = doMesRef.filter(l=>l.tipo==='saida').reduce((a,l)=>a+l.valor,0);
+    historico6MesesLC.push({ label: nomesMesesCurtoLC[d.getMonth()], entradas, saidas, ehAtual: i===0 });
+  }
+  const maiorValorLC = Math.max(1, ...historico6MesesLC.flatMap(m=>[m.entradas,m.saidas]));
+
+  // Maiores saídas agrupadas por descrição (onde o dinheiro mais sai)
+  const saidasPorDescricao = {};
+  livroCaixaState.filter(l=>l.tipo==='saida').forEach(l=>{
+    const chave = l.descricao.trim().toLowerCase();
+    if(!saidasPorDescricao[chave]) saidasPorDescricao[chave] = { descricao: l.descricao, total: 0 };
+    saidasPorDescricao[chave].total += l.valor;
+  });
+  const rankingSaidas = Object.values(saidasPorDescricao).sort((a,b)=>b.total-a.total).slice(0,5);
+  const maiorSaidaRanking = Math.max(1, ...rankingSaidas.map(s=>s.total));
+
   return `
     <div class="sheet-overlay"><div class="modal-bg" onclick="RP.closeSheet()"></div>
       <div class="sheet">
@@ -2766,6 +2780,40 @@ function renderLivroCaixaHTML(){
             <div class="row"><span class="lbl" style="color:#E9D9C4;">Entradas do mês</span><span class="val" style="color:#7A9E6E;">R$ ${entradasMes.toFixed(2)}</span></div>
             <div class="row"><span class="lbl" style="color:#E9D9C4;">Saídas do mês</span><span class="val" style="color:var(--framboesa);">R$ ${saidasMes.toFixed(2)}</span></div>
           </div>
+
+          ${livroCaixaState.length>0 ? `
+          <div class="card" style="margin-bottom:14px;">
+            <div style="font-weight:800;font-size:12.5px;margin-bottom:10px;">📊 Entradas x Saídas — últimos 6 meses</div>
+            <div style="display:flex;align-items:flex-end;gap:8px;height:110px;">
+              ${historico6MesesLC.map(m=>`
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;">
+                  <div style="display:flex;align-items:flex-end;gap:3px;height:88px;">
+                    <div title="Entradas: R$ ${m.entradas.toFixed(2)}" style="width:10px;height:${Math.max(2,(m.entradas/maiorValorLC)*84)}px;background:#7A9E6E;border-radius:4px 4px 1px 1px;"></div>
+                    <div title="Saídas: R$ ${m.saidas.toFixed(2)}" style="width:10px;height:${Math.max(2,(m.saidas/maiorValorLC)*84)}px;background:var(--framboesa);border-radius:4px 4px 1px 1px;"></div>
+                  </div>
+                  <div style="font-size:9.5px;color:var(--chocolate-suave);margin-top:4px;font-weight:${m.ehAtual?'800':'500'};">${m.label}</div>
+                </div>`).join('')}
+            </div>
+            <div style="display:flex;gap:16px;justify-content:center;margin-top:12px;font-size:10.5px;color:var(--chocolate-suave);">
+              <span style="display:flex;align-items:center;gap:4px;"><span style="width:8px;height:8px;border-radius:2px;background:#7A9E6E;display:inline-block;"></span>Entradas</span>
+              <span style="display:flex;align-items:center;gap:4px;"><span style="width:8px;height:8px;border-radius:2px;background:var(--framboesa);display:inline-block;"></span>Saídas</span>
+            </div>
+          </div>
+
+          ${rankingSaidas.length>0 ? `
+          <div class="card" style="margin-bottom:14px;">
+            <div style="font-weight:800;font-size:12.5px;margin-bottom:10px;">🔻 Maiores saídas (por descrição)</div>
+            ${rankingSaidas.map(s=>`
+              <div style="margin-bottom:8px;">
+                <div style="display:flex;justify-content:space-between;font-size:11.5px;margin-bottom:3px;">
+                  <span>${esc(s.descricao)}</span>
+                  <span style="font-weight:800;color:var(--framboesa);">R$ ${s.total.toFixed(2)}</span>
+                </div>
+                <div class="progress-track"><div class="progress-fill" style="width:${(s.total/maiorSaidaRanking)*100}%;background:var(--framboesa);"></div></div>
+              </div>`).join('')}
+            <div style="font-size:10px;color:var(--chocolate-suave);margin-top:4px;">Soma tudo que tem a mesma descrição — pra ficar mais fácil ver onde o dinheiro mais sai.</div>
+          </div>` : ''}
+          ` : ''}
 
           <div class="card" style="margin-bottom:14px;">
             <div style="display:flex;gap:8px;margin-bottom:8px;">
@@ -2848,7 +2896,6 @@ function renderValidadeHTML(){
             <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);">✕</button>
           </div>
           <p style="color:var(--chocolate-suave);font-size:12px;margin-bottom:16px;">Baseado na data em que você marcou cada receita como feita.</p>
-          ${itens.length>0 ? `<button onclick="RP.imprimirEtiquetas()" style="width:100%;background:var(--framboesa);color:var(--ink-on-dark);padding:12px;border-radius:100px;font-weight:800;font-size:13px;margin-bottom:16px;">🖨️ Imprimir etiquetas de todas</button>` : ``}
 
           ${itens.length===0 ? `
             <div style="text-align:center;padding:30px 0;color:var(--chocolate-suave);font-size:13px;">Marque receitas como feitas pra acompanhar a validade delas aqui.</div>
@@ -2862,12 +2909,9 @@ function renderValidadeHTML(){
               else { corBorda = "#7A9E6E"; texto = `Vence em ${diasRestantes} dias (${formatarDataCurta(statusInfo.vencimento)})`; }
             }
             return `
-            <div class="card" style="border-left:4px solid ${corBorda};margin-bottom:8px;display:flex;align-items:center;gap:10px;">
-              <div style="flex:1;cursor:pointer;" onclick="RP.closeSheet();RP.openRecipe('${r.id}')">
-                <div style="font-weight:800;font-size:13px;">${esc(r.name)}</div>
-                <div style="font-size:11.5px;color:var(--chocolate-suave);margin-top:2px;">${texto}</div>
-              </div>
-              ${data ? `<button onclick="event.stopPropagation();RP.imprimirEtiquetas('${r.id}')" style="background:var(--creme-card);color:var(--chocolate);padding:8px 12px;border-radius:100px;font-size:11px;font-weight:800;white-space:nowrap;">🖨️ Etiqueta</button>` : ``}
+            <div class="card" style="border-left:4px solid ${corBorda};margin-bottom:8px;cursor:pointer;" onclick="RP.closeSheet();RP.openRecipe('${r.id}')">
+              <div style="font-weight:800;font-size:13px;">${esc(r.name)}</div>
+              <div style="font-size:11.5px;color:var(--chocolate-suave);margin-top:2px;">${texto}</div>
             </div>`;
           }).join('')}
 
@@ -5499,69 +5543,6 @@ Confeiteira(o)                              Cliente`;
       }
     }catch(e){}
     RP.abrirNotificacoesSheet();
-  },
-  imprimirEtiquetas(soId){
-    try{
-      let itens = (state.feitas||[]).map(f=>{
-        const id = typeof f==="string"?f:f.id;
-        const data = typeof f==="string"?null:f.data;
-        const r = RECIPES.find(x=>x.id===id);
-        if(!r) return null;
-        if(!data) return { r, data:null, venc:null, semData:true };
-        const diasVal = parseConservacaoDias(r.conservacao);
-        const venc = diasVal!=null ? addDias(data, diasVal) : null;
-        return { r, data, venc, semData:false };
-      }).filter(Boolean);
-      if(soId) itens = itens.filter(it=>it.r.id===soId);
-
-      if(itens.length===0){
-        alert("Não encontrei nenhuma receita marcada como feita pra gerar etiqueta.");
-        return;
-      }
-
-      const etiquetaHTML = ({r,data,venc,semData}) => `
-        <div class="etq">
-          <div class="etq-marca">RecheioPro 🧁</div>
-          <div class="etq-nome">${esc(r.name)}</div>
-          ${semData ? `
-            <div class="no-print" style="margin-bottom:8px;">
-              <label style="font-size:10.5px;color:var(--chocolate-suave);display:block;margin-bottom:4px;">Essa aqui foi marcada como feita sem data registrada. Quando você fez?</label>
-              <input type="date" max="${new Date().toISOString().slice(0,10)}" onchange="RP.definirDataFeitaEImprimir('${r.id}','${soId||''}',this.value)" style="width:100%;box-sizing:border-box;padding:9px 10px;border-radius:8px;border:1px solid var(--creme-linha);font-size:12.5px;">
-            </div>
-            <div class="etq-linha"><span>Fabricação:</span><b>Preencha a data acima ↑</b></div>
-            <div class="etq-linha"><span>Validade:</span><b>—</b></div>
-          ` : `
-            <div class="etq-linha"><span>Fabricação:</span><b>${formatarDataCurta(data)}</b></div>
-            <div class="etq-linha"><span>Validade:</span><b>${venc ? formatarDataCurta(venc) : "Consumir no mesmo dia"}</b></div>
-          `}
-        </div>`;
-
-      // Usa o mesmo mecanismo de impressão que já existe no site (a regra
-      // @media print deixa só o #sheet-root visível na hora de imprimir).
-      const root = document.getElementById("sheet-root");
-      root.innerHTML = `
-        <div class="sheet-overlay"><div class="modal-bg no-print" onclick="RP.closeSheet()"></div>
-          <div class="sheet" style="padding:24px 20px;">
-            <div class="no-print" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-              <div class="app-h1" style="margin-bottom:0;">Etiquetas prontas</div>
-              <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);">✕</button>
-            </div>
-            <button class="no-print" onclick="window.print()" style="width:100%;background:var(--framboesa);color:var(--ink-on-dark);padding:13px;border-radius:100px;font-weight:800;font-size:14px;margin-bottom:16px;">🖨️ Imprimir agora</button>
-            <div class="etq-grid">${itens.map(etiquetaHTML).join('')}</div>
-          </div>
-        </div>`;
-    }catch(err){
-      alert("Deu um erro ao gerar as etiquetas: " + err.message);
-    }
-  },
-  async definirDataFeitaEImprimir(id, soId, dataStr){
-    if(!dataStr) return;
-    const isoData = new Date(dataStr + "T12:00:00").toISOString();
-    const idx = state.feitas.findIndex(x => (typeof x==="string" ? x===id : x.id===id));
-    if(idx > -1) state.feitas[idx] = { id, data: isoData };
-    else state.feitas.push({ id, data: isoData });
-    await saveFeitas();
-    RP.imprimirEtiquetas(soId || undefined);
   },
   openUpgrade(){
     if(state.plan === "pro") return; // já é Pro — nada a oferecer aqui
