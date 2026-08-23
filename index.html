@@ -5525,20 +5525,28 @@ Confeiteira(o)                              Cliente`;
         .etq-nome{ font-size:14px; font-weight:800; color:#3B2417; margin-bottom:8px; line-height:1.25; }
         .etq-linha{ display:flex; justify-content:space-between; font-size:11.5px; color:#6B4A34; margin-top:2px; }
         .etq-linha b{ color:#3B2417; }
-        .print-bar{ text-align:center; margin-bottom:16px; }
-        .print-bar button{ background:#C23B5B; color:#fff; border:none; padding:12px 26px; border-radius:100px; font-weight:800; font-size:14px; cursor:pointer; }
-        @media print{ .print-bar{ display:none; } }
       </style></head>
       <body>
-        <div class="print-bar"><button onclick="window.print()">🖨️ Imprimir agora</button></div>
         <div class="etq-grid">${itens.map(etiquetaHTML).join('')}</div>
       </body></html>`;
 
-    const w = window.open("", "_blank");
-    if(!w){ alert("Seu navegador bloqueou a aba de impressão. Permita pop-ups pro RecheioPro e tente de novo."); return; }
-    w.document.open();
-    w.document.write(html);
-    w.document.close();
+    // imprime via iframe escondido, em vez de abrir aba nova — evita o bloqueio de
+    // pop-up dos navegadores (principalmente no celular, onde window.open falha)
+    const iframeAntigo = document.getElementById("etiquetas-print-frame");
+    if(iframeAntigo) iframeAntigo.remove();
+    const iframe = document.createElement("iframe");
+    iframe.id = "etiquetas-print-frame";
+    iframe.style.cssText = "position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden;";
+    document.body.appendChild(iframe);
+    iframe.srcdoc = html;
+    iframe.onload = () => {
+      try{
+        iframe.contentWindow.focus();
+        iframe.contentWindow.print();
+      }catch(err){
+        alert("Não consegui abrir a impressão. Tente de novo, ou confira se o navegador está bloqueando pop-ups pro RecheioPro.");
+      }
+    };
   },
   openUpgrade(){
     if(state.plan === "pro") return; // já é Pro — nada a oferecer aqui
