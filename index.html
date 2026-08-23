@@ -5523,8 +5523,17 @@ Confeiteira(o)                              Cliente`;
         <div class="etq">
           <div class="etq-marca">RecheioPro 🧁</div>
           <div class="etq-nome">${esc(r.name)}</div>
-          <div class="etq-linha"><span>Fabricação:</span><b>${semData ? "—" : formatarDataCurta(data)}</b></div>
-          <div class="etq-linha"><span>Validade:</span><b>${semData ? "Marque a data em que fez, pra calcular" : (venc ? formatarDataCurta(venc) : "Consumir no mesmo dia")}</b></div>
+          ${semData ? `
+            <div class="no-print" style="margin-bottom:8px;">
+              <label style="font-size:10.5px;color:var(--chocolate-suave);display:block;margin-bottom:4px;">Essa aqui foi marcada como feita sem data registrada. Quando você fez?</label>
+              <input type="date" max="${new Date().toISOString().slice(0,10)}" onchange="RP.definirDataFeitaEImprimir('${r.id}','${soId||''}',this.value)" style="width:100%;box-sizing:border-box;padding:9px 10px;border-radius:8px;border:1px solid var(--creme-linha);font-size:12.5px;">
+            </div>
+            <div class="etq-linha"><span>Fabricação:</span><b>Preencha a data acima ↑</b></div>
+            <div class="etq-linha"><span>Validade:</span><b>—</b></div>
+          ` : `
+            <div class="etq-linha"><span>Fabricação:</span><b>${formatarDataCurta(data)}</b></div>
+            <div class="etq-linha"><span>Validade:</span><b>${venc ? formatarDataCurta(venc) : "Consumir no mesmo dia"}</b></div>
+          `}
         </div>`;
 
       // Usa o mesmo mecanismo de impressão que já existe no site (a regra
@@ -5544,6 +5553,15 @@ Confeiteira(o)                              Cliente`;
     }catch(err){
       alert("Deu um erro ao gerar as etiquetas: " + err.message);
     }
+  },
+  async definirDataFeitaEImprimir(id, soId, dataStr){
+    if(!dataStr) return;
+    const isoData = new Date(dataStr + "T12:00:00").toISOString();
+    const idx = state.feitas.findIndex(x => (typeof x==="string" ? x===id : x.id===id));
+    if(idx > -1) state.feitas[idx] = { id, data: isoData };
+    else state.feitas.push({ id, data: isoData });
+    await saveFeitas();
+    RP.imprimirEtiquetas(soId || undefined);
   },
   openUpgrade(){
     if(state.plan === "pro") return; // já é Pro — nada a oferecer aqui
