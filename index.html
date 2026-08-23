@@ -1551,7 +1551,7 @@ const RECIPES = [
 const FAQS = [
   ["Funciona no meu celular?","Sim. O RecheioPro roda em Android e iOS, direto no navegador — sem precisar de celular potente."],
   ["Preciso já saber confeitaria avançada?","Não. As receitas e o passo a passo servem tanto pra quem está começando quanto pra quem já vive de confeitaria."],
-  ["Posso começar no Essencial e migrar pro Pro depois?","Sim, o upgrade fica disponível dentro do app a qualquer momento, pagando só a diferença."],
+  ["Posso começar no Essencial e migrar pro Pro depois?","Sim! O upgrade fica disponível dentro do app a qualquer momento, e quem já é Essencial tem desconto pra migrar pro Pro — é só confirmar o e-mail da compra dentro do app."],
   ["É assinatura ou pagamento único?","Pagamento único por plano. Sem mensalidade escondida e sem cobrança automática recorrente."],
   ["E se eu não gostar?","Você tem 7 dias de garantia incondicional a partir da compra."],
 ];
@@ -3224,7 +3224,7 @@ function renderPerfil(){
         <span style="color:var(--chocolate-suave);">›</span>
       </div>
       ${state.plan==='essencial' ? `
-      <div class="banner-dark" onclick="RP.openUpgrade()"><div><div class="t1" style="margin-bottom:2px;">Fazer upgrade para o Pro</div><div class="t2" style="font-size:12.5px;">Desbloqueie tudo por R$37,90</div></div><div style="color:var(--dourado);">→</div></div>
+      <div class="banner-dark" onclick="RP.openUpgrade()"><div><div class="t1" style="margin-bottom:2px;">Fazer upgrade para o Pro</div><div class="t2" style="font-size:12.5px;">Você já é Essencial — pode ter desconto no upgrade</div></div><div style="color:var(--dourado);">→</div></div>
       ` : `<div class="card" style="display:flex;align-items:center;gap:10px;margin-bottom:14px;"><span style="font-size:18px;">🎁</span><div><div style="font-weight:800;font-size:12.5px;">Você já tem o RecheioPro completo</div><div style="color:var(--chocolate-suave);font-size:11px;">Aproveite todos os recursos e bônus.</div></div></div>`}
 
       <div style="border:1px solid var(--creme-linha);border-radius:16px;overflow:hidden;margin-bottom:10px;">
@@ -5385,6 +5385,7 @@ Confeiteira(o)                              Cliente`;
   },
   openUpgrade(){
     const root = document.getElementById("sheet-root");
+    const jaEssencial = state.plan === "essencial";
     root.innerHTML = `
       <div class="sheet-overlay"><div class="modal-bg" onclick="RP.closeSheet()"></div>
         <div class="sheet" style="text-align:center;padding:30px 24px;">
@@ -5393,9 +5394,54 @@ Confeiteira(o)                              Cliente`;
           <div class="app-h1" style="margin-bottom:6px;">Isso é exclusivo do Pro</div>
           <p style="color:var(--chocolate-suave);font-size:13px;margin-bottom:18px;">Desbloqueie as 161 receitas, calculadoras completas (com margem de perda e frete), desafio de 7 dias e todos os bônus.</p>
           <a href="https://pay.kiwify.com.br/Gyobv2U" target="_blank" style="display:block;box-sizing:border-box;width:100%;background:var(--framboesa);color:var(--ink-on-dark);padding:14px;border-radius:100px;font-weight:800;font-size:14px;margin-bottom:8px;">Quero o Pro completo</a>
+          ${jaEssencial ? `<button onclick="RP.abrirCheckUpgrade()" style="color:var(--framboesa);font-weight:800;font-size:12.5px;padding:8px;">Já sou Essencial — quero pagar só a diferença</button>` : ``}
           <button onclick="RP.closeSheet()" style="color:var(--chocolate-suave);font-weight:700;font-size:12.5px;padding:8px;">Continuar no Essencial</button>
         </div>
       </div>`;
+  },
+  abrirCheckUpgrade(){
+    const root = document.getElementById("sheet-root");
+    root.innerHTML = `
+      <div class="sheet-overlay"><div class="modal-bg" onclick="RP.closeSheet()"></div>
+        <div class="sheet" style="text-align:center;padding:30px 24px;">
+          <button onclick="RP.closeSheet()" style="position:absolute;top:14px;right:14px;width:30px;height:30px;border-radius:50%;background:var(--creme-card);">✕</button>
+          <div style="font-size:34px;margin-bottom:8px;">💌</div>
+          <div class="app-h1" style="margin-bottom:6px;">Upgrade com desconto</div>
+          <p style="color:var(--chocolate-suave);font-size:13px;margin-bottom:16px;">Digite o e-mail que você usou pra comprar o Essencial. A gente confere e libera o link com o desconto.</p>
+          <input id="upgrade-email" type="email" placeholder="seu@email.com" style="width:100%;box-sizing:border-box;padding:13px 16px;border-radius:100px;border:1px solid var(--creme-linha);background:var(--branco);font-size:14px;margin-bottom:12px;text-align:center;">
+          <div id="upgrade-check-msg" style="font-size:12.5px;color:var(--chocolate-suave);margin-bottom:12px;min-height:16px;"></div>
+          <button onclick="RP.verificarUpgrade()" style="display:block;box-sizing:border-box;width:100%;background:var(--framboesa);color:var(--ink-on-dark);padding:14px;border-radius:100px;font-weight:800;font-size:14px;margin-bottom:8px;">Verificar meu desconto</button>
+          <button onclick="RP.closeSheet()" style="color:var(--chocolate-suave);font-weight:700;font-size:12.5px;padding:8px;">Cancelar</button>
+        </div>
+      </div>`;
+    setTimeout(()=>{ const f = document.getElementById("upgrade-email"); if(f) f.focus(); }, 50);
+  },
+  async verificarUpgrade(){
+    const field = document.getElementById("upgrade-email");
+    const msg = document.getElementById("upgrade-check-msg");
+    const email = (field.value||"").trim();
+    if(!email){ msg.textContent = "Digita o e-mail primeiro 🙂"; msg.style.color = "var(--framboesa)"; return; }
+    if(!VALIDATION_ENDPOINT){ msg.textContent = "Serviço indisponível no momento."; msg.style.color = "var(--framboesa)"; return; }
+    msg.textContent = "Verificando...";
+    msg.style.color = "var(--chocolate-suave)";
+    try{
+      const res = await fetch(VALIDATION_ENDPOINT + "?checar_upgrade=" + encodeURIComponent(email));
+      const data = await res.json();
+      if(data.elegivel && data.link){
+        msg.textContent = "Encontramos sua compra! Redirecionando pro checkout com desconto...";
+        msg.style.color = "var(--dourado)";
+        window.open(data.link, "_blank");
+      } else if(data.motivo === "ja_e_pro"){
+        msg.textContent = "Esse e-mail já tem o plano Pro. Se não estiver acessando, use sua chave em \"Já comprei · Entrar\".";
+        msg.style.color = "var(--framboesa)";
+      } else {
+        msg.textContent = "Não achamos esse e-mail entre as compras do Essencial. Confira se digitou certo, ou fale com a gente pelo suporte.";
+        msg.style.color = "var(--framboesa)";
+      }
+    }catch(e){
+      msg.textContent = "Não consegui verificar agora. Tente de novo em instantes.";
+      msg.style.color = "var(--framboesa)";
+    }
   },
   setCalcTab(t){ calcTab = t; renderApp(); },
   setSazonalTipo(t){ sazonalState.tipo = t; renderApp(); },
