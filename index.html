@@ -1582,6 +1582,7 @@ async function loadState(){
   try{ const ft = await window.storage.get("recheiopro:feitas"); if(ft&&ft.value) state.feitas = JSON.parse(ft.value); }catch(e){}
   try{ const av = await window.storage.get("recheiopro:avaliacoes"); if(av&&av.value) state.avaliacoes = JSON.parse(av.value); }catch(e){}
   try{ const nv = await window.storage.get("recheiopro:novidadesFechadas:"+NOVIDADES_A_PARTIR_DE); if(nv&&nv.value) state.novidadesFechadas = JSON.parse(nv.value); }catch(e){}
+  try{ const tb = await window.storage.get("recheiopro:tab"); if(tb&&tb.value){ const t = JSON.parse(tb.value); if(["inicio","receitas","calculadoras","favoritos","perfil"].includes(t)) state.tab = t; } }catch(e){}
   await loadInsumos();
   await loadFreteConfig();
   await loadNegocioConfig();
@@ -1595,6 +1596,7 @@ async function loadState(){
   await loadEquipamentos();
   await loadLivroCaixa();
 }
+async function saveTab(){ try{ await window.storage.set("recheiopro:tab", JSON.stringify(state.tab)); }catch(e){} }
 async function saveFeitas(){ try{ await window.storage.set("recheiopro:feitas", JSON.stringify(state.feitas)); }catch(e){} }
 async function saveAvaliacoes(){ try{ await window.storage.set("recheiopro:avaliacoes", JSON.stringify(state.avaliacoes)); }catch(e){} }
 async function savePlan(){ try{ await window.storage.set("recheiopro:plan", JSON.stringify(state.plan)); }catch(e){} }
@@ -4237,7 +4239,7 @@ window.RP = {
       state.plan = demoPlan;
       await savePlan();
       RP.closeKeyModal();
-      RP.enterApp();
+      RP.enterApp(true);
       return;
     }
 
@@ -4253,7 +4255,7 @@ window.RP = {
           await savePlan();
           errorEl.textContent = "";
           RP.closeKeyModal();
-          RP.enterApp();
+          RP.enterApp(true);
           return;
         }
       }catch(e){
@@ -4264,11 +4266,11 @@ window.RP = {
 
     errorEl.textContent = "Chave inválida. Confira e tente de novo.";
   },
-  async enterApp(){
+  async enterApp(isFreshLogin){
     document.getElementById("app-overlay").classList.remove("hidden");
     document.body.style.overflow = "hidden";
     if(location.hash){ history.replaceState(null, "", location.pathname + location.search); }
-    state.tab = "inicio";
+    if(isFreshLogin){ state.tab = "inicio"; await saveTab(); }
     renderApp();
     let tourVisto = false;
     try{ const t = await window.storage.get("recheiopro:tourVisto"); tourVisto = !!(t&&t.value); }catch(e){}
@@ -4281,8 +4283,8 @@ window.RP = {
     document.getElementById("app-overlay").classList.add("hidden");
     document.body.style.overflow = "";
   },
-  goTab(id){ sheetNavStack = []; state.tab = id; if(id!=="receitas"){} renderApp(); },
-  goCategory(cat){ state.category = cat; state.tab = "receitas"; renderApp(); },
+  goTab(id){ sheetNavStack = []; state.tab = id; saveTab(); renderApp(); },
+  goCategory(cat){ state.category = cat; state.tab = "receitas"; saveTab(); renderApp(); },
   setQuery(el){
     state.query = el.value;
     const results = document.getElementById("receitas-results");
@@ -5095,6 +5097,7 @@ Confeiteira(o)                              Cliente`;
     state.tab = "receitas";
     state.query = "";
     state.category = null;
+    saveTab();
     renderApp();
     setTimeout(()=>{
       const results = document.getElementById("receitas-results");
