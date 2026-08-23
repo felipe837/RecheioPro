@@ -5384,6 +5384,7 @@ Confeiteira(o)                              Cliente`;
     openRecipeSheet(r);
   },
   openUpgrade(){
+    if(state.plan === "pro") return; // já é Pro — nada a oferecer aqui
     const root = document.getElementById("sheet-root");
     const jaEssencial = state.plan === "essencial";
     root.innerHTML = `
