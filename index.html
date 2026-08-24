@@ -3442,6 +3442,29 @@ function renderIngredientesHTML(){
 --------------------------------------------------------------- */
 let notaFiscalItens = [];
 
+function redimensionarImagemParaOCR(file){
+  return new Promise((resolve, reject) => {
+    const LARGURA_MAXIMA = 1500; // suficiente pra leitura de texto, bem mais leve que foto original
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const escala = Math.min(1, LARGURA_MAXIMA / img.width);
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.round(img.width * escala);
+      canvas.height = Math.round(img.height * escala);
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      canvas.toBlob(blob => {
+        if(blob) resolve(blob);
+        else reject(new Error("Não consegui preparar a imagem"));
+      }, "image/jpeg", 0.85);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("Não consegui abrir essa imagem")); };
+    img.src = url;
+  });
+}
+
 function carregarTesseract(){
   return new Promise((resolve, reject) => {
     if(window.Tesseract){ resolve(); return; }
@@ -3450,6 +3473,37 @@ function carregarTesseract(){
     s.onload = () => resolve();
     s.onerror = () => reject(new Error("Não consegui carregar o leitor de texto. Confira sua internet e tente de novo."));
     document.head.appendChild(s);
+  });
+}
+
+// Fotos de câmera de celular costumam vir enormes (3000-4000px de largura),
+// e processar isso direto no OCR pode estourar a memória do navegador no
+// celular, travando ou recarregando a página sozinha. Reduzir o tamanho
+// antes evita isso, sem perder legibilidade do texto.
+function redimensionarImagemParaOCR(file, maxDimensao){
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      let { width, height } = img;
+      if(width > maxDimensao || height > maxDimensao){
+        const escala = Math.min(maxDimensao / width, maxDimensao / height);
+        width = Math.round(width * escala);
+        height = Math.round(height * escala);
+      }
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, width, height);
+      URL.revokeObjectURL(url);
+      canvas.toBlob(blob => {
+        if(blob) resolve(blob);
+        else reject(new Error("não consegui processar essa imagem"));
+      }, "image/jpeg", 0.85);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("não consegui abrir essa imagem")); };
+    img.src = url;
   });
 }
 
@@ -3473,18 +3527,28 @@ function extrairItensDoTextoNota(texto){
 
 function renderNotaFiscalHTML(){
   return `
-    <div class="sheet-overlay"><div class="modal-bg" onclick="RP.closeSheet()"></div>
+    <div class="sheet-overlay"><div class="modal-bg" onclick="RP.fecharNotaFiscalSheet()"></div>
       <div class="sheet">
         <div class="app-px" style="padding-top:20px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
             <div class="app-h1" style="margin-bottom:0;">📸 Lançar nota fiscal</div>
-            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);">✕</button>
+            <button onclick="RP.fecharNotaFiscalSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);">✕</button>
           </div>
           <p style="color:var(--chocolate-suave);font-size:12px;margin-bottom:14px;">Tire uma foto legível do cupom ou nota fiscal. A leitura automática não é perfeita — sempre confira e ajuste antes de salvar.</p>
-          <label style="display:block;width:100%;box-sizing:border-box;text-align:center;background:var(--creme-card);color:var(--chocolate);padding:14px;border-radius:14px;font-weight:800;font-size:13px;margin-bottom:12px;cursor:pointer;border:1.5px dashed var(--creme-linha);">
-            📷 Tirar foto ou escolher imagem
-            <input type="file" accept="image/*" capture="environment" id="nota-input" onchange="RP.processarNotaFiscal(this)" style="display:none;">
+
+          <video id="nota-video" playsinline autoplay muted style="width:100%;border-radius:14px;display:none;background:#000;margin-bottom:10px;"></video>
+          <div id="nota-camera-controles" style="display:none;gap:8px;margin-bottom:12px;">
+            <button onclick="RP.capturarFotoNota()" style="flex:1;background:var(--framboesa);color:var(--ink-on-dark);padding:12px;border-radius:100px;font-weight:800;font-size:13px;">📸 Capturar</button>
+            <button onclick="RP.pararCameraNota()" style="background:var(--creme-card);color:var(--chocolate);padding:12px 16px;border-radius:100px;font-weight:800;font-size:13px;">Cancelar</button>
+          </div>
+
+          <button id="nota-abrir-camera-btn" onclick="RP.iniciarCameraNota()" style="display:block;width:100%;box-sizing:border-box;text-align:center;background:var(--framboesa);color:var(--ink-on-dark);padding:14px;border-radius:14px;font-weight:800;font-size:13px;margin-bottom:10px;border:none;">📷 Abrir câmera</button>
+
+          <label style="display:block;width:100%;box-sizing:border-box;text-align:center;background:var(--creme-card);color:var(--chocolate);padding:12px;border-radius:14px;font-weight:700;font-size:12.5px;margin-bottom:12px;cursor:pointer;border:1.5px dashed var(--creme-linha);">
+            🖼️ ou escolher uma foto já salva na galeria
+            <input type="file" accept="image/*" id="nota-input" onchange="RP.processarNotaFiscal(this)" style="display:none;">
           </label>
+
           <div id="nota-status" style="font-size:12px;color:var(--chocolate-suave);margin-bottom:12px;"></div>
           <div id="nota-resultado"></div>
         </div>
@@ -5024,14 +5088,22 @@ Confeiteira(o)                              Cliente`;
   async processarNotaFiscal(input){
     const file = input.files && input.files[0];
     if(!file) return;
-    const status = document.getElementById("nota-status");
+    let status = document.getElementById("nota-status");
+    if(!status) return; // usuário já saiu dessa tela
     notaFiscalItens = [];
     renderizarNotaResultado();
-    status.textContent = "Carregando o leitor de texto...";
+    status.textContent = "Preparando a imagem...";
     try{
+      const imagemReduzida = await redimensionarImagemParaOCR(file, 1800);
+      status = document.getElementById("nota-status");
+      if(!status) return; // saiu da tela enquanto redimensionava
       await carregarTesseract();
+      status = document.getElementById("nota-status");
+      if(!status) return; // saiu da tela enquanto carregava o leitor
       status.textContent = "Lendo a imagem... isso pode levar alguns segundos.";
-      const resultado = await Tesseract.recognize(file, "por");
+      const resultado = await Tesseract.recognize(imagemReduzida, "por");
+      status = document.getElementById("nota-status");
+      if(!status) return; // saiu da tela enquanto lia a imagem
       const texto = resultado && resultado.data ? resultado.data.text : "";
       notaFiscalItens = extrairItensDoTextoNota(texto);
       if(notaFiscalItens.length === 0){
@@ -5041,7 +5113,8 @@ Confeiteira(o)                              Cliente`;
       }
       renderizarNotaResultado();
     }catch(err){
-      status.textContent = "Não consegui ler essa imagem (" + err.message + "). Tenta de novo com outra foto.";
+      const statusFinal = document.getElementById("nota-status");
+      if(statusFinal) statusFinal.textContent = "Não consegui ler essa imagem (" + err.message + "). Tenta de novo com outra foto.";
     }
   },
   toggleNotaItem(i){
