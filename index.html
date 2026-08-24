@@ -341,6 +341,11 @@
   .testi-dots{display:flex;justify-content:center;gap:7px;margin-top:14px;}
   .testi-dot{width:7px;height:7px;border-radius:50%;background:var(--creme-linha);opacity:.5;transition:all .2s ease;cursor:pointer;}
   .testi-dot.active{background:var(--dourado);opacity:1;width:18px;border-radius:4px;}
+  .social-proof-popup{position:fixed;left:16px;bottom:16px;z-index:80;background:var(--branco);border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,0.18);padding:13px 34px 13px 13px;display:flex;align-items:center;gap:10px;max-width:270px;transform:translateY(130%);opacity:0;transition:transform .4s cubic-bezier(.2,.8,.2,1),opacity .4s ease;pointer-events:none;}
+  .social-proof-popup.show{transform:translateY(0);opacity:1;pointer-events:auto;}
+  .social-proof-check{width:32px;height:32px;border-radius:50%;background:var(--framboesa);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px;}
+  .social-proof-close{position:absolute;top:6px;right:8px;color:var(--chocolate-suave);font-size:11px;cursor:pointer;background:none;border:none;padding:4px;}
+  @media (max-width:480px){ .social-proof-popup{left:10px;right:10px;max-width:none;bottom:10px;} }
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
@@ -3285,7 +3290,7 @@ const PERFIL_CATEGORIAS = [
     ["Meus Pedidos", true, "pedidos"],["Cardápio para clientes", true, "cardapio"],["Cardápio Interativo (link)", true, "cardapio-interativo"],["Resumo Mensal", true, "resumo-mensal"],["Livro Caixa", true, "livro-caixa"],["Kits Festa", true, "kits"],
   ]},
   { key:"producao", titulo:"Produção e custos", icone:"🏭", itens:[
-    ["Estoque", true, "estoque"],["Radar de fornecedores", true, "fornecedores"],
+    ["Estoque", true, "estoque"],["Meus Ingredientes", true, "ingredientes"],["Radar de fornecedores", true, "fornecedores"],
     ["Minhas Receitas Salvas", true, "minhas-receitas"],["Calcular frete de entrega", true, "frete-config"],["Equipamentos", true, "equipamentos"],
   ]},
   { key:"conta", titulo:"Conta e dados", icone:"⚙️", itens:[
@@ -3293,7 +3298,7 @@ const PERFIL_CATEGORIAS = [
     ["Importar dados salvos", false, "importar"],["Aparência", false, "aparencia"],
   ]},
 ];
-const PERFIL_ROTAS = { suporte:"RP.openSuporte()", aparencia:"RP.openAparencia()", notificacoes:"RP.abrirNotificacoesSheet()", indicar:"RP.openIndicar()", cardapio:"RP.openCardapio()", "cardapio-interativo":"RP.openCardapioInterativo()", exportar:"RP.exportarDados()", importar:"RP.importarDados()", "frete-config":"RP.openFreteConfig()", "resumo-mensal":"RP.openResumoMensal()", fornecedores:"RP.openFornecedores()", pedidos:"RP.openPedidos()", estoque:"RP.openEstoque()", "minhas-receitas":"RP.openMinhasReceitas()", respostas:"RP.openRespostasProntas()", sos:"RP.openSosCozinha()", kits:"RP.openKits()", equipamentos:"RP.openEquipamentos()", "livro-caixa":"RP.openLivroCaixa()" };
+const PERFIL_ROTAS = { suporte:"RP.openSuporte()", aparencia:"RP.openAparencia()", notificacoes:"RP.abrirNotificacoesSheet()", indicar:"RP.openIndicar()", cardapio:"RP.openCardapio()", "cardapio-interativo":"RP.openCardapioInterativo()", exportar:"RP.exportarDados()", importar:"RP.importarDados()", "frete-config":"RP.openFreteConfig()", "resumo-mensal":"RP.openResumoMensal()", fornecedores:"RP.openFornecedores()", pedidos:"RP.openPedidos()", estoque:"RP.openEstoque()", ingredientes:"RP.openIngredientes()", "minhas-receitas":"RP.openMinhasReceitas()", respostas:"RP.openRespostasProntas()", sos:"RP.openSosCozinha()", kits:"RP.openKits()", equipamentos:"RP.openEquipamentos()", "livro-caixa":"RP.openLivroCaixa()" };
 
 function renderPerfilCategoriaHTML(catKey){
   const cat = PERFIL_CATEGORIAS.find(c=>c.key===catKey);
@@ -3372,6 +3377,59 @@ async function loadInsumos(){
   try{ const d = await window.storage.get("recheiopro:insumos"); if(d&&d.value) insumosState = JSON.parse(d.value); }catch(e){}
 }
 async function saveInsumos(){ try{ await window.storage.set("recheiopro:insumos", JSON.stringify(insumosState)); }catch(e){} }
+
+function ingredienteCardHTML(ins){
+  const historico = ins.historico || [];
+  const precoAtual = parseFloat(ins.c) || 0;
+  const afetadas = receitasQueUsam(ins.n);
+  const timeline = [...historico.map(h=>({preco:parseFloat(h.preco)||0})), {preco:precoAtual}];
+  const precoInicial = timeline[0].preco;
+  const temHistorico = historico.length > 0;
+  const variacaoTotal = (temHistorico && precoInicial) ? ((precoAtual-precoInicial)/precoInicial)*100 : 0;
+  const maiorPreco = Math.max(0.01, ...timeline.map(t=>t.preco));
+  const corVariacao = variacaoTotal > 0 ? "var(--framboesa)" : variacaoTotal < 0 ? "#7A9E6E" : "var(--chocolate-suave)";
+
+  return `
+    <div class="card" style="margin-bottom:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div style="font-weight:800;font-size:13px;">${esc(ins.n)}</div>
+        <div style="text-align:right;">
+          <div style="font-weight:800;font-size:15px;color:var(--framboesa);">R$ ${precoAtual.toFixed(2)}</div>
+          ${temHistorico ? `<div style="font-size:10.5px;font-weight:800;color:${corVariacao};">${variacaoTotal>0?'▲':variacaoTotal<0?'▼':'—'} ${Math.abs(variacaoTotal).toFixed(0)}% desde o 1º registro</div>` : ``}
+        </div>
+      </div>
+      ${afetadas.length>0 ? `<div style="font-size:10.5px;color:var(--chocolate-suave);margin-top:4px;">Usado em ${afetadas.length} receita${afetadas.length===1?'':'s'} salva${afetadas.length===1?'':'s'}</div>` : ``}
+      ${temHistorico ? `
+        <div style="display:flex;align-items:flex-end;gap:4px;height:44px;margin-top:10px;">
+          ${timeline.map((t,i)=>`<div title="R$ ${t.preco.toFixed(2)}" style="flex:1;height:${Math.max(3,(t.preco/maiorPreco)*40)}px;background:${i===timeline.length-1?'var(--framboesa)':'var(--creme-linha)'};border-radius:3px 3px 1px 1px;"></div>`).join('')}
+        </div>
+        <div style="font-size:9.5px;color:var(--chocolate-suave);margin-top:4px;">Cada barra é um preço registrado, do mais antigo (esquerda) ao atual (direita, em rosa)</div>
+      ` : `<div style="font-size:10.5px;color:var(--chocolate-suave);margin-top:6px;">Ainda sem histórico — o próximo ajuste de preço começa a registrar aqui.</div>`}
+    </div>`;
+}
+
+function renderIngredientesHTML(){
+  const ordenado = [...insumosState].sort((a,b)=> a.n.localeCompare(b.n));
+  const comHistorico = ordenado.filter(i=>(i.historico||[]).length>0);
+  return `
+    <div class="sheet-overlay"><div class="modal-bg" onclick="RP.closeSheet()"></div>
+      <div class="sheet">
+        <div class="app-px" style="padding-top:20px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+            <div class="app-h1" style="margin-bottom:0;">Meus Ingredientes</div>
+            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);">✕</button>
+          </div>
+          <p style="color:var(--chocolate-suave);font-size:12px;margin-bottom:16px;">Preço atual de cada ingrediente e como ele variou, com base nos ajustes que você já fez na calculadora de custo.</p>
+          ${ordenado.length===0 ? `
+            <div style="text-align:center;padding:30px 0;color:var(--chocolate-suave);font-size:13px;">Nenhum ingrediente salvo ainda. Eles aparecem aqui automaticamente quando você preenche um ingrediente com preço na Calculadora de Custo.</div>
+          ` : `
+            ${comHistorico.length===0 ? `<div style="font-size:10.5px;color:var(--chocolate-suave);margin-bottom:12px;">💡 Quando você atualizar o preço de um ingrediente já salvo, o histórico começa a aparecer aqui.</div>` : ``}
+            ${ordenado.map(ingredienteCardHTML).join('')}
+          `}
+        </div>
+      </div>
+    </div>`;
+}
 
 function renderCalculadoras(){
   const pro = state.plan === "pro";
@@ -4879,6 +4937,9 @@ Confeiteira(o)                              Cliente`;
   openEstoque(){
     navigateSheet(()=>renderEstoqueHTML());
   },
+  openIngredientes(){
+    navigateSheet(()=>renderIngredientesHTML());
+  },
   async novoItemEstoque(){
     const ingrediente = prompt("Nome do ingrediente:");
     if(!ingrediente || !ingrediente.trim()) return;
@@ -5875,6 +5936,58 @@ Confeiteira(o)                              Cliente`;
   if(state.notificacoesAtivas && typeof Notification !== "undefined" && Notification.permission === "granted"){
     iniciarChecagemNotificacoes();
   }
+
+  // popup de "quem comprou agora" — só com vendas reais (Kiwify + planilha
+  // de vendas manuais das redes sociais). Se não tiver VALIDATION_ENDPOINT,
+  // ou a busca falhar, ou não tiver nenhuma venda registrada, não mostra
+  // nada — nunca inventa.
+  (function initSocialProof(){
+    if(sessionStorage.getItem("recheiopro-social-proof-fechado")) return;
+    if(!VALIDATION_ENDPOINT) return;
+    fetch(VALIDATION_ENDPOINT + "?vendas_recentes=1")
+      .then(r=>r.json())
+      .then(data=>{
+        const vendas = (data && data.vendas) || [];
+        if(vendas.length===0) return;
+
+        const el = document.createElement("div");
+        el.className = "social-proof-popup";
+        el.innerHTML = `
+          <button class="social-proof-close" aria-label="Fechar">✕</button>
+          <div class="social-proof-check">✓</div>
+          <div class="social-proof-text" style="font-size:12.5px;line-height:1.4;color:var(--chocolate);"></div>`;
+        document.body.appendChild(el);
+
+        let cycleTimer = null;
+        el.querySelector(".social-proof-close").addEventListener("click", ()=>{
+          el.classList.remove("show");
+          sessionStorage.setItem("recheiopro-social-proof-fechado", "1");
+          if(cycleTimer) clearInterval(cycleTimer);
+        });
+
+        function relativo(iso){
+          const diffMin = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
+          if(diffMin < 1) return "agora mesmo";
+          if(diffMin < 60) return `há ${diffMin} min`;
+          const horas = Math.floor(diffMin/60);
+          if(horas < 24) return `há ${horas}h`;
+          const dias = Math.floor(horas/24);
+          return `há ${dias} dia${dias===1?'':'s'}`;
+        }
+
+        let idx = 0;
+        function mostrarProxima(){
+          const v = vendas[idx % vendas.length];
+          idx++;
+          el.querySelector(".social-proof-text").innerHTML = `<b>${esc(v.nome)}</b> assinou o plano ${esc(v.plano)}<br><span style="color:var(--chocolate-suave);">${relativo(v.data)}</span>`;
+          el.classList.add("show");
+          setTimeout(()=>{ el.classList.remove("show"); }, 5500);
+        }
+        setTimeout(mostrarProxima, 4000);
+        cycleTimer = setInterval(mostrarProxima, 13000);
+      })
+      .catch(()=>{}); // falhou a busca? não mostra nada — sem fallback inventado
+  })();
 
   // se já tinha plano salvo (chave usada antes), entra direto na área liberada
   if(state.plan){ RP.enterApp(); }
