@@ -3424,7 +3424,8 @@ function renderIngredientesHTML(){
             <div class="app-h1" style="margin-bottom:0;">Meus Ingredientes</div>
             <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);">✕</button>
           </div>
-          <p style="color:var(--chocolate-suave);font-size:12px;margin-bottom:16px;">Preço atual de cada ingrediente e como ele variou, com base nos ajustes que você já fez na calculadora de custo.</p>
+          <p style="color:var(--chocolate-suave);font-size:12px;margin-bottom:12px;">Preço atual de cada ingrediente e como ele variou, com base nos ajustes que você já fez na calculadora de custo.</p>
+          <button onclick="RP.abrirNotaFiscalSheet()" style="width:100%;background:var(--framboesa);color:var(--ink-on-dark);padding:12px;border-radius:100px;font-weight:800;font-size:13px;margin-bottom:16px;">📸 Lançar compras tirando foto da nota</button>
           ${ordenado.length===0 ? `
             <div style="text-align:center;padding:30px 0;color:var(--chocolate-suave);font-size:13px;">Nenhum ingrediente salvo ainda. Eles aparecem aqui automaticamente quando você preenche um ingrediente com preço na Calculadora de Custo.</div>
           ` : `
@@ -3435,6 +3436,76 @@ function renderIngredientesHTML(){
       </div>
     </div>`;
 }
+
+/* ---------------------------------------------------------------
+   LANÇAR NOTA FISCAL POR FOTO (OCR no navegador, sem serviço pago)
+--------------------------------------------------------------- */
+let notaFiscalItens = [];
+
+function carregarTesseract(){
+  return new Promise((resolve, reject) => {
+    if(window.Tesseract){ resolve(); return; }
+    const s = document.createElement("script");
+    s.src = "https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js";
+    s.onload = () => resolve();
+    s.onerror = () => reject(new Error("Não consegui carregar o leitor de texto. Confira sua internet e tente de novo."));
+    document.head.appendChild(s);
+  });
+}
+
+function extrairItensDoTextoNota(texto){
+  const linhas = texto.split(/\n+/).map(l => l.trim()).filter(Boolean);
+  const regexPreco = /(\d{1,4}[.,]\d{2})\s*$/; // preço geralmente no final da linha, em cupons
+  const itens = [];
+  linhas.forEach(linha => {
+    const m = linha.match(regexPreco);
+    if(!m) return;
+    const preco = parseFloat(m[1].replace(",", "."));
+    if(isNaN(preco) || preco <= 0 || preco > 9999) return;
+    let nome = linha.slice(0, m.index).trim();
+    nome = nome.replace(/^\d+\s*[-xX]?\s*/, "").trim(); // remove código numérico do início, comum em cupom
+    nome = nome.replace(/\s{2,}/g, " ");
+    if(nome.length < 2) return;
+    itens.push({ nome, preco, incluir: true });
+  });
+  return itens;
+}
+
+function renderNotaFiscalHTML(){
+  return `
+    <div class="sheet-overlay"><div class="modal-bg" onclick="RP.closeSheet()"></div>
+      <div class="sheet">
+        <div class="app-px" style="padding-top:20px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+            <div class="app-h1" style="margin-bottom:0;">📸 Lançar nota fiscal</div>
+            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);">✕</button>
+          </div>
+          <p style="color:var(--chocolate-suave);font-size:12px;margin-bottom:14px;">Tire uma foto legível do cupom ou nota fiscal. A leitura automática não é perfeita — sempre confira e ajuste antes de salvar.</p>
+          <label style="display:block;width:100%;box-sizing:border-box;text-align:center;background:var(--creme-card);color:var(--chocolate);padding:14px;border-radius:14px;font-weight:800;font-size:13px;margin-bottom:12px;cursor:pointer;border:1.5px dashed var(--creme-linha);">
+            📷 Tirar foto ou escolher imagem
+            <input type="file" accept="image/*" capture="environment" id="nota-input" onchange="RP.processarNotaFiscal(this)" style="display:none;">
+          </label>
+          <div id="nota-status" style="font-size:12px;color:var(--chocolate-suave);margin-bottom:12px;"></div>
+          <div id="nota-resultado"></div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function renderizarNotaResultado(){
+  const div = document.getElementById("nota-resultado");
+  if(!div) return;
+  if(notaFiscalItens.length === 0){ div.innerHTML = ""; return; }
+  div.innerHTML = `
+    ${notaFiscalItens.map((it, i) => `
+      <div class="card" style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+        <input type="checkbox" ${it.incluir ? "checked" : ""} onchange="RP.toggleNotaItem(${i})" style="width:18px;height:18px;flex-shrink:0;">
+        <input class="field" style="flex:2;" value="${esc(it.nome)}" oninput="RP.editarNotaItem(${i},'nome',this.value)">
+        <input class="field" type="number" step="0.01" style="flex:1;" value="${it.preco}" oninput="RP.editarNotaItem(${i},'preco',this.value)">
+      </div>`).join('')}
+    <button onclick="RP.salvarItensNota()" style="width:100%;background:var(--framboesa);color:var(--ink-on-dark);padding:13px;border-radius:100px;font-weight:800;font-size:14px;margin-top:6px;">Salvar preços selecionados</button>`;
+}
+
 
 function renderCalculadoras(){
   const pro = state.plan === "pro";
@@ -4945,6 +5016,63 @@ Confeiteira(o)                              Cliente`;
   },
   openIngredientes(){
     navigateSheet(()=>renderIngredientesHTML());
+  },
+  abrirNotaFiscalSheet(){
+    notaFiscalItens = [];
+    navigateSheet(()=>renderNotaFiscalHTML());
+  },
+  async processarNotaFiscal(input){
+    const file = input.files && input.files[0];
+    if(!file) return;
+    const status = document.getElementById("nota-status");
+    notaFiscalItens = [];
+    renderizarNotaResultado();
+    status.textContent = "Carregando o leitor de texto...";
+    try{
+      await carregarTesseract();
+      status.textContent = "Lendo a imagem... isso pode levar alguns segundos.";
+      const resultado = await Tesseract.recognize(file, "por");
+      const texto = resultado && resultado.data ? resultado.data.text : "";
+      notaFiscalItens = extrairItensDoTextoNota(texto);
+      if(notaFiscalItens.length === 0){
+        status.textContent = "Não consegui identificar itens automaticamente nessa foto. Tenta uma imagem mais nítida, com mais luz e sem reflexo — ou lança o preço manualmente na calculadora de custo.";
+      } else {
+        status.textContent = `Encontrei ${notaFiscalItens.length} ${notaFiscalItens.length===1?'item':'itens'}. Confira e ajusta o que precisar antes de salvar:`;
+      }
+      renderizarNotaResultado();
+    }catch(err){
+      status.textContent = "Não consegui ler essa imagem (" + err.message + "). Tenta de novo com outra foto.";
+    }
+  },
+  toggleNotaItem(i){
+    if(!notaFiscalItens[i]) return;
+    notaFiscalItens[i].incluir = !notaFiscalItens[i].incluir;
+  },
+  editarNotaItem(i, campo, valor){
+    if(!notaFiscalItens[i]) return;
+    notaFiscalItens[i][campo] = campo === "preco" ? (parseFloat(valor) || 0) : valor;
+  },
+  async salvarItensNota(){
+    const selecionados = notaFiscalItens.filter(it => it.incluir && it.nome && it.nome.trim() && it.preco > 0);
+    if(selecionados.length === 0){ showToast("Marca pelo menos um item com nome e preço válidos."); return; }
+    selecionados.forEach(it => {
+      const nomeNorm = it.nome.trim().toLowerCase();
+      const existente = insumosState.findIndex(ins => ins.n.trim().toLowerCase() === nomeNorm);
+      if(existente >= 0){
+        const precoAntigo = parseFloat(insumosState[existente].c);
+        const historico = insumosState[existente].historico || [];
+        if(precoAntigo && precoAntigo !== it.preco){
+          historico.push({ preco: precoAntigo, data: new Date().toISOString() });
+        }
+        insumosState[existente] = { n: it.nome.trim(), c: it.preco, historico };
+      } else {
+        insumosState.push({ n: it.nome.trim(), c: it.preco, historico: [] });
+      }
+    });
+    await saveInsumos();
+    showToast(`${selecionados.length} preço${selecionados.length===1?'':'s'} atualizado${selecionados.length===1?'':'s'}!`);
+    notaFiscalItens = [];
+    RP.openIngredientes();
   },
   async novoItemEstoque(){
     const ingrediente = prompt("Nome do ingrediente:");
