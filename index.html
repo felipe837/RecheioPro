@@ -341,10 +341,15 @@
   .testi-dots{display:flex;justify-content:center;gap:7px;margin-top:14px;}
   .testi-dot{width:7px;height:7px;border-radius:50%;background:var(--creme-linha);opacity:.5;transition:all .2s ease;cursor:pointer;}
   .testi-dot.active{background:var(--dourado);opacity:1;width:18px;border-radius:4px;}
-  .social-proof-popup{position:fixed;left:16px;bottom:16px;z-index:80;background:var(--branco);border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,0.18);padding:13px 34px 13px 13px;display:flex;align-items:center;gap:10px;max-width:270px;transform:translateY(130%);opacity:0;transition:transform .4s cubic-bezier(.2,.8,.2,1),opacity .4s ease;pointer-events:none;}
-  .social-proof-popup.show{transform:translateY(0);opacity:1;pointer-events:auto;}
-  .social-proof-check{width:32px;height:32px;border-radius:50%;background:var(--framboesa);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px;}
-  .social-proof-close{position:absolute;top:6px;right:8px;color:var(--chocolate-suave);font-size:11px;cursor:pointer;background:none;border:none;padding:4px;}
+  .social-proof-popup{position:fixed;left:16px;bottom:16px;z-index:80;background:var(--branco);border-radius:18px;box-shadow:0 14px 34px -6px rgba(59,36,23,0.28),0 2px 8px rgba(59,36,23,0.1);padding:14px 36px 14px 14px;display:flex;align-items:center;gap:12px;max-width:280px;border:1px solid rgba(226,168,87,0.25);transform:translateY(130%) scale(.96);opacity:0;transition:transform .45s cubic-bezier(.2,.8,.2,1),opacity .45s ease;pointer-events:none;}
+  .social-proof-popup.show{transform:translateY(0) scale(1);opacity:1;pointer-events:auto;}
+  .social-proof-avatar{position:relative;width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--dourado),var(--framboesa));color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-weight:800;font-size:15px;font-family:'Fraunces',serif;box-shadow:0 3px 8px rgba(194,59,91,0.35);}
+  .social-proof-live{position:absolute;bottom:-2px;right:-2px;width:14px;height:14px;border-radius:50%;background:#7A9E6E;border:2px solid var(--branco);}
+  .social-proof-live::after{content:"";position:absolute;inset:0;border-radius:50%;background:#7A9E6E;animation:socialProofPulse 1.8s ease-out infinite;}
+  @keyframes socialProofPulse{0%{transform:scale(1);opacity:.7;}100%{transform:scale(2.2);opacity:0;}}
+  .social-proof-plano{display:inline-block;font-size:9.5px;font-weight:800;padding:1px 7px;border-radius:100px;background:rgba(194,59,91,0.12);color:var(--framboesa);margin-left:5px;vertical-align:middle;}
+  .social-proof-close{position:absolute;top:8px;right:9px;color:var(--chocolate-suave);font-size:11px;cursor:pointer;background:none;border:none;padding:4px;opacity:.6;}
+  .social-proof-close:hover{opacity:1;}
   @media (max-width:480px){ .social-proof-popup{left:10px;right:10px;max-width:none;bottom:10px;} }
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -4447,6 +4452,7 @@ window.RP = {
     document.body.style.overflow = "hidden";
     if(location.hash){ history.replaceState(null, "", location.pathname + location.search); }
     if(isFreshLogin){ state.tab = "inicio"; await saveTab(); }
+    window.dispatchEvent(new Event("recheiopro:enterApp"));
     renderApp();
     let tourVisto = false;
     try{ const t = await window.storage.get("recheiopro:tourVisto"); tourVisto = !!(t&&t.value); }catch(e){}
@@ -5940,29 +5946,36 @@ Confeiteira(o)                              Cliente`;
   // popup de "quem comprou agora" — só com vendas reais (Kiwify + planilha
   // de vendas manuais das redes sociais). Se não tiver VALIDATION_ENDPOINT,
   // ou a busca falhar, ou não tiver nenhuma venda registrada, não mostra
-  // nada — nunca inventa.
+  // nada — nunca inventa. Também não mostra pra quem já é cliente (só faz
+  // sentido pra visitante decidindo se compra ou não).
   (function initSocialProof(){
+    if(state.plan) return; // já é cliente — não é o público desse popup
     if(sessionStorage.getItem("recheiopro-social-proof-fechado")) return;
     if(!VALIDATION_ENDPOINT) return;
     fetch(VALIDATION_ENDPOINT + "?vendas_recentes=1")
       .then(r=>r.json())
       .then(data=>{
+        if(state.plan) return; // pode ter logado enquanto a busca rodava
         const vendas = (data && data.vendas) || [];
         if(vendas.length===0) return;
 
         const el = document.createElement("div");
         el.className = "social-proof-popup";
+        el.id = "social-proof-popup";
         el.innerHTML = `
           <button class="social-proof-close" aria-label="Fechar">✕</button>
-          <div class="social-proof-check">✓</div>
-          <div class="social-proof-text" style="font-size:12.5px;line-height:1.4;color:var(--chocolate);"></div>`;
+          <div class="social-proof-avatar"><span class="social-proof-initial"></span><span class="social-proof-live"></span></div>
+          <div class="social-proof-text" style="font-size:12.5px;line-height:1.45;color:var(--chocolate);"></div>`;
         document.body.appendChild(el);
 
         let cycleTimer = null;
-        el.querySelector(".social-proof-close").addEventListener("click", ()=>{
+        function pararTudo(){
           el.classList.remove("show");
-          sessionStorage.setItem("recheiopro-social-proof-fechado", "1");
           if(cycleTimer) clearInterval(cycleTimer);
+        }
+        el.querySelector(".social-proof-close").addEventListener("click", ()=>{
+          pararTudo();
+          sessionStorage.setItem("recheiopro-social-proof-fechado", "1");
         });
 
         function relativo(iso){
@@ -5977,14 +5990,19 @@ Confeiteira(o)                              Cliente`;
 
         let idx = 0;
         function mostrarProxima(){
+          if(state.plan){ pararTudo(); return; } // logou entre uma exibição e outra
           const v = vendas[idx % vendas.length];
           idx++;
-          el.querySelector(".social-proof-text").innerHTML = `<b>${esc(v.nome)}</b> assinou o plano ${esc(v.plano)}<br><span style="color:var(--chocolate-suave);">${relativo(v.data)}</span>`;
+          el.querySelector(".social-proof-initial").textContent = (v.nome||"?").charAt(0).toUpperCase();
+          el.querySelector(".social-proof-text").innerHTML = `<b>${esc(v.nome)}</b> assinou o plano<span class="social-proof-plano">${esc(v.plano)}</span><br><span style="color:var(--chocolate-suave);">🕐 ${relativo(v.data)}</span>`;
           el.classList.add("show");
           setTimeout(()=>{ el.classList.remove("show"); }, 5500);
         }
         setTimeout(mostrarProxima, 4000);
         cycleTimer = setInterval(mostrarProxima, 13000);
+
+        // se a pessoa entrar no app (chave digitada) enquanto isso roda, some na hora
+        window.addEventListener("recheiopro:enterApp", pararTudo);
       })
       .catch(()=>{}); // falhou a busca? não mostra nada — sem fallback inventado
   })();
