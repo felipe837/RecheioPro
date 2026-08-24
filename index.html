@@ -1630,8 +1630,19 @@ async function checarEEnviarNotificacoes(){
   try{ const n = await window.storage.get("recheiopro:notificados"); if(n&&n.value) notificados = JSON.parse(n.value); }catch(e){}
   Object.keys(notificados).forEach(k=>{ if(notificados[k] !== hojeStr) delete notificados[k]; });
 
+  let notificadosDatas = {};
+  try{ const nd = await window.storage.get("recheiopro:notificadosDatas"); if(nd&&nd.value) notificadosDatas = JSON.parse(nd.value); }catch(e){}
+
   const a = coletarAlertas();
   const paraNotificar = [];
+
+  a.datasComemorativas.forEach(d=>{
+    const chaveData = d.nome + "-" + d.data.getFullYear();
+    if(!notificadosDatas[chaveData]){
+      paraNotificar.push({ chave: "datacomemorativa-"+chaveData, titulo: `${d.emoji} ${d.nome} chegando`, corpo: `${d.diasAte===0?"É hoje!":d.diasAte===1?"É amanhã!":`Faltam ${d.diasAte} dias`} — já pensou no cardápio dessa data?` });
+      notificadosDatas[chaveData] = true;
+    }
+  });
 
   a.followUps.forEach(p=>{
     const chave = "followup-"+p.id+"-"+hojeStr;
@@ -1661,6 +1672,9 @@ async function checarEEnviarNotificacoes(){
 
   if(paraNotificar.length){
     try{ await window.storage.set("recheiopro:notificados", JSON.stringify(notificados)); }catch(e){}
+  }
+  if(Object.keys(notificadosDatas).length){
+    try{ await window.storage.set("recheiopro:notificadosDatas", JSON.stringify(notificadosDatas)); }catch(e){}
   }
 }
 let checagemNotifInterval = null;
@@ -1841,6 +1855,50 @@ function proximaOcorrencia(dataISO){
 /* =========================================================================
    CENTRAL DE ALERTAS — junta follow-up, aniversário, estoque e validade num lugar só
 ========================================================================= */
+/* ---------------------------------------------------------------
+   DATAS COMEMORATIVAS — pra avisar com antecedência as datas que
+   mais vendem no ano pra confeitaria. Páscoa e Dia das Mães/Pais
+   mudam de data todo ano, então são calculadas (não fixas).
+--------------------------------------------------------------- */
+function calcularPascoa(ano){
+  // algoritmo de Meeus/Jones/Butcher
+  const a = ano % 19, b = Math.floor(ano/100), c = ano % 100;
+  const d = Math.floor(b/4), e = b % 4, f = Math.floor((b+8)/25);
+  const g = Math.floor((b-f+1)/3), h = (19*a+b-d-g+15) % 30;
+  const i = Math.floor(c/4), k = c % 4;
+  const l = (32+2*e+2*i-h-k) % 7, m = Math.floor((a+11*h+22*l)/451);
+  const mes = Math.floor((h+l-7*m+114)/31);
+  const dia = ((h+l-7*m+114) % 31) + 1;
+  return new Date(ano, mes-1, dia);
+}
+function segundoDomingoDoMes(ano, mes){
+  const primeiro = new Date(ano, mes-1, 1);
+  const diaSemana = primeiro.getDay();
+  const primeiroDomingo = diaSemana===0 ? 1 : (8-diaSemana);
+  return new Date(ano, mes-1, primeiroDomingo+7);
+}
+const DATAS_COMEMORATIVAS = [
+  { nome:"Páscoa", emoji:"🐰", calc:(ano)=>calcularPascoa(ano) },
+  { nome:"Dia das Mães", emoji:"💐", calc:(ano)=>segundoDomingoDoMes(ano,5) },
+  { nome:"Dia dos Namorados", emoji:"❤️", calc:(ano)=>new Date(ano,5,12) },
+  { nome:"Festa Junina (São João)", emoji:"🌽", calc:(ano)=>new Date(ano,5,24) },
+  { nome:"Dia dos Pais", emoji:"👔", calc:(ano)=>segundoDomingoDoMes(ano,8) },
+  { nome:"Dia das Crianças", emoji:"🧸", calc:(ano)=>new Date(ano,9,12) },
+  { nome:"Halloween", emoji:"🎃", calc:(ano)=>new Date(ano,9,31) },
+  { nome:"Natal", emoji:"🎄", calc:(ano)=>new Date(ano,11,25) },
+  { nome:"Ano Novo", emoji:"🎆", calc:(ano)=>new Date(ano,11,31) },
+];
+function proximasDatasComemorativas(diasJanela){
+  const hoje = new Date();
+  return DATAS_COMEMORATIVAS.map(dc=>{
+    let ano = hoje.getFullYear();
+    let data = dc.calc(ano);
+    if(data < hoje) data = dc.calc(ano+1);
+    const diasAte = Math.ceil((data-hoje)/(1000*60*60*24));
+    return { nome:dc.nome, emoji:dc.emoji, data, diasAte };
+  }).filter(x=>x.diasAte>=0 && x.diasAte<=diasJanela).sort((a,b)=>a.diasAte-b.diasAte);
+}
+
 function coletarAlertas(){
   const hoje = new Date();
   const followUps = pedidosState.filter(p => p.status==='orcamento_enviado' && diasDesde(p.dataPedido) >= 2);
@@ -1868,15 +1926,16 @@ function coletarAlertas(){
     const diasDepois = Math.floor((hoje - new Date(p.dataEvento)) / (1000*60*60*24));
     return diasDepois >= 1 && diasDepois <= 5;
   });
-  return { followUps, aniversarios, estoqueAlertas, validadeAlertas, pesquisasSatisfacao };
+  const datasComemorativas = proximasDatasComemorativas(21);
+  return { followUps, aniversarios, estoqueAlertas, validadeAlertas, pesquisasSatisfacao, datasComemorativas };
 }
 function totalAlertas(){
   const a = coletarAlertas();
-  return a.followUps.length + a.aniversarios.length + a.estoqueAlertas.length + a.validadeAlertas.length + a.pesquisasSatisfacao.length;
+  return a.followUps.length + a.aniversarios.length + a.estoqueAlertas.length + a.validadeAlertas.length + a.pesquisasSatisfacao.length + a.datasComemorativas.length;
 }
 function renderCentralAlertasHTML(){
   const a = coletarAlertas();
-  const total = a.followUps.length + a.aniversarios.length + a.estoqueAlertas.length + a.validadeAlertas.length;
+  const total = a.followUps.length + a.aniversarios.length + a.estoqueAlertas.length + a.validadeAlertas.length + a.pesquisasSatisfacao.length + a.datasComemorativas.length;
   return `
     <div class="sheet-overlay"><div class="modal-bg" onclick="RP.closeSheet()"></div>
       <div class="sheet">
@@ -1886,6 +1945,15 @@ function renderCentralAlertasHTML(){
             <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);">✕</button>
           </div>
           ${total===0 ? `<div style="text-align:center;color:var(--chocolate-suave);font-size:13px;padding:30px 0;">Tudo em dia! Nenhum alerta agora.</div>` : ''}
+
+          ${a.datasComemorativas.length>0 ? `
+          <div style="font-weight:800;font-size:12.5px;margin:14px 0 8px;">📅 Datas que vendem mais chegando</div>
+          ${a.datasComemorativas.map(d=>`
+            <div class="card" style="border-left:4px solid var(--dourado);margin-bottom:8px;">
+              <div style="font-weight:800;font-size:12.5px;">${d.emoji} ${esc(d.nome)}</div>
+              <div style="font-size:11px;color:var(--chocolate-suave);">${d.diasAte===0?'É hoje!':d.diasAte===1?'É amanhã':`Em ${d.diasAte} dias`} — ${formatarDataCurta(d.data)}. Já pensou no cardápio da data?</div>
+            </div>`).join('')}
+          ` : ''}
 
           ${a.followUps.length>0 ? `
           <div style="font-weight:800;font-size:12.5px;margin:14px 0 8px;">⏰ Follow-up de cliente</div>
@@ -3938,15 +4006,27 @@ function openRecipeSheet(r){
           </div>
 
           ${yieldInfo ? `
-          <div class="card" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-            <div>
-              <div style="font-weight:800;font-size:12.5px;">Ajustar rendimento</div>
-              <div style="font-size:11px;color:var(--chocolate-suave);">Quantidades recalculam sozinhas</div>
+          <div class="card" style="margin-bottom:14px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div>
+                <div style="font-weight:800;font-size:12.5px;">Ajustar rendimento</div>
+                <div style="font-size:11px;color:var(--chocolate-suave);">Quantidades recalculam sozinhas</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;">
+                <button onclick="RP.ajustarRendimento('${r.id}',-1)" style="width:28px;height:28px;border-radius:50%;background:var(--creme-card);font-weight:800;">−</button>
+                <span style="font-weight:800;font-size:14px;min-width:54px;text-align:center;">${atual} ${yieldInfo.label}</span>
+                <button onclick="RP.ajustarRendimento('${r.id}',1)" style="width:28px;height:28px;border-radius:50%;background:var(--creme-card);font-weight:800;">+</button>
+              </div>
             </div>
-            <div style="display:flex;align-items:center;gap:10px;">
-              <button onclick="RP.ajustarRendimento('${r.id}',-1)" style="width:28px;height:28px;border-radius:50%;background:var(--creme-card);font-weight:800;">−</button>
-              <span style="font-weight:800;font-size:14px;min-width:54px;text-align:center;">${atual} ${yieldInfo.label}</span>
-              <button onclick="RP.ajustarRendimento('${r.id}',1)" style="width:28px;height:28px;border-radius:50%;background:var(--creme-card);font-weight:800;">+</button>
+            <div style="display:flex;gap:6px;margin-top:10px;">
+              <button onclick="RP.escalarRendimento('${r.id}',2)" style="flex:1;background:var(--creme-card);color:var(--chocolate);font-size:11px;font-weight:800;padding:7px;border-radius:100px;">×2</button>
+              <button onclick="RP.escalarRendimento('${r.id}',3)" style="flex:1;background:var(--creme-card);color:var(--chocolate);font-size:11px;font-weight:800;padding:7px;border-radius:100px;">×3</button>
+              <button onclick="RP.escalarRendimento('${r.id}',5)" style="flex:1;background:var(--creme-card);color:var(--chocolate);font-size:11px;font-weight:800;padding:7px;border-radius:100px;">×5</button>
+              <button onclick="RP.escalarRendimento('${r.id}',1)" style="flex:1;background:var(--creme-card);color:var(--chocolate);font-size:11px;font-weight:800;padding:7px;border-radius:100px;">Voltar ao normal</button>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:8px;align-items:center;">
+              <input type="number" min="1" id="rendimento-exato-${r.id}" placeholder="Quero fazer quantos ${yieldInfo.label}?" style="flex:1;padding:9px 12px;border-radius:100px;border:1px solid var(--creme-linha);font-size:12.5px;">
+              <button onclick="RP.definirRendimentoExato('${r.id}')" style="background:var(--framboesa);color:var(--ink-on-dark);font-size:11.5px;font-weight:800;padding:9px 16px;border-radius:100px;white-space:nowrap;">Aplicar</button>
             </div>
           </div>` : ''}
 
@@ -5762,6 +5842,23 @@ Confeiteira(o)                              Cliente`;
     const atual = rendimentoAjuste[id] || info.base;
     const novo = Math.max(1, atual + delta);
     rendimentoAjuste[id] = novo;
+    openRecipeSheet(r);
+  },
+  escalarRendimento(id, multiplicador){
+    const r = RECIPES.find(x=>x.id===id);
+    const info = parseBaseYield(r.rendimento);
+    if(!info) return;
+    rendimentoAjuste[id] = info.base * multiplicador;
+    openRecipeSheet(r);
+  },
+  definirRendimentoExato(id){
+    const r = RECIPES.find(x=>x.id===id);
+    const info = parseBaseYield(r.rendimento);
+    if(!info) return;
+    const campo = document.getElementById(`rendimento-exato-${id}`);
+    const valor = parseInt(campo.value, 10);
+    if(!valor || valor < 1){ showToast("Digita uma quantidade válida primeiro."); return; }
+    rendimentoAjuste[id] = valor;
     openRecipeSheet(r);
   },
   abrirNotificacoesSheet(){
