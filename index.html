@@ -2104,6 +2104,62 @@ function renderCalendarioEncomendasHTML(){
     </div>`;
 }
 
+/* =========================================================================
+   MEUS CLIENTES — agrupa os pedidos por cliente pra montar um ranking
+========================================================================= */
+let clientesRenderizados = []; // guarda a última lista renderizada, pra abrir o histórico sem re-escapar nome no HTML
+
+function agruparClientes(){
+  const grupos = {};
+  pedidosState.forEach(p=>{
+    const nome = (p.cliente||"").trim();
+    if(!nome) return;
+    const chave = nome.toLowerCase();
+    if(!grupos[chave]) grupos[chave] = { nome, pedidos: [] };
+    grupos[chave].pedidos.push(p);
+  });
+  return Object.values(grupos).map(g=>{
+    const fechados = g.pedidos.filter(p => ['confirmado','entregue'].includes(p.status));
+    const totalGasto = fechados.reduce((a,p)=>a+(parseFloat(p.valor)||0),0);
+    return {
+      nome: g.nome,
+      totalPedidos: g.pedidos.length,
+      pedidosFechados: fechados.length,
+      totalGasto,
+    };
+  });
+}
+
+function renderClientesHTML(){
+  const clientes = agruparClientes().sort((a,b)=> b.totalGasto - a.totalGasto);
+  clientesRenderizados = clientes;
+  return `
+    <div class="sheet-overlay"><div class="modal-bg" onclick="RP.closeSheet()"></div>
+      <div class="sheet">
+        <div class="app-px" style="padding-top:20px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+            <div class="app-h1" style="margin-bottom:0;">Meus Clientes</div>
+            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);">✕</button>
+          </div>
+          <p style="color:var(--chocolate-suave);font-size:12px;margin-bottom:14px;">Ranking de quem mais compra, montado a partir do nome preenchido em cada pedido. Toca num cliente pra ver o histórico completo dele.</p>
+          ${clientes.length===0 ? `
+            <div style="text-align:center;padding:30px 0;color:var(--chocolate-suave);font-size:13px;">Nenhum cliente ainda. Assim que você cadastrar pedidos com o nome preenchido, o ranking aparece aqui sozinho.</div>
+          ` : clientes.map((c,i)=>{
+            const medalha = i===0?'🥇 ':i===1?'🥈 ':i===2?'🥉 ':'';
+            return `
+            <div class="card" style="margin-bottom:8px;cursor:pointer;" onclick="RP.abrirClientePorIndice(${i})">
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+                <div style="font-weight:800;font-size:13px;">${medalha}${esc(c.nome)}</div>
+                <div style="font-weight:800;font-size:13px;color:var(--framboesa);white-space:nowrap;">R$ ${c.totalGasto.toFixed(2)}</div>
+              </div>
+              <div style="font-size:11px;color:var(--chocolate-suave);margin-top:2px;">${c.totalPedidos} pedido${c.totalPedidos===1?'':'s'} no total${c.pedidosFechados>=2?' · cliente recorrente 💛':''}</div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+    </div>`;
+}
+
 function renderPedidosHTML(){
   const hoje = new Date();
   const aniversariosProximos = pedidosState.filter(p => p.recorrente && p.dataEvento).map(p => {
@@ -2418,11 +2474,13 @@ function renderBaixaEstoqueGenericaHTML(ingredientes){
       <div class="sheet" style="padding:24px 22px;">
         <div style="font-weight:800;font-size:16px;margin-bottom:6px;">📦 Baixar do estoque?</div>
         <p style="color:var(--chocolate-suave);font-size:12.5px;margin-bottom:14px;">Achei ${matches.length} ingrediente${matches.length===1?'':'s'} no seu estoque. Confirma a quantidade usada de cada um (o app desconta do lote que vence primeiro).</p>
-        ${matches.map((m,i)=>`
+        ${matches.map((m,i)=>{
+          const sugestao = parseLeadingNumber(m.ing.q);
+          return `
           <div style="margin-bottom:10px;">
             <div style="font-size:12px;font-weight:700;margin-bottom:4px;">${esc(m.item.ingrediente)} ${m.ing.q?`<span style="color:var(--chocolate-suave);font-weight:500;">(receita pede: ${esc(m.ing.q)})</span>`:''}</div>
-            <input class="field" id="baixa-qtd-${i}" placeholder="Quantidade a descontar (${esc(m.item.unidade)})">
-          </div>`).join('')}
+            <input class="field" id="baixa-qtd-${i}" placeholder="Quantidade a descontar (${esc(m.item.unidade)})" value="${sugestao ? esc(sugestao.value) : ''}">
+          </div>`;}).join('')}
         <button onclick='RP.confirmarBaixaEstoque(${JSON.stringify(matches.map(m=>m.item.id))})' style="width:100%;background:var(--framboesa);color:var(--ink-on-dark);padding:13px;border-radius:100px;font-weight:800;font-size:14px;margin-bottom:8px;">Confirmar baixa</button>
         <button onclick="RP.closeSheet()" style="width:100%;color:var(--chocolate-suave);font-weight:700;font-size:12.5px;padding:8px;">Pular, não baixar agora</button>
       </div>
@@ -3360,7 +3418,7 @@ const PERFIL_CATEGORIAS = [
     ["Desafio de 7 dias", true, "desafio"],["Bônus exclusivos", true, "bonus"],["Respostas Prontas", true, "respostas"],["S.O.S. Cozinha", true, "sos"],
   ]},
   { key:"vendas", titulo:"Vendas e clientes", icone:"🤝", itens:[
-    ["Meus Pedidos", true, "pedidos"],["Cardápio para clientes", true, "cardapio"],["Cardápio Interativo (link)", true, "cardapio-interativo"],["Resumo Mensal", true, "resumo-mensal"],["Livro Caixa", true, "livro-caixa"],["Kits Festa", true, "kits"],
+    ["Meus Pedidos", true, "pedidos"],["Meus Clientes", true, "clientes"],["Cardápio para clientes", true, "cardapio"],["Cardápio Interativo (link)", true, "cardapio-interativo"],["Resumo Mensal", true, "resumo-mensal"],["Livro Caixa", true, "livro-caixa"],["Kits Festa", true, "kits"],
   ]},
   { key:"producao", titulo:"Produção e custos", icone:"🏭", itens:[
     ["Estoque", true, "estoque"],["Meus Ingredientes", true, "ingredientes"],["Radar de fornecedores", true, "fornecedores"],
@@ -3371,7 +3429,7 @@ const PERFIL_CATEGORIAS = [
     ["Importar dados salvos", false, "importar"],["Aparência", false, "aparencia"],
   ]},
 ];
-const PERFIL_ROTAS = { suporte:"RP.openSuporte()", aparencia:"RP.openAparencia()", notificacoes:"RP.abrirNotificacoesSheet()", indicar:"RP.openIndicar()", cardapio:"RP.openCardapio()", "cardapio-interativo":"RP.openCardapioInterativo()", exportar:"RP.exportarDados()", importar:"RP.importarDados()", "frete-config":"RP.openFreteConfig()", "resumo-mensal":"RP.openResumoMensal()", fornecedores:"RP.openFornecedores()", pedidos:"RP.openPedidos()", estoque:"RP.openEstoque()", ingredientes:"RP.openIngredientes()", "minhas-receitas":"RP.openMinhasReceitas()", respostas:"RP.openRespostasProntas()", sos:"RP.openSosCozinha()", kits:"RP.openKits()", equipamentos:"RP.openEquipamentos()", "livro-caixa":"RP.openLivroCaixa()" };
+const PERFIL_ROTAS = { suporte:"RP.openSuporte()", aparencia:"RP.openAparencia()", notificacoes:"RP.abrirNotificacoesSheet()", indicar:"RP.openIndicar()", cardapio:"RP.openCardapio()", "cardapio-interativo":"RP.openCardapioInterativo()", exportar:"RP.exportarDados()", importar:"RP.importarDados()", "frete-config":"RP.openFreteConfig()", "resumo-mensal":"RP.openResumoMensal()", fornecedores:"RP.openFornecedores()", pedidos:"RP.openPedidos()", clientes:"RP.openClientes()", estoque:"RP.openEstoque()", ingredientes:"RP.openIngredientes()", "minhas-receitas":"RP.openMinhasReceitas()", respostas:"RP.openRespostasProntas()", sos:"RP.openSosCozinha()", kits:"RP.openKits()", equipamentos:"RP.openEquipamentos()", "livro-caixa":"RP.openLivroCaixa()" };
 
 function renderPerfilCategoriaHTML(catKey){
   const cat = PERFIL_CATEGORIAS.find(c=>c.key===catKey);
@@ -3867,12 +3925,13 @@ function renderCustoCalc(pro){
           <div class="ing-row">
             <input class="field" data-key="ing-n-${i}" placeholder="Ingrediente" value="${esc(it.n)}" oninput="RP.updateIng(this,${i},'n')" onblur="RP.saveInsumoFromRow(${i})">
             <input class="field" data-key="ing-c-${i}" placeholder="R$" value="${esc(it.c)}" oninput="RP.updateIng(this,${i},'c')" onblur="RP.saveInsumoFromRow(${i})">
+            <input class="field" data-key="ing-qtd-${i}" placeholder="Qtd (opc.)" value="${esc(it.qtd||'')}" oninput="RP.updateIng(this,${i},'qtd')" style="width:64px;flex:0 0 64px;" title="Ex: 200g — usado depois pra sugerir a baixa automática no estoque">
             <button class="del-btn" onclick="RP.removeIng(${i})">🗑️</button>
           </div>`;
         }).join('')}
       </div>
       <div class="add-ing" onclick="RP.addIng()">＋ Adicionar ingrediente</div>
-      ${insumosState.length===0 ? `<div style="font-size:11px;color:var(--chocolate-suave);margin:-8px 0 14px;">💡 Preencha nome e preço de um ingrediente — ele fica salvo aqui pra próxima receita, sem redigitar.</div>` : ''}
+      ${insumosState.length===0 ? `<div style="font-size:11px;color:var(--chocolate-suave);margin:-8px 0 14px;">💡 Preencha nome e preço de um ingrediente — ele fica salvo aqui pra próxima receita, sem redigitar. O campo "Qtd" é opcional, mas ajuda o app a sugerir a baixa automática no estoque depois.</div>` : ''}
       ${pro ? `
         <div style="font-weight:800;font-size:13px;margin-bottom:8px;">Custos extras (Pro)</div>
         <div style="display:flex;gap:8px;margin-bottom:10px;">
@@ -4992,6 +5051,21 @@ window.RP = {
   openPedidos(){
     navigateSheet(()=>renderPedidosHTML());
   },
+  openClientes(){
+    navigateSheet(()=>renderClientesHTML());
+  },
+  abrirClientePorIndice(i){
+    const c = clientesRenderizados[i];
+    if(!c) return;
+    RP.openClientePedidos(c.nome);
+  },
+  openClientePedidos(nome){
+    navigateSheet(()=>renderPedidosHTML());
+    setTimeout(()=>{
+      const campo = document.getElementById("pedidos-busca");
+      if(campo){ campo.value = nome; RP.filtrarPedidosLista(nome); }
+    }, 30);
+  },
   async novoPedido(){
     const novo = { id: "p"+Date.now(), cliente:"", produto:"", valor:"", status:"orcamento_enviado", dataPedido:new Date().toISOString(), dataEvento:null, recorrente:false, referencias:[], observacoes:"" };
     pedidosState.push(novo);
@@ -5022,10 +5096,10 @@ window.RP = {
     if(cupomInput) p.cupomUsado = cupomInput.value.trim();
     await savePedidos();
 
-    if(statusAntigo!=='confirmado' && p.status==='confirmado' && p.receitaVinculadaId){
+    if(((statusAntigo!=='confirmado' && p.status==='confirmado') || (statusAntigo!=='entregue' && p.status==='entregue')) && p.receitaVinculadaId){
       const receita = minhasReceitasState.find(r=>r.id===p.receitaVinculadaId);
       if(receita){
-        const ingredientes = receita.itens.filter(it=>!it.subReceitaId).map(it=>({n:it.nome, q:""}));
+        const ingredientes = receita.itens.filter(it=>!it.subReceitaId).map(it=>({n:it.nome, q:it.qtd||""}));
         const html = renderBaixaEstoqueGenericaHTML(ingredientes);
         if(html){ document.getElementById("sheet-root").innerHTML = html; return; }
       }
@@ -5295,7 +5369,7 @@ Confeiteira(o)                              Cliente`;
     const nome = (nomeInput.value||"").trim();
     if(!nome){ nomeInput.placeholder = "Digite um nome primeiro!"; return; }
     const itens = custoState.itens.filter(it=>it.subReceitaId || (it.n && it.c)).map(it=>
-      it.subReceitaId ? { subReceitaId: it.subReceitaId, quantidade: it.quantidade||1 } : { nome: it.n.trim(), custoOriginal: it.c }
+      it.subReceitaId ? { subReceitaId: it.subReceitaId, quantidade: it.quantidade||1 } : { nome: it.n.trim(), custoOriginal: it.c, qtd: it.qtd||"" }
     );
     if(itens.length===0) return;
     const incluirRateio = document.getElementById("salvar-rateio-despesas")?.checked || false;
@@ -5783,7 +5857,7 @@ Confeiteira(o)                              Cliente`;
   },
   openSuporte(){
     const root = document.getElementById("sheet-root");
-    const email = "contato@recheiopro.com.br";
+    const email = "contatorecheiopro@gmail.com";
     root.innerHTML = `
       <div class="sheet-overlay"><div class="modal-bg" onclick="RP.closeSheet()"></div>
         <div class="sheet" style="text-align:center;padding:28px 22px;">
@@ -5798,7 +5872,7 @@ Confeiteira(o)                              Cliente`;
       </div>`;
   },
   async copiarEmailSuporte(){
-    const email = "contato@recheiopro.com.br";
+    const email = "contatorecheiopro@gmail.com";
     const btn = document.getElementById("suporte-copy-btn");
     try{
       await navigator.clipboard.writeText(email);
@@ -6007,7 +6081,7 @@ Confeiteira(o)                              Cliente`;
       if(document.getElementById("crono-nome")) renderApp();
     });
   },
-  addIng(){ custoState.itens.push({n:"",c:""}); renderApp(); },
+  addIng(){ custoState.itens.push({n:"",c:"",qtd:""}); renderApp(); },
   removeIng(i){ custoState.itens.splice(i,1); renderApp(); },
   updateIng(el,i,field){
     custoState.itens[i][field] = el.value;
@@ -6297,7 +6371,7 @@ Confeiteira(o)                              Cliente`;
           setTimeout(()=>{ el.classList.remove("show"); }, 5500);
         }
         setTimeout(mostrarProxima, 4000);
-        cycleTimer = setInterval(mostrarProxima, 13000);
+        cycleTimer = setInterval(mostrarProxima, 7000);
 
         // se a pessoa entrar no app (chave digitada) enquanto isso roda, some na hora
         window.addEventListener("recheiopro:enterApp", pararTudo);
