@@ -18,7 +18,7 @@
     --sombra: 0 20px 50px -20px rgba(59,36,23,0.35);
   }
   body.theme-dark{
-    --creme: #15100C; --creme-card: #241A13; --creme-linha: #3A2A1F; --creme-glow: #241A13;
+    --creme: #15100C; --creme-card: #322418; --creme-linha: #3A2A1F; --creme-glow: #241A13;
     --chocolate: #F5E9DA; --chocolate-suave: #C7AD94; --caramelo-escuro: #E3A857;
     --branco: #241A13;
   }
@@ -1741,7 +1741,7 @@ function tempoAtivoMinutos(tempo){ return tempoMinutos(tempo.split('+')[0]); }
    FRETE POR DISTÂNCIA (OpenCage Geocoding API)
 ========================================================================= */
 let freteConfig = { apikey:"", origem:"", precoKm:"" };
-let negocioConfig = { despesasFixas:"", producaoMensalEstimada:"", nomeLoja:"", whatsappLoja:"", politicaCancelamento:"É necessário sinal de 50% para confirmar o pedido. Em caso de cancelamento com menos de 48h de antecedência, o sinal não será devolvido, já que os ingredientes já foram comprados e o preparo pode já ter sido iniciado." };
+let negocioConfig = { despesasFixas:"", producaoMensalEstimada:"", nomeLoja:"", whatsappLoja:"", politicaCancelamento:"É necessário sinal de 50% para confirmar o pedido. Em caso de cancelamento com menos de 48h de antecedência, o sinal não será devolvido, já que os ingredientes já foram comprados e o preparo pode já ter sido iniciado.", horariosRetirada:[] };
 async function loadNegocioConfig(){
   try{ const n = await window.storage.get("recheiopro:negocio-config"); if(n&&n.value) negocioConfig = JSON.parse(n.value); }catch(e){}
 }
@@ -2154,6 +2154,36 @@ function renderClientesHTML(){
     </div>`;
 }
 
+/* =========================================================================
+   HORÁRIOS DE RETIRADA — define horários e vagas, pra não aceitar
+   pedido demais no mesmo horário
+========================================================================= */
+function renderHorariosRetiradaHTML(){
+  const horarios = negocioConfig.horariosRetirada || [];
+  return `
+    <div class="sheet-overlay"><div class="modal-bg" onclick="RP.closeSheet()"></div>
+      <div class="sheet">
+        <div class="app-px" style="padding-top:20px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+            <div class="app-h1" style="margin-bottom:0;">Horários de retirada</div>
+            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);">✕</button>
+          </div>
+          <p style="color:var(--chocolate-suave);font-size:12px;margin-bottom:14px;">Defina os horários que você aceita retirada e quantas vagas cada um tem. Na ficha do pedido, o app avisa quando um horário já está lotado.</p>
+          ${horarios.length===0 ? `<div style="font-size:11.5px;color:var(--chocolate-suave);margin-bottom:12px;">Nenhum horário cadastrado ainda — sem isso, o campo de horário do pedido continua sendo texto livre.</div>` : ''}
+          <div id="horarios-lista">
+            ${horarios.map((h,i)=>`
+              <div class="card" style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+                <input class="field" style="flex:1;" value="${esc(h.horario)}" placeholder="Ex: 09:00" onchange="RP.editarHorarioRetirada(${i},'horario',this.value)">
+                <input class="field" type="number" min="1" style="width:70px;" value="${h.vagas}" placeholder="Vagas" onchange="RP.editarHorarioRetirada(${i},'vagas',this.value)">
+                <button class="del-btn" onclick="RP.removerHorarioRetirada(${i})">🗑️</button>
+              </div>`).join('')}
+          </div>
+          <button onclick="RP.adicionarHorarioRetirada()" style="width:100%;background:var(--creme-card);color:var(--chocolate);padding:12px;border-radius:100px;font-weight:800;font-size:13px;">＋ Adicionar horário</button>
+        </div>
+      </div>
+    </div>`;
+}
+
 function renderPedidosHTML(){
   const hoje = new Date();
   const aniversariosProximos = pedidosState.filter(p => p.recorrente && p.dataEvento).map(p => {
@@ -2270,13 +2300,19 @@ function renderPedidoDetalheHTML(id){
           ` : ''}
 
           <div style="font-size:12px;font-weight:700;margin-bottom:6px;">Data do evento/aniversário (opcional)</div>
-          <input type="date" class="field" id="pedido-data-evento" value="${p.dataEvento ? p.dataEvento.slice(0,10) : ''}" style="margin-bottom:8px;">
+          <input type="date" class="field" id="pedido-data-evento" value="${p.dataEvento ? p.dataEvento.slice(0,10) : ''}" style="margin-bottom:8px;" onchange="RP.atualizarOcupacaoHorario('${p.id}')">
           <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--chocolate-suave);margin-bottom:14px;">
             <input type="checkbox" id="pedido-recorrente" ${p.recorrente?'checked':''}> Repete todo ano (aniversário/mesversário)
           </label>
 
           <div style="font-size:12px;font-weight:700;margin-bottom:6px;">Horário limite de retirada (opcional)</div>
-          <input class="field" id="pedido-horario" placeholder="Ex: até 14h" value="${esc(p.horarioRetirada||'')}" style="margin-bottom:14px;">
+          ${(negocioConfig.horariosRetirada && negocioConfig.horariosRetirada.length>0) ? `
+          <select id="pedido-horario" class="field" style="margin-bottom:6px;" onchange="RP.atualizarOcupacaoHorario('${p.id}')">
+            <option value="">Selecione um horário</option>
+            ${negocioConfig.horariosRetirada.map(h=>`<option value="${esc(h.horario)}" ${p.horarioRetirada===h.horario?'selected':''}>${esc(h.horario)} (${h.vagas} vagas)</option>`).join('')}
+          </select>
+          <div id="ocupacao-horario" style="font-size:11px;color:var(--chocolate-suave);margin-bottom:14px;"></div>
+          ` : `<input class="field" id="pedido-horario" placeholder="Ex: até 14h" value="${esc(p.horarioRetirada||'')}" style="margin-bottom:14px;">`}
 
           <div style="font-size:12px;font-weight:700;margin-bottom:6px;">Sinal recebido (R$)</div>
           <input class="field" id="pedido-sinal" type="number" placeholder="Ex: 30.00" value="${esc(p.sinalRecebido||'')}" style="margin-bottom:6px;">
@@ -3412,7 +3448,7 @@ const PERFIL_CATEGORIAS = [
     ["Desafio de 7 dias", true, "desafio"],["Bônus exclusivos", true, "bonus"],["Respostas Prontas", true, "respostas"],["S.O.S. Cozinha", true, "sos"],
   ]},
   { key:"vendas", titulo:"Vendas e clientes", icone:"🤝", itens:[
-    ["Meus Pedidos", true, "pedidos"],["Meus Clientes", true, "clientes"],["Cardápio para clientes", true, "cardapio"],["Cardápio Interativo (link)", true, "cardapio-interativo"],["Resumo Mensal", true, "resumo-mensal"],["Livro Caixa", true, "livro-caixa"],["Kits Festa", true, "kits"],
+    ["Meus Pedidos", true, "pedidos"],["Meus Clientes", true, "clientes"],["Horários de retirada", true, "horarios-retirada"],["Cardápio para clientes", true, "cardapio"],["Cardápio Interativo (link)", true, "cardapio-interativo"],["Resumo Mensal", true, "resumo-mensal"],["Livro Caixa", true, "livro-caixa"],["Kits Festa", true, "kits"],
   ]},
   { key:"producao", titulo:"Produção e custos", icone:"🏭", itens:[
     ["Estoque", true, "estoque"],["Meus Ingredientes", true, "ingredientes"],["Radar de fornecedores", true, "fornecedores"],
@@ -3423,7 +3459,7 @@ const PERFIL_CATEGORIAS = [
     ["Importar dados salvos", false, "importar"],["Aparência", false, "aparencia"],
   ]},
 ];
-const PERFIL_ROTAS = { suporte:"RP.openSuporte()", aparencia:"RP.openAparencia()", notificacoes:"RP.abrirNotificacoesSheet()", indicar:"RP.openIndicar()", cardapio:"RP.openCardapio()", "cardapio-interativo":"RP.openCardapioInterativo()", exportar:"RP.exportarDados()", importar:"RP.importarDados()", "frete-config":"RP.openFreteConfig()", "resumo-mensal":"RP.openResumoMensal()", fornecedores:"RP.openFornecedores()", pedidos:"RP.openPedidos()", clientes:"RP.openClientes()", estoque:"RP.openEstoque()", ingredientes:"RP.openIngredientes()", "minhas-receitas":"RP.openMinhasReceitas()", respostas:"RP.openRespostasProntas()", sos:"RP.openSosCozinha()", kits:"RP.openKits()", equipamentos:"RP.openEquipamentos()", "livro-caixa":"RP.openLivroCaixa()" };
+const PERFIL_ROTAS = { suporte:"RP.openSuporte()", aparencia:"RP.openAparencia()", notificacoes:"RP.abrirNotificacoesSheet()", indicar:"RP.openIndicar()", cardapio:"RP.openCardapio()", "cardapio-interativo":"RP.openCardapioInterativo()", exportar:"RP.exportarDados()", importar:"RP.importarDados()", "frete-config":"RP.openFreteConfig()", "resumo-mensal":"RP.openResumoMensal()", fornecedores:"RP.openFornecedores()", pedidos:"RP.openPedidos()", clientes:"RP.openClientes()", "horarios-retirada":"RP.openHorariosRetirada()", estoque:"RP.openEstoque()", ingredientes:"RP.openIngredientes()", "minhas-receitas":"RP.openMinhasReceitas()", respostas:"RP.openRespostasProntas()", sos:"RP.openSosCozinha()", kits:"RP.openKits()", equipamentos:"RP.openEquipamentos()", "livro-caixa":"RP.openLivroCaixa()" };
 
 function renderPerfilCategoriaHTML(catKey){
   const cat = PERFIL_CATEGORIAS.find(c=>c.key===catKey);
@@ -4017,6 +4053,158 @@ function renderListaCompras(){
 /* =========================================================================
    SHEET: detalhe de receita
 ========================================================================= */
+/* =========================================================================
+   GERADOR DE POST PRO INSTAGRAM — desenha nome, preço e foto da receita
+   num canvas, pronto pra baixar e postar
+========================================================================= */
+let postRecipeIdAtual = null;
+let formatoPostAtual = "stories";
+
+function renderGeradorPostHTML(recipeId){
+  return `
+    <div class="sheet-overlay"><div class="modal-bg" onclick="RP.closeSheet()"></div>
+      <div class="sheet" style="padding:22px 20px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <div class="app-h1" style="margin-bottom:0;">📱 Post pro Instagram</div>
+          <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);">✕</button>
+        </div>
+        <p style="color:var(--chocolate-suave);font-size:12px;margin-bottom:12px;">Gera uma imagem pronta com o nome (e preço, se preencher) da receita, pra postar direto no Instagram.</p>
+        <div style="display:flex;gap:8px;margin-bottom:10px;">
+          <button id="post-formato-stories" onclick="RP.setFormatoPost('stories')" style="flex:1;background:var(--panel-dark);color:var(--ink-on-dark);padding:9px;border-radius:100px;font-weight:800;font-size:12px;">Stories</button>
+          <button id="post-formato-feed" onclick="RP.setFormatoPost('feed')" style="flex:1;background:var(--creme-card);color:var(--chocolate);padding:9px;border-radius:100px;font-weight:800;font-size:12px;">Feed (quadrado)</button>
+        </div>
+        <input class="field" id="post-preco" placeholder="Preço (opcional, ex: 45,00)" style="margin-bottom:12px;" oninput="RP.atualizarPreviewPost()">
+        <div style="display:flex;justify-content:center;background:var(--creme-card);border-radius:14px;padding:10px;margin-bottom:12px;">
+          <canvas id="post-canvas" style="max-width:100%;height:auto;border-radius:10px;"></canvas>
+        </div>
+        <button onclick="RP.baixarPost()" style="width:100%;background:var(--framboesa);color:var(--ink-on-dark);padding:13px;border-radius:100px;font-weight:800;font-size:14px;">⬇️ Baixar imagem</button>
+      </div>
+    </div>`;
+}
+
+function quebrarLinhasCanvas(ctx, texto, larguraMax){
+  const palavras = texto.split(" ");
+  const linhas = [];
+  let linhaAtual = "";
+  palavras.forEach(palavra=>{
+    const teste = linhaAtual ? linhaAtual + " " + palavra : palavra;
+    if(ctx.measureText(teste).width > larguraMax && linhaAtual){
+      linhas.push(linhaAtual);
+      linhaAtual = palavra;
+    } else {
+      linhaAtual = teste;
+    }
+  });
+  if(linhaAtual) linhas.push(linhaAtual);
+  return linhas.slice(0,3);
+}
+
+function roundRectCanvas(ctx, x, y, w, h, r){
+  ctx.beginPath();
+  ctx.moveTo(x+r, y);
+  ctx.arcTo(x+w, y, x+w, y+h, r);
+  ctx.arcTo(x+w, y+h, x, y+h, r);
+  ctx.arcTo(x, y+h, x, y, r);
+  ctx.arcTo(x, y, x+w, y, r);
+  ctx.closePath();
+}
+
+function desenharConteudoPost(ctx, img, largura, altura, r, preco){
+  const grad = ctx.createLinearGradient(0,0,0,altura);
+  grad.addColorStop(0, "#3B2417");
+  grad.addColorStop(1, "#1F130C");
+  ctx.fillStyle = grad;
+  ctx.fillRect(0,0,largura,altura);
+
+  const margem = largura * 0.08;
+  const areaFotoAltura = altura * 0.55;
+
+  if(img){
+    const escala = Math.max(largura/img.width, areaFotoAltura/img.height);
+    const w = img.width*escala, h = img.height*escala;
+    const x = (largura-w)/2, y = (areaFotoAltura-h)/2;
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(0,0,largura,areaFotoAltura);
+    ctx.clip();
+    ctx.drawImage(img, x, y, w, h);
+    ctx.restore();
+  } else {
+    // sem foto cadastrada: gradiente com as cores da marca + emoji grande no lugar,
+    // em vez de deixar um vazio esquisito
+    const fotoGrad = ctx.createLinearGradient(0,0,largura,areaFotoAltura);
+    fotoGrad.addColorStop(0, "#E3A857");
+    fotoGrad.addColorStop(1, "#C23B5B");
+    ctx.fillStyle = fotoGrad;
+    ctx.fillRect(0,0,largura,areaFotoAltura);
+    // padrãozinho decorativo de círculos suaves, pra não ficar uma chapa lisa
+    ctx.fillStyle = "rgba(255,255,255,0.08)";
+    for(let i=0;i<6;i++){
+      ctx.beginPath();
+      ctx.arc(largura*(0.15+i*0.16), areaFotoAltura*(0.2+(i%2)*0.55), largura*0.09, 0, Math.PI*2);
+      ctx.fill();
+    }
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.font = Math.round(largura*0.26) + "px sans-serif";
+    ctx.fillText(r.emoji || "🧁", largura/2, areaFotoAltura/2);
+    ctx.textBaseline = "alphabetic";
+  }
+
+  // sombra de transição da foto (ou do fallback) pro fundo escuro
+  const sombraGrad = ctx.createLinearGradient(0, areaFotoAltura-140, 0, areaFotoAltura);
+  sombraGrad.addColorStop(0, "rgba(31,19,12,0)");
+  sombraGrad.addColorStop(1, "rgba(31,19,12,1)");
+  ctx.fillStyle = sombraGrad;
+  ctx.fillRect(0, areaFotoAltura-140, largura, 140);
+
+  // linha de destaque douradinha, separando a foto do texto
+  ctx.fillStyle = "#E3A857";
+  ctx.fillRect(largura/2 - largura*0.06, areaFotoAltura + largura*0.03, largura*0.12, largura*0.008);
+
+  ctx.textAlign = "center";
+  // categoria (kicker pequeno)
+  ctx.fillStyle = "#E3A857";
+  ctx.font = "700 " + Math.round(largura*0.03) + "px sans-serif";
+  ctx.fillText((r.category||"").toUpperCase(), largura/2, areaFotoAltura + largura*0.1);
+
+  // nome da receita
+  ctx.fillStyle = "#FFF8EC";
+  ctx.font = "700 " + Math.round(largura*0.068) + "px Georgia, serif";
+  const linhas = quebrarLinhasCanvas(ctx, r.name, largura - margem*2);
+  let yTexto = areaFotoAltura + largura*0.19;
+  linhas.forEach(linha=>{
+    ctx.fillText(linha, largura/2, yTexto);
+    yTexto += largura*0.082;
+  });
+
+  // nome da loja, discreto, logo abaixo do título
+  if(negocioConfig.nomeLoja){
+    ctx.fillStyle = "rgba(255,248,236,0.6)";
+    ctx.font = "600 " + Math.round(largura*0.028) + "px sans-serif";
+    ctx.fillText(negocioConfig.nomeLoja, largura/2, yTexto + largura*0.02);
+    yTexto += largura*0.06;
+  }
+
+  if(preco && preco.trim()){
+    // selo do preço, com fundo, em vez de texto solto
+    const textoPreco = "R$ " + preco.trim();
+    ctx.font = "800 " + Math.round(largura*0.07) + "px Georgia, serif";
+    const larguraTexto = ctx.measureText(textoPreco).width;
+    const padH = largura*0.05, padV = largura*0.028;
+    const yBadge = yTexto + largura*0.06;
+    ctx.fillStyle = "#C23B5B";
+    roundRectCanvas(ctx, largura/2 - larguraTexto/2 - padH, yBadge - padV*2.1, larguraTexto + padH*2, padV*3.3, largura*0.045);
+    ctx.fill();
+    ctx.fillStyle = "#FFF8EC";
+    ctx.fillText(textoPreco, largura/2, yBadge);
+  }
+
+  ctx.fillStyle = "rgba(255,248,236,0.55)";
+  ctx.font = "600 " + Math.round(largura*0.026) + "px sans-serif";
+  ctx.fillText("Peça já! 📲", largura/2, altura - largura*0.06);
+}
+
 function openRecipeSheet(r){
   const unlocked = isUnlocked(r);
   const root = document.getElementById("sheet-root");
@@ -4066,16 +4254,16 @@ function openRecipeSheet(r){
                 <div style="font-size:11px;color:var(--chocolate-suave);">Quantidades recalculam sozinhas</div>
               </div>
               <div style="display:flex;align-items:center;gap:10px;">
-                <button onclick="RP.ajustarRendimento('${r.id}',-1)" style="width:28px;height:28px;border-radius:50%;background:var(--creme-card);font-weight:800;">−</button>
+                <button onclick="RP.ajustarRendimento('${r.id}',-1)" style="width:28px;height:28px;border-radius:50%;background:var(--creme-linha);color:var(--chocolate);font-weight:800;">−</button>
                 <span style="font-weight:800;font-size:14px;min-width:54px;text-align:center;">${atual} ${yieldInfo.label}</span>
-                <button onclick="RP.ajustarRendimento('${r.id}',1)" style="width:28px;height:28px;border-radius:50%;background:var(--creme-card);font-weight:800;">+</button>
+                <button onclick="RP.ajustarRendimento('${r.id}',1)" style="width:28px;height:28px;border-radius:50%;background:var(--creme-linha);color:var(--chocolate);font-weight:800;">+</button>
               </div>
             </div>
             <div style="display:flex;gap:6px;margin-top:10px;">
-              <button onclick="RP.escalarRendimento('${r.id}',2)" style="flex:1;background:var(--creme-card);color:var(--chocolate);font-size:11px;font-weight:800;padding:7px;border-radius:100px;">×2</button>
-              <button onclick="RP.escalarRendimento('${r.id}',3)" style="flex:1;background:var(--creme-card);color:var(--chocolate);font-size:11px;font-weight:800;padding:7px;border-radius:100px;">×3</button>
-              <button onclick="RP.escalarRendimento('${r.id}',5)" style="flex:1;background:var(--creme-card);color:var(--chocolate);font-size:11px;font-weight:800;padding:7px;border-radius:100px;">×5</button>
-              <button onclick="RP.escalarRendimento('${r.id}',1)" style="flex:1;background:var(--creme-card);color:var(--chocolate);font-size:11px;font-weight:800;padding:7px;border-radius:100px;">Voltar ao normal</button>
+              <button onclick="RP.escalarRendimento('${r.id}',2)" style="flex:1;background:var(--creme-linha);color:var(--chocolate);font-size:11px;font-weight:800;padding:7px;border-radius:100px;">×2</button>
+              <button onclick="RP.escalarRendimento('${r.id}',3)" style="flex:1;background:var(--creme-linha);color:var(--chocolate);font-size:11px;font-weight:800;padding:7px;border-radius:100px;">×3</button>
+              <button onclick="RP.escalarRendimento('${r.id}',5)" style="flex:1;background:var(--creme-linha);color:var(--chocolate);font-size:11px;font-weight:800;padding:7px;border-radius:100px;">×5</button>
+              <button onclick="RP.escalarRendimento('${r.id}',1)" style="flex:1;background:var(--creme-linha);color:var(--chocolate);font-size:11px;font-weight:800;padding:7px;border-radius:100px;">Voltar ao normal</button>
             </div>
             <div style="display:flex;gap:8px;margin-top:8px;align-items:center;">
               <input type="number" min="1" id="rendimento-exato-${r.id}" placeholder="Quero fazer quantos ${yieldInfo.label}?" style="flex:1;padding:9px 12px;border-radius:100px;border:1px solid var(--creme-linha);font-size:12.5px;">
@@ -4089,6 +4277,7 @@ function openRecipeSheet(r){
           <button onclick="${state.plan==='pro'?`RP.abrirVerificacaoAlergenos('${r.id}')`:'RP.openUpgrade()'}" style="width:100%;background:var(--creme-card);color:var(--chocolate);font-size:11.5px;font-weight:800;padding:9px 14px;border-radius:100px;margin-top:8px;">⚠️ Verificar alérgenos (revisão) ${state.plan==='pro'?'':'🔒'}</button>
           <button onclick="${state.plan==='pro'?`RP.abrirEscalaReversa('${r.id}')`:'RP.openUpgrade()'}" style="width:100%;background:var(--creme-card);color:var(--chocolate);font-size:11.5px;font-weight:800;padding:9px 14px;border-radius:100px;margin-top:8px;">🔄 O que dá pra fazer com o que sobrou? ${state.plan==='pro'?'':'🔒'}</button>
           <button onclick="RP.abrirAdicionarColecao('${r.id}')" style="width:100%;background:var(--creme-card);color:var(--chocolate);font-size:11.5px;font-weight:800;padding:9px 14px;border-radius:100px;margin-top:8px;">📁 Adicionar a uma coleção</button>
+          <button onclick="RP.abrirGeradorPost('${r.id}')" style="width:100%;background:var(--framboesa);color:var(--ink-on-dark);font-size:11.5px;font-weight:800;padding:9px 14px;border-radius:100px;margin-top:8px;">📱 Gerar post pro Instagram</button>
           <div style="display:flex;justify-content:space-between;align-items:center;margin:16px 0 8px;">
             <div style="font-weight:800;font-size:14px;">Modo de preparo</div>
             <button onclick="RP.abrirModoCozinha('${r.id}')" style="background:var(--panel-dark);color:var(--ink-on-dark);font-size:11.5px;font-weight:800;padding:8px 14px;border-radius:100px;">👩‍🍳 Modo cozinha</button>
@@ -4949,6 +5138,62 @@ window.RP = {
   abrirAdicionarColecao(recipeId){
     navigateSheet(()=>renderAdicionarColecaoHTML(recipeId));
   },
+  abrirGeradorPost(recipeId){
+    postRecipeIdAtual = recipeId;
+    formatoPostAtual = "stories";
+    navigateSheet(()=>renderGeradorPostHTML(recipeId));
+    setTimeout(()=>RP.atualizarPreviewPost(), 50);
+  },
+  setFormatoPost(formato){
+    formatoPostAtual = formato;
+    const stories = document.getElementById("post-formato-stories");
+    const feed = document.getElementById("post-formato-feed");
+    if(stories && feed){
+      stories.style.background = formato==="stories" ? "var(--panel-dark)" : "var(--creme-card)";
+      stories.style.color = formato==="stories" ? "var(--ink-on-dark)" : "var(--chocolate)";
+      feed.style.background = formato==="feed" ? "var(--panel-dark)" : "var(--creme-card)";
+      feed.style.color = formato==="feed" ? "var(--ink-on-dark)" : "var(--chocolate)";
+    }
+    RP.atualizarPreviewPost();
+  },
+  atualizarPreviewPost(){
+    const r = RECIPES.find(x=>x.id===postRecipeIdAtual);
+    const canvas = document.getElementById("post-canvas");
+    if(!r || !canvas) return;
+    const largura = 1080;
+    const altura = formatoPostAtual==="stories" ? 1920 : 1080;
+    canvas.width = largura;
+    canvas.height = altura;
+    // tamanho de exibição responsivo: usa a largura disponível, com um teto
+    // razoável, em vez de um valor fixo em px que fica minúsculo em tela grande
+    canvas.style.width = "100%";
+    canvas.style.maxWidth = formatoPostAtual==="stories" ? "280px" : "340px";
+    canvas.style.height = "auto";
+    canvas.style.aspectRatio = formatoPostAtual==="stories" ? "9/16" : "1/1";
+    canvas.style.display = "block";
+    canvas.style.boxShadow = "0 10px 26px rgba(0,0,0,0.35)";
+    const ctx = canvas.getContext("2d");
+    const preco = document.getElementById("post-preco")?.value || "";
+    const img = new Image();
+    img.onload = () => desenharConteudoPost(ctx, img, largura, altura, r, preco);
+    img.onerror = () => desenharConteudoPost(ctx, null, largura, altura, r, preco);
+    img.src = "images/" + r.id + ".jpg";
+  },
+  baixarPost(){
+    const canvas = document.getElementById("post-canvas");
+    if(!canvas) return;
+    canvas.toBlob(blob=>{
+      if(!blob){ showToast("Não consegui gerar a imagem."); return; }
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "post-recheiopro.jpg";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(()=>URL.revokeObjectURL(url), 2000);
+    }, "image/jpeg", 0.92);
+  },
   abrirRecipeDeVolta(recipeId){
     closeSheet();
   },
@@ -5048,6 +5293,25 @@ window.RP = {
   openClientes(){
     navigateSheet(()=>renderClientesHTML());
   },
+  openHorariosRetirada(){
+    navigateSheet(()=>renderHorariosRetiradaHTML());
+  },
+  async adicionarHorarioRetirada(){
+    negocioConfig.horariosRetirada = negocioConfig.horariosRetirada || [];
+    negocioConfig.horariosRetirada.push({ horario:"", vagas:3 });
+    await saveNegocioConfig();
+    navigateSheet(()=>renderHorariosRetiradaHTML());
+  },
+  async editarHorarioRetirada(i, campo, valor){
+    if(!negocioConfig.horariosRetirada || !negocioConfig.horariosRetirada[i]) return;
+    negocioConfig.horariosRetirada[i][campo] = campo==='vagas' ? (parseInt(valor,10)||1) : valor;
+    await saveNegocioConfig();
+  },
+  async removerHorarioRetirada(i){
+    negocioConfig.horariosRetirada.splice(i,1);
+    await saveNegocioConfig();
+    navigateSheet(()=>renderHorariosRetiradaHTML());
+  },
   abrirClientePorIndice(i){
     const c = clientesRenderizados[i];
     if(!c) return;
@@ -5068,6 +5332,24 @@ window.RP = {
   },
   abrirPedido(id){
     navigateSheet(()=>renderPedidoDetalheHTML(id));
+    setTimeout(()=>RP.atualizarOcupacaoHorario(id), 30);
+  },
+  atualizarOcupacaoHorario(id){
+    const div = document.getElementById("ocupacao-horario");
+    if(!div) return;
+    const horario = document.getElementById("pedido-horario")?.value;
+    const dataEvento = document.getElementById("pedido-data-evento")?.value;
+    if(!horario || !dataEvento){ div.textContent = ""; return; }
+    const config = (negocioConfig.horariosRetirada||[]).find(h=>h.horario===horario);
+    const vagas = config ? config.vagas : null;
+    const ocupadas = pedidosState.filter(p2 =>
+      p2.id!==id && p2.status!=='perdido' && p2.horarioRetirada===horario &&
+      p2.dataEvento && p2.dataEvento.slice(0,10)===dataEvento
+    ).length;
+    if(vagas==null){ div.textContent = ""; return; }
+    div.innerHTML = ocupadas>=vagas
+      ? `⚠️ <b style="color:var(--framboesa);">Esse horário já está lotado</b> (${ocupadas}/${vagas} vagas nesse dia)`
+      : `${ocupadas}/${vagas} vagas já ocupadas nesse horário, nesse dia`;
   },
   async salvarPedido(id){
     const p = pedidosState.find(x=>x.id===id);
