@@ -4077,7 +4077,7 @@ function renderGeradorPostHTML(recipeId){
         <div style="display:flex;justify-content:center;background:var(--creme-card);border-radius:14px;padding:10px;margin-bottom:12px;">
           <canvas id="post-canvas" style="max-width:100%;height:auto;border-radius:10px;"></canvas>
         </div>
-        <button onclick="RP.baixarPost()" style="width:100%;background:var(--framboesa);color:var(--ink-on-dark);padding:13px;border-radius:100px;font-weight:800;font-size:14px;">⬇️ Baixar imagem</button>
+        <button onclick="RP.baixarPost()" style="width:100%;background:var(--framboesa);color:var(--ink-on-dark);padding:13px;border-radius:100px;font-weight:800;font-size:14px;">📲 Compartilhar / Baixar</button>
       </div>
     </div>`;
 }
@@ -5182,8 +5182,25 @@ window.RP = {
   baixarPost(){
     const canvas = document.getElementById("post-canvas");
     if(!canvas) return;
-    canvas.toBlob(blob=>{
+    const r = RECIPES.find(x=>x.id===postRecipeIdAtual);
+    canvas.toBlob(async (blob) => {
       if(!blob){ showToast("Não consegui gerar a imagem."); return; }
+      const arquivo = new File([blob], "post-recheiopro.jpg", { type: "image/jpeg" });
+
+      // no celular, isso abre o menu nativo de compartilhar — que já mostra
+      // o Instagram (Stories/feed/direct) como opção, com a imagem anexada.
+      // É o mais perto que dá de "abrir o Instagram" vindo de um site (o
+      // Instagram não deixa nenhum site abrir ele já publicando sozinho).
+      if(navigator.canShare && navigator.canShare({ files: [arquivo] })){
+        try{
+          await navigator.share({ files: [arquivo], title: r ? r.name : "RecheioPro" });
+          return;
+        }catch(err){
+          if(err && err.name === "AbortError") return; // cancelou de propósito
+          // qualquer outro erro: cai pro download normal abaixo
+        }
+      }
+
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -5192,6 +5209,7 @@ window.RP = {
       a.click();
       a.remove();
       setTimeout(()=>URL.revokeObjectURL(url), 2000);
+      showToast("Imagem baixada! Abra o Instagram e escolha ela na galeria.");
     }, "image/jpeg", 0.92);
   },
   abrirRecipeDeVolta(recipeId){
