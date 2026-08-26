@@ -119,6 +119,13 @@ function fazerPedido(){
 dados = lerDadosDaUrl();
 quantidades = {};
 renderizar();
+
+// registra 1 acesso, sem travar nada se der erro ou não tiver endpoint
+if(dados && dados.endpoint){
+  try{
+    fetch(dados.endpoint + "?cardapio_visita=1", { mode: "no-cors" }).catch(()=>{});
+  }catch(e){}
+}
 </script>
 </body>
 </html>

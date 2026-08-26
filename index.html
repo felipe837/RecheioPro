@@ -1741,7 +1741,7 @@ function tempoAtivoMinutos(tempo){ return tempoMinutos(tempo.split('+')[0]); }
    FRETE POR DISTÂNCIA (OpenCage Geocoding API)
 ========================================================================= */
 let freteConfig = { apikey:"", origem:"", precoKm:"" };
-let negocioConfig = { despesasFixas:"", producaoMensalEstimada:"", nomeLoja:"", whatsappLoja:"", politicaCancelamento:"É necessário sinal de 50% para confirmar o pedido. Em caso de cancelamento com menos de 48h de antecedência, o sinal não será devolvido, já que os ingredientes já foram comprados e o preparo pode já ter sido iniciado.", horariosRetirada:[] };
+let negocioConfig = { despesasFixas:"", producaoMensalEstimada:"", nomeLoja:"", whatsappLoja:"", politicaCancelamento:"É necessário sinal de 50% para confirmar o pedido. Em caso de cancelamento com menos de 48h de antecedência, o sinal não será devolvido, já que os ingredientes já foram comprados e o preparo pode já ter sido iniciado.", horariosRetirada:[], fidelidadeAtiva:false, fidelidadeMeta:"", fidelidadePremio:"" };
 async function loadNegocioConfig(){
   try{ const n = await window.storage.get("recheiopro:negocio-config"); if(n&&n.value) negocioConfig = JSON.parse(n.value); }catch(e){}
 }
@@ -2128,6 +2128,8 @@ function agruparClientes(){
 function renderClientesHTML(){
   const clientes = agruparClientes().sort((a,b)=> b.totalGasto - a.totalGasto);
   clientesRenderizados = clientes;
+  const metaFidelidade = parseFloat(negocioConfig.fidelidadeMeta) || 0;
+  const fidelidadeOk = negocioConfig.fidelidadeAtiva && metaFidelidade > 0;
   return `
     <div class="sheet-overlay"><div class="modal-bg" onclick="RP.closeSheet()"></div>
       <div class="sheet">
@@ -2136,11 +2138,13 @@ function renderClientesHTML(){
             <div class="app-h1" style="margin-bottom:0;">Meus Clientes</div>
             <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);">✕</button>
           </div>
-          <p style="color:var(--chocolate-suave);font-size:12px;margin-bottom:14px;">Ranking de quem mais compra, montado a partir do nome preenchido em cada pedido. Toca num cliente pra ver o histórico completo dele.</p>
+          <p style="color:var(--chocolate-suave);font-size:12px;margin-bottom:10px;">Ranking de quem mais compra, montado a partir do nome preenchido em cada pedido. Toca num cliente pra ver o histórico completo dele.</p>
+          <button onclick="RP.openFidelidadeConfig()" style="width:100%;background:var(--creme-card);color:var(--chocolate);padding:10px;border-radius:100px;font-weight:800;font-size:12px;margin-bottom:14px;">🎁 ${fidelidadeOk?'Editar':'Configurar'} programa de fidelidade</button>
           ${clientes.length===0 ? `
             <div style="text-align:center;padding:30px 0;color:var(--chocolate-suave);font-size:13px;">Nenhum cliente ainda. Assim que você cadastrar pedidos com o nome preenchido, o ranking aparece aqui sozinho.</div>
           ` : clientes.map((c,i)=>{
             const medalha = i===0?'🥇 ':i===1?'🥈 ':i===2?'🥉 ':'';
+            const premiosGanhos = fidelidadeOk ? Math.floor(c.totalGasto/metaFidelidade) : 0;
             return `
             <div class="card" style="margin-bottom:8px;cursor:pointer;" onclick="RP.abrirClientePorIndice(${i})">
               <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
@@ -2148,9 +2152,38 @@ function renderClientesHTML(){
                 <div style="font-weight:800;font-size:13px;color:var(--framboesa);white-space:nowrap;">R$ ${c.totalGasto.toFixed(2)}</div>
               </div>
               <div style="font-size:11px;color:var(--chocolate-suave);margin-top:2px;">${c.totalPedidos} pedido${c.totalPedidos===1?'':'s'} no total${c.pedidosFechados>=2?' · cliente recorrente 💛':''}</div>
+              ${premiosGanhos>0 ? `<div style="font-size:11px;color:var(--dourado);font-weight:700;margin-top:4px;">🎁 Já bateu a meta ${premiosGanhos}x — tem direito a: ${esc(negocioConfig.fidelidadePremio||'prêmio')}</div>` : fidelidadeOk ? `<div style="font-size:10px;color:var(--chocolate-suave);margin-top:4px;">Faltam R$ ${(metaFidelidade - (c.totalGasto % metaFidelidade)).toFixed(2)} pra próxima meta</div>` : ''}
             </div>`;
           }).join('')}
         </div>
+      </div>
+    </div>`;
+}
+
+/* =========================================================================
+   PROGRAMA DE FIDELIDADE — a cada X reais gastos, o cliente ganha um prêmio
+========================================================================= */
+function renderFidelidadeConfigHTML(){
+  return `
+    <div class="sheet-overlay"><div class="modal-bg" onclick="RP.closeSheet()"></div>
+      <div class="sheet" style="padding:24px 20px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <div class="app-h1" style="margin-bottom:0;">🎁 Programa de fidelidade</div>
+          <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);">✕</button>
+        </div>
+        <p style="color:var(--chocolate-suave);font-size:12px;margin-bottom:14px;">A cada X reais que um cliente gastar (somando os pedidos confirmados/entregues), ele ganha direito a um prêmio. Isso é só um contador — quem entrega o prêmio de verdade é você.</p>
+
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;margin-bottom:14px;">
+          <input type="checkbox" id="fidelidade-ativa" ${negocioConfig.fidelidadeAtiva?'checked':''}> Ativar programa de fidelidade
+        </label>
+
+        <div style="font-size:12px;font-weight:700;margin-bottom:6px;">A cada quantos reais gastos?</div>
+        <input class="field" id="fidelidade-meta" type="number" step="0.01" placeholder="Ex: 150" value="${esc(negocioConfig.fidelidadeMeta||'')}" style="margin-bottom:14px;">
+
+        <div style="font-size:12px;font-weight:700;margin-bottom:6px;">Qual o prêmio?</div>
+        <input class="field" id="fidelidade-premio" placeholder="Ex: Um brigadeiro grátis" value="${esc(negocioConfig.fidelidadePremio||'')}" style="margin-bottom:16px;">
+
+        <button onclick="RP.salvarFidelidadeConfig()" style="width:100%;background:var(--framboesa);color:var(--ink-on-dark);padding:13px;border-radius:100px;font-weight:800;font-size:14px;">Salvar</button>
       </div>
     </div>`;
 }
@@ -2366,6 +2399,22 @@ async function loadEstoque(){
 async function saveEstoque(){ try{ await window.storage.set("recheiopro:estoque", JSON.stringify(estoqueState)); }catch(e){} }
 
 function totalEmEstoque(item){ return (item.lotes||[]).reduce((a,l)=>a+parseFloat(l.quantidade||0),0); }
+
+// Quanto desse ingrediente já está "prometido" em pedidos confirmados (ainda
+// não entregues) que estão vinculados a uma receita salva com quantidade
+// definida. Isso é o que diferencia "estoque total" de "estoque livre".
+function estoqueReservado(nomeIngrediente){
+  let total = 0;
+  pedidosState.filter(p=>p.status==='confirmado' && p.receitaVinculadaId).forEach(p=>{
+    const receita = minhasReceitasState.find(r=>r.id===p.receitaVinculadaId);
+    if(!receita) return;
+    receita.itens.filter(it=>!it.subReceitaId && it.nome.trim().toLowerCase()===nomeIngrediente.trim().toLowerCase()).forEach(it=>{
+      const info = parseLeadingNumber(it.qtd||"");
+      if(info) total += info.value;
+    });
+  });
+  return total;
+}
 function lotesOrdenadosFIFO(item){
   return [...(item.lotes||[])].sort((a,b)=>{
     if(!a.validade) return 1;
@@ -2417,10 +2466,10 @@ function renderEstoqueHTML(){
 
           ${alertas.length>0 ? `
           <div style="font-weight:800;font-size:12.5px;margin-bottom:8px;">⚠️ Precisa de atenção</div>
-          ${alertas.map(it=>{ const st=statusEstoqueItem(it); return `
+          ${alertas.map(it=>{ const st=statusEstoqueItem(it); const total=totalEmEstoque(it); const reservado=estoqueReservado(it.ingrediente); const livre=Math.max(0,total-reservado); return `
             <div class="card" style="border-left:4px solid ${st.cor};margin-bottom:8px;">
               <div style="font-weight:800;font-size:12.5px;">${esc(it.ingrediente)}</div>
-              <div style="font-size:11px;color:var(--chocolate-suave);">${st.texto} · ${totalEmEstoque(it).toFixed(1)} ${esc(it.unidade)} em estoque</div>
+              <div style="font-size:11px;color:var(--chocolate-suave);">${st.texto} · ${total.toFixed(1)} ${esc(it.unidade)} em estoque${reservado>0?` · <b style="color:var(--framboesa);">${livre.toFixed(1)} livre</b> (${reservado.toFixed(1)} já prometido)`:''}</div>
             </div>`;}).join('')}
           ` : ''}
 
@@ -2431,13 +2480,16 @@ function renderEstoqueHTML(){
           ${ordenado.length===0 ? `<div style="text-align:center;color:var(--chocolate-suave);font-size:13px;padding:20px 0;">Nenhum ingrediente no estoque ainda.</div>` : ''}
           ${ordenado.map(it=>{
             const st = statusEstoqueItem(it);
+            const total = totalEmEstoque(it);
+            const reservado = estoqueReservado(it.ingrediente);
+            const livre = Math.max(0, total-reservado);
             return `
             <div class="card" style="margin-bottom:8px;cursor:pointer;" onclick="RP.abrirItemEstoque('${it.id}')">
               <div style="display:flex;justify-content:space-between;align-items:center;">
                 <div style="font-weight:800;font-size:12.5px;">${esc(it.ingrediente)}</div>
                 <span style="font-size:10px;font-weight:800;color:${st.cor};">● ${st.texto}</span>
               </div>
-              <div style="font-size:11.5px;color:var(--chocolate-suave);margin-top:2px;">${totalEmEstoque(it).toFixed(1)} ${esc(it.unidade)} · ${(it.lotes||[]).length} lote${(it.lotes||[]).length===1?'':'s'}</div>
+              <div style="font-size:11.5px;color:var(--chocolate-suave);margin-top:2px;">${total.toFixed(1)} ${esc(it.unidade)} · ${(it.lotes||[]).length} lote${(it.lotes||[]).length===1?'':'s'}${reservado>0?` · <b style="color:var(--framboesa);">${livre.toFixed(1)} livre</b> (${reservado.toFixed(1)} prometido)`:''}</div>
             </div>`;
           }).join('')}
         </div>
@@ -3304,6 +3356,16 @@ function renderResumoMensalHTML(){
                 </div>
                 <div class="progress-track"><div class="progress-fill" style="width:${(valor/maiorCanal)*100}%;"></div></div>
               </div>`).join('')}
+          </div>
+
+          <div class="card" style="margin-bottom:10px;">
+            <div style="font-weight:800;font-size:12.5px;margin-bottom:6px;">💛 Satisfação dos clientes (esse mês)</div>
+            <div id="resumo-satisfacao-resultado" style="font-size:11.5px;color:var(--chocolate-suave);">Carregando...</div>
+          </div>
+
+          <div class="card" style="margin-bottom:10px;">
+            <div style="font-weight:800;font-size:12.5px;margin-bottom:6px;">📊 Acessos ao cardápio (esse mês)</div>
+            <div id="resumo-cardapio-acessos-resultado" style="font-size:11.5px;color:var(--chocolate-suave);">Carregando...</div>
           </div>
 
           <div style="font-size:11px;color:var(--chocolate-suave);margin-bottom:16px;line-height:1.5;">💡 Isso é uma <b>estimativa</b> baseada só nos orçamentos que você gerou aqui no app — não confirma se a venda realmente aconteceu, e não substitui seu controle financeiro de verdade.</div>
@@ -5477,6 +5539,17 @@ window.RP = {
   openClientes(){
     navigateSheet(()=>renderClientesHTML());
   },
+  openFidelidadeConfig(){
+    navigateSheet(()=>renderFidelidadeConfigHTML());
+  },
+  async salvarFidelidadeConfig(){
+    negocioConfig.fidelidadeAtiva = document.getElementById("fidelidade-ativa").checked;
+    negocioConfig.fidelidadeMeta = document.getElementById("fidelidade-meta").value.trim();
+    negocioConfig.fidelidadePremio = document.getElementById("fidelidade-premio").value.trim();
+    await saveNegocioConfig();
+    showToast("Programa de fidelidade salvo!");
+    RP.openClientes();
+  },
   openHorariosRetirada(){
     navigateSheet(()=>renderHorariosRetiradaHTML());
   },
@@ -5679,7 +5752,20 @@ Confeiteira(o)                              Cliente`;
   async pesquisaSatisfacaoWhatsapp(id){
     const p = pedidosState.find(x=>x.id===id);
     if(!p) return;
-    const texto = `Oi ${p.cliente}! Tudo bem? Passando aqui pra saber se ficou tudo gostoso com o(a) ${p.produto} 🥰 Adoraria saber sua opinião — e se puder, me manda uma fotinho de como ficou o momento!`;
+    let linkAvaliacao = "";
+    try{
+      if(VALIDATION_ENDPOINT){
+        const res = await fetch(VALIDATION_ENDPOINT + "?action=criar_avaliacao", {
+          method: "POST",
+          body: JSON.stringify({}),
+        });
+        const data = await res.json();
+        if(data && data.id){
+          linkAvaliacao = VALIDATION_ENDPOINT + "?avaliacao=" + data.id;
+        }
+      }
+    }catch(e){}
+    const texto = `Oi ${p.cliente}! Tudo bem? Passando aqui pra saber se ficou tudo gostoso com o(a) ${p.produto} 🥰 Adoraria saber sua opinião — e se puder, me manda uma fotinho de como ficou o momento!` + (linkAvaliacao ? `\n\nSe puder, avalia rapidinho aqui (leva 5 segundos): ${linkAvaliacao}` : ``);
     window.open("https://wa.me/?text="+encodeURIComponent(texto), "_blank");
     p.pesquisaEnviada = true;
     await savePedidos();
@@ -6136,6 +6222,34 @@ Confeiteira(o)                              Cliente`;
   },
   openResumoMensal(){
     navigateSheet(()=>renderResumoMensalHTML());
+    setTimeout(()=>RP.carregarMetricasResumoMensal(), 50);
+  },
+  async carregarMetricasResumoMensal(){
+    const satisfacaoEl = document.getElementById("resumo-satisfacao-resultado");
+    const acessosEl = document.getElementById("resumo-cardapio-acessos-resultado");
+    if(!VALIDATION_ENDPOINT){
+      if(satisfacaoEl) satisfacaoEl.textContent = "Indisponível no momento.";
+      if(acessosEl) acessosEl.textContent = "Indisponível no momento.";
+      return;
+    }
+    if(satisfacaoEl){
+      try{
+        const res = await fetch(VALIDATION_ENDPOINT + "?satisfacao_media=1");
+        const data = await res.json();
+        satisfacaoEl.innerHTML = (data && data.media != null)
+          ? `Nota média: <b style="color:var(--framboesa);font-size:14px;">${data.media.toFixed(1)}/10</b> (${data.quantidade} avaliaç${data.quantidade===1?'ão':'ões'})`
+          : `Nenhuma avaliação recebida ainda esse mês. Mande a pesquisa de satisfação nos pedidos entregues pra começar a ver isso aqui.`;
+      }catch(e){ satisfacaoEl.textContent = "Não consegui buscar agora."; }
+    }
+    if(acessosEl){
+      try{
+        const res = await fetch(VALIDATION_ENDPOINT + "?cardapio_acessos=1");
+        const data = await res.json();
+        acessosEl.innerHTML = (data && data.total != null)
+          ? `<b style="color:var(--framboesa);font-size:14px;">${data.total}</b> acesso${data.total===1?'':'s'} ao seu cardápio esse mês`
+          : `Ainda sem dados de acesso.`;
+      }catch(e){ acessosEl.textContent = "Não consegui buscar agora."; }
+    }
   },
   openFreteConfig(){
     navigateSheet(()=>renderFreteConfigHTML());
@@ -6223,6 +6337,7 @@ Confeiteira(o)                              Cliente`;
       subtitulo: "Escolha os itens e monte seu pedido",
       whatsapp: whatsapp.replace(/\D/g,""),
       itens: selecionados.map(it=>({ nome: it.nome, preco: it.preco, foto: it.foto||"" })),
+      endpoint: VALIDATION_ENDPOINT || "",
     };
     const json = JSON.stringify(dados);
     const codificado = btoa(unescape(encodeURIComponent(json)));
