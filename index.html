@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>RecheioPro. O app completo pra sua confeitaria</title>
 <link rel="icon" type="image/png" href="favicon.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#3B2417">
+<link rel="apple-touch-icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,500;1,9..144,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -453,6 +456,7 @@
       <a href="#faq" style="color:var(--chocolate-suave);font-weight:600;font-size:13.5px;text-decoration:none;">Dúvidas</a>
     </div>
     <div class="nav-right">
+      <button id="btn-instalar-pwa" onclick="RP.instalarPWA()" style="display:none;align-items:center;gap:6px;background:var(--framboesa);color:var(--ink-on-dark);padding:9px 16px;border-radius:100px;font-weight:800;font-size:12.5px;border:none;">⬇️ Instalar app</button>
       <button class="nav-key" onclick="RP.openAparencia()" title="Aparência" style="font-size:16px;line-height:1;">🌓</button>
       <button class="nav-key" onclick="RP.openKeyModal()">Já comprei · Entrar</button>
       <a href="#planos" class="nav-cta">Ver planos</a>
@@ -1735,6 +1739,46 @@ async function saveFavs(){ try{ await window.storage.set("recheiopro:favorites",
    HELPERS
 ========================================================================= */
 function esc(s){ return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+
+// Interpreta o texto falado (ex: "pedido pra Maria bolo de chocolate 80 reais")
+// e tenta separar cliente, produto e valor. Não é perfeito — é reconhecimento
+// de voz mesmo, sempre vale conferir antes de salvar de verdade.
+const PALAVRAS_INICIO_PRODUTO = ["bolo","bolinho","torta","brigadeiro","docinho","doce","doces","brownie","cookie","cookies","biscoito","cupcake","coxinha","empada","empadinha","salgado","salgados","pão","paozinho","tortinha","cheesecake","pudim","mousse","trufa","trufas","bombom","bombons","kit","cento","palha","paçoca","beijinho","pavê","recheio","cobertura"];
+
+function parseTextoPedidoPorVoz(textoOriginal){
+  let t = " " + textoOriginal.trim().toLowerCase() + " ";
+  let valor = "";
+
+  const mReais = t.match(/(\d+(?:[.,]\d{1,2})?)\s*reais?/i);
+  const mRS = t.match(/r\$\s*(\d+(?:[.,]\d{1,2})?)/i);
+  if(mReais){ valor = mReais[1].replace(",", "."); t = t.replace(mReais[0], " "); }
+  else if(mRS){ valor = mRS[1].replace(",", "."); t = t.replace(mRS[0], " "); }
+
+  let cliente = "";
+  const mPra = t.match(/\b(?:pra|para|pro|cliente)\s+(.+)$/i);
+  if(mPra){
+    const palavras = mPra[1].trim().split(/\s+/);
+    const nomeParts = [];
+    for(const p of palavras){
+      if(nomeParts.length >= 2 || PALAVRAS_INICIO_PRODUTO.includes(p)) break;
+      nomeParts.push(p);
+    }
+    if(nomeParts.length > 0){
+      cliente = nomeParts.join(" ");
+      const regexRemover = new RegExp("\\b(?:pra|para|pro|cliente)\\s+" + nomeParts.join("\\s+"), "i");
+      t = t.replace(regexRemover, " ");
+    }
+  }
+
+  t = t.replace(/^\s*pedido\s+/i, " ").replace(/\s+/g, " ").trim();
+
+  const capitalizar = s => s.split(" ").filter(Boolean).map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(" ");
+  return {
+    cliente: capitalizar(cliente.trim()),
+    produto: capitalizar(t.trim()),
+    valor,
+  };
+}
 function isUnlocked(r){ return state.plan === "pro" || (state.plan === "essencial" && r.essencial); }
 function catSlug(cat){ return String(cat).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
 const NOVIDADES_A_PARTIR_DE = 101; // último lote de receitas adicionado
@@ -2338,7 +2382,10 @@ function renderPedidosHTML(){
 
           <div style="display:flex;justify-content:space-between;align-items:center;margin:16px 0 8px;">
             <div style="font-weight:800;font-size:12.5px;">Todos os pedidos</div>
-            <button onclick="RP.novoPedido()" style="color:var(--framboesa);font-weight:800;font-size:12px;">＋ Novo</button>
+            <div style="display:flex;gap:12px;">
+              <button onclick="RP.iniciarPedidoPorVoz()" style="color:var(--framboesa);font-weight:800;font-size:12px;">🎤 Por voz</button>
+              <button onclick="RP.novoPedido()" style="color:var(--framboesa);font-weight:800;font-size:12px;">＋ Novo</button>
+            </div>
           </div>
           <div class="search-pill" style="margin-bottom:10px;">
             <span>🔍</span>
@@ -3675,7 +3722,7 @@ function renderReceitas(){
   return `
     <div class="app-px">
       <div class="app-h1">Receitas</div>
-      <div class="search-pill"><span>🔍</span><input data-key="q-receitas" placeholder="Buscar por nome ou ingrediente..." value="${esc(state.query)}" oninput="RP.setQuery(this)"></div>
+      <div class="search-pill"><span><svg class="icon-ui-sm"><use href="#ui-search"/></svg></span><input data-key="q-receitas" placeholder="Buscar por nome ou ingrediente..." value="${esc(state.query)}" oninput="RP.setQuery(this)"><button onclick="RP.buscarReceitaPorVoz()" style="background:none;border:none;font-size:16px;padding:0 4px;flex-shrink:0;" title="Buscar por voz">🎤</button></div>
       <div class="chip-row">
         <button class="chip ${!state.category?'active':''}" onclick="RP.setCategory(null)">Todas</button>
         ${CATEGORIES.map(c=>`<button class="chip ${state.category===c?'active':''}" onclick="RP.setCategory('${esc(c)}')">${esc(c)}</button>`).join('')}
@@ -5256,6 +5303,25 @@ window.RP = {
     const results = document.getElementById("receitas-results");
     if(results){ results.innerHTML = receitasFiltradasHTML(); }
   },
+  buscarReceitaPorVoz(){
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if(!SpeechRecognition){
+      showToast("Seu navegador não suporta busca por voz — tenta pelo Chrome.");
+      return;
+    }
+    const rec = new SpeechRecognition();
+    rec.lang = "pt-BR";
+    rec.interimResults = false;
+    rec.maxAlternatives = 1;
+    showToast("🎤 Fala o nome da receita ou ingrediente...");
+    rec.onresult = (event) => {
+      const texto = event.results[0][0].transcript;
+      state.query = texto;
+      renderApp();
+    };
+    rec.onerror = () => { showToast("Não consegui te ouvir. Tenta de novo."); };
+    try{ rec.start(); }catch(e){ showToast("Não consegui acessar o microfone."); }
+  },
   setCategory(c){ state.category = c; renderApp(); },
   setTempoFiltro(k){ state.tempoFiltro = k; renderApp(); },
   openRecipe(id){ const r = RECIPES.find(x=>x.id===id); sheetNavStack = []; navigateSheet(()=>openRecipeSheet(r)); },
@@ -5721,6 +5787,37 @@ window.RP = {
     pedidosState.push(novo);
     await savePedidos();
     navigateSheet(()=>renderPedidoDetalheHTML(novo.id));
+  },
+  iniciarPedidoPorVoz(){
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if(!SpeechRecognition){
+      showToast("Seu navegador não suporta ditado por voz — tenta pelo Chrome no celular ou computador.");
+      return;
+    }
+    const rec = new SpeechRecognition();
+    rec.lang = "pt-BR";
+    rec.interimResults = false;
+    rec.maxAlternatives = 1;
+
+    showToast("🎤 Ouvindo... fala o pedido (ex: \"pedido pra Maria, bolo de chocolate, 80 reais\")");
+
+    rec.onresult = async (event) => {
+      const texto = event.results[0][0].transcript;
+      const dados = parseTextoPedidoPorVoz(texto);
+      const novo = {
+        id: "p"+Date.now(), cliente: dados.cliente||"", produto: dados.produto||"", valor: dados.valor||"",
+        status: "orcamento_enviado", dataPedido: new Date().toISOString(), dataEvento: null,
+        recorrente: false, referencias: [], observacoes: "", origem: "",
+      };
+      pedidosState.push(novo);
+      await savePedidos();
+      showToast(`Entendi: ${novo.cliente||'(sem nome)'} · ${novo.produto||'(sem produto)'}${novo.valor?' · R$ '+novo.valor:''}. Confere e ajusta!`);
+      navigateSheet(()=>renderPedidoDetalheHTML(novo.id));
+    };
+    rec.onerror = () => {
+      showToast("Não consegui entender direito. Tenta de novo, ou preenche na mão.");
+    };
+    try{ rec.start(); }catch(e){ showToast("Não consegui acessar o microfone."); }
   },
   abrirPedido(id){
     navigateSheet(()=>renderPedidoDetalheHTML(id));
@@ -6426,6 +6523,15 @@ Confeiteira(o)                              Cliente`;
   },
   openAparencia(){
     navigateSheet(()=>renderAparenciaSheetHTML());
+  },
+  async instalarPWA(){
+    const prompt = window.__promptInstalarPWA;
+    if(!prompt){ showToast("Seu navegador não oferece instalação direta — procure 'Adicionar à tela inicial' no menu."); return; }
+    prompt.prompt();
+    await prompt.userChoice;
+    window.__promptInstalarPWA = null;
+    const btn = document.getElementById("btn-instalar-pwa");
+    if(btn) btn.style.display = "none";
   },
   async setTheme(theme){
     state.theme = theme;
@@ -7197,8 +7303,28 @@ Confeiteira(o)                              Cliente`;
       .catch(()=>{}); // falhou a busca? não mostra nada. Sem fallback inventado
   })();
 
-  // se já tinha plano salvo (chave usada antes), entra direto na área liberada
-  if(state.plan){ RP.enterApp(); }
+  // registra o service worker, pra funcionar instalado e offline (PWA)
+  if("serviceWorker" in navigator){
+    window.addEventListener("load", ()=>{
+      navigator.serviceWorker.register("sw.js").catch(()=>{});
+    });
+  }
+
+  // guarda o evento de instalação do navegador, pra mostrar nosso próprio
+  // botão "Instalar app" (em vez de depender só do menu escondido do navegador)
+  window.addEventListener("beforeinstallprompt", (e)=>{
+    e.preventDefault();
+    window.__promptInstalarPWA = e;
+    const btn = document.getElementById("btn-instalar-pwa");
+    if(btn) btn.style.display = "inline-flex";
+  });
+
+  // se já tinha plano salvo (chave usada antes), entra direto na área liberada.
+  // Exceção: se o link tiver "?site" no final, mostra a página de vendas mesmo
+  // assim, sem mexer na chave salva — útil pra conferir o site sem precisar
+  // sair da conta ou limpar dados salvos.
+  const verSiteMesmoLogado = new URLSearchParams(location.search).has("site");
+  if(state.plan && !verSiteMesmoLogado){ RP.enterApp(); }
 })();
 </script>
 </body>
