@@ -1835,6 +1835,7 @@ const PEDIDO_STATUS = [
   ["entregue","Entregue","var(--chocolate-suave)"],
   ["perdido","Não fechou","var(--framboesa)"],
 ];
+const CANAIS_VENDA = ["Balcão","WhatsApp","Cardápio Interativo","Indicação","Redes sociais","Outro"];
 function statusInfo(key){ return PEDIDO_STATUS.find(s=>s[0]===key) || PEDIDO_STATUS[0]; }
 function diasDesde(dataISO){ return Math.floor((new Date() - new Date(dataISO)) / (1000*60*60*24)); }
 
@@ -2305,6 +2306,12 @@ function renderPedidoDetalheHTML(id){
             <input type="checkbox" id="pedido-recorrente" ${p.recorrente?'checked':''}> Repete todo ano (aniversário/mesversário)
           </label>
 
+          <div style="font-size:12px;font-weight:700;margin-bottom:6px;">Canal de venda (opcional)</div>
+          <select id="pedido-origem" class="field" style="margin-bottom:14px;">
+            <option value="">Não informado</option>
+            ${CANAIS_VENDA.map(c=>`<option value="${c}" ${p.origem===c?'selected':''}>${c}</option>`).join('')}
+          </select>
+
           <div style="font-size:12px;font-weight:700;margin-bottom:6px;">Horário limite de retirada (opcional)</div>
           ${(negocioConfig.horariosRetirada && negocioConfig.horariosRetirada.length>0) ? `
           <select id="pedido-horario" class="field" style="margin-bottom:6px;" onchange="RP.atualizarOcupacaoHorario('${p.id}')">
@@ -2603,6 +2610,7 @@ function renderMinhasReceitasHTML(){
               <div style="font-size:11.5px;color:var(--chocolate-suave);margin-top:4px;">Custo total: <b style="color:var(--chocolate);">R$ ${c.total.toFixed(2)}</b> · por unidade: <b style="color:var(--framboesa);">R$ ${c.porUnidade.toFixed(2)}</b></div>
               ${margemAtual != null ? `<div style="font-size:11px;margin-top:2px;color:${risco?'var(--framboesa)':'#7A9E6E'};font-weight:700;">${risco?'⚠️':'✓'} Margem atual: ${margemAtual.toFixed(1)}% ${receita.margemMinima?`(mínima definida: ${receita.margemMinima}%)`:''}</div>` : ''}
               ${c.itensSemPreco>0 ? `<div style="font-size:10px;color:var(--dourado);margin-top:2px;">⚠️ ${c.itensSemPreco} ingrediente(s) não está mais no seu banco de insumos — usando o último preço salvo.</div>` : ''}
+              <input class="field" placeholder="Link de foto (opcional, pro cardápio)" value="${esc(receita.fotoUrl||'')}" onchange="RP.setFotoReceitaSalva('${receita.id}',this.value)" style="margin-top:8px;font-size:11.5px;padding:8px 10px;">
             </div>`;
           }).join('')}
         </div>
@@ -2622,10 +2630,15 @@ async function saveKits(){ try{ await window.storage.set("recheiopro:kits", JSON
 function calcularKit(kit){
   let custoTotal = 0;
   kit.itens.forEach(it=>{
-    const receita = minhasReceitasState.find(r=>r.id===it.receitaId);
-    if(!receita) return;
-    const c = custoAtualReceitaSalva(receita);
-    custoTotal += c.total * (parseInt(it.quantidade)||1);
+    if(it.receitaId){
+      const receita = minhasReceitasState.find(r=>r.id===it.receitaId);
+      if(!receita) return;
+      const c = custoAtualReceitaSalva(receita);
+      custoTotal += c.total * (parseInt(it.quantidade)||1);
+    } else {
+      // item avulso (decoração, descartável etc), sem receita vinculada
+      custoTotal += (parseFloat(it.custoUnitario)||0) * (parseInt(it.quantidade)||1);
+    }
   });
   const margem = parseFloat(kit.margem)||0;
   const desconto = parseFloat(kit.desconto)||0;
@@ -2643,7 +2656,28 @@ function renderKitsHTML(){
             <div class="app-h1" style="margin-bottom:0;">Kits Festa</div>
             <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);">✕</button>
           </div>
-          <p style="color:var(--chocolate-suave);font-size:12px;margin-bottom:14px;">Combine receitas salvas num pacote fechado, com desconto de combo se quiser.</p>
+          <p style="color:var(--chocolate-suave);font-size:12px;margin-bottom:14px;">Combine receitas salvas (e itens avulsos como decoração e descartáveis) num pacote fechado, com desconto de combo se quiser.</p>
+
+          <div class="card" style="margin-bottom:14px;background:var(--creme-card);">
+            <div style="font-weight:800;font-size:12.5px;margin-bottom:8px;">💡 Ideias pra incrementar suas vendas</div>
+            <div style="font-size:11px;color:var(--chocolate-suave);margin-bottom:6px;font-weight:700;">Itens avulsos que costumam vender bem junto:</div>
+            <div style="font-size:11.5px;line-height:1.8;margin-bottom:10px;">
+              🕯️ Vela numeral personalizada<br>
+              🏷️ Topo de bolo com o tema da festa<br>
+              🎀 Fita/laço decorativo na embalagem<br>
+              📦 Embalagem individual pra viagem<br>
+              🥤 Taça de doce personalizada<br>
+              💌 Cartão/etiqueta com mensagem
+            </div>
+            <div style="font-size:11px;color:var(--chocolate-suave);margin-bottom:6px;font-weight:700;">Combos que costumam sair bem em kit:</div>
+            <div style="font-size:11.5px;line-height:1.8;">
+              🎂 Kit Mesversário (bolo + docinhos + vela)<br>
+              👶 Kit Chá de bebê (mini docinhos + água aromatizada)<br>
+              💍 Kit Casamento (mini bem-casados + bolo do noivo)<br>
+              🏢 Kit Corporativo (docinhos individuais embalados)<br>
+              🎓 Kit Formatura (bolo + brigadeiros personalizados)
+            </div>
+          </div>
           ${minhasReceitasState.length===0 ? `<div class="card" style="text-align:center;"><div style="font-size:12.5px;color:var(--chocolate-suave);">Você precisa ter pelo menos uma receita em "Minhas Receitas Salvas" antes de montar um kit.</div></div>` : `
           <button onclick="RP.novoKit()" style="width:100%;background:var(--framboesa);color:var(--ink-on-dark);padding:12px;border-radius:100px;font-weight:800;font-size:13px;margin-bottom:14px;">＋ Novo Kit</button>`}
           ${kitsState.map(kit=>{
@@ -2673,24 +2707,42 @@ function renderKitDetalheHTML(kitId){
           </div>
 
           <div style="font-size:12px;font-weight:700;margin-bottom:6px;">Nome do kit</div>
-          <input class="field" id="kit-nome" value="${esc(kit.nome)}" style="margin-bottom:14px;">
+          <input class="field" id="kit-nome" value="${esc(kit.nome)}" style="margin-bottom:10px;">
+
+          <div style="font-size:12px;font-weight:700;margin-bottom:6px;">Link de foto (opcional, pro cardápio)</div>
+          <input class="field" id="kit-foto-url" type="url" value="${esc(kit.fotoUrl||'')}" placeholder="Cola aqui o link de uma foto do kit" onchange="RP.setFotoKit('${kit.id}',this.value)" style="margin-bottom:14px;">
 
           <div style="font-weight:800;font-size:12.5px;margin-bottom:8px;">Itens do kit</div>
           ${kit.itens.map((it,i)=>{
-            const receita = minhasReceitasState.find(r=>r.id===it.receitaId);
+            if(it.receitaId){
+              const receita = minhasReceitasState.find(r=>r.id===it.receitaId);
+              return `
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+                <div style="flex:1;font-size:12.5px;font-weight:700;">${receita?esc(receita.nome):'(receita removida)'}</div>
+                <input class="field" type="number" value="${it.quantidade}" onchange="RP.setQtdItemKit('${kit.id}',${i},this.value)" style="width:60px;">
+                <button onclick="RP.removerItemKit('${kit.id}',${i})" style="color:var(--chocolate-suave);">🗑️</button>
+              </div>`;
+            }
             return `
             <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-              <div style="flex:1;font-size:12.5px;font-weight:700;">${receita?esc(receita.nome):'(receita removida)'}</div>
+              <div style="flex:1;font-size:12.5px;font-weight:700;">🎈 ${esc(it.nome)} <span style="color:var(--chocolate-suave);font-weight:500;font-size:10.5px;">(avulso · R$ ${(parseFloat(it.custoUnitario)||0).toFixed(2)} cada)</span></div>
               <input class="field" type="number" value="${it.quantidade}" onchange="RP.setQtdItemKit('${kit.id}',${i},this.value)" style="width:60px;">
               <button onclick="RP.removerItemKit('${kit.id}',${i})" style="color:var(--chocolate-suave);">🗑️</button>
             </div>`;
           }).join('')}
 
-          <div style="display:flex;gap:6px;margin-bottom:14px;">
+          <div style="display:flex;gap:6px;margin-bottom:10px;">
             <select id="kit-add-receita" class="field" style="flex:1;">
               ${minhasReceitasState.map(r=>`<option value="${r.id}">${esc(r.nome)}</option>`).join('')}
             </select>
             <button onclick="RP.adicionarItemKit('${kit.id}')" style="background:var(--creme-card);padding:0 16px;border-radius:10px;font-weight:800;font-size:12px;">＋</button>
+          </div>
+
+          <div style="font-size:11px;color:var(--chocolate-suave);margin-bottom:6px;">Ou adicione algo avulso — decoração, descartável, vela, topo de bolo, etc:</div>
+          <div style="display:flex;gap:6px;margin-bottom:14px;">
+            <input class="field" id="kit-extra-nome" placeholder="Nome (ex: Vela número)" style="flex:2;">
+            <input class="field" id="kit-extra-custo" type="number" step="0.01" placeholder="Custo un." style="flex:1;">
+            <button onclick="RP.adicionarItemExtraKit('${kit.id}')" style="background:var(--creme-card);padding:0 16px;border-radius:10px;font-weight:800;font-size:12px;">＋</button>
           </div>
 
           <div style="display:flex;gap:8px;margin-bottom:14px;">
@@ -2851,8 +2903,8 @@ function renderEquipamentosHTML(){
    sem precisar de servidor: os dados viajam codificados dentro do link.
 ========================================================================= */
 function itensDisponiveisParaCardapio(){
-  const deReceitas = minhasReceitasState.filter(r=>parseFloat(r.precoVenda)>0).map(r=>({ nome: r.nome, preco: parseFloat(r.precoVenda), origem:"receita" }));
-  const deKits = kitsState.map(k=>({ nome: k.nome, preco: calcularKit(k).precoFinal, origem:"kit" }));
+  const deReceitas = minhasReceitasState.filter(r=>parseFloat(r.precoVenda)>0).map(r=>({ nome: r.nome, preco: parseFloat(r.precoVenda), origem:"receita", foto: r.fotoUrl||"" }));
+  const deKits = kitsState.map(k=>({ nome: k.nome, preco: calcularKit(k).precoFinal, origem:"kit", foto: k.fotoUrl||"" }));
   return [...deReceitas, ...deKits];
 }
 function renderCardapioInterativoHTML(){
@@ -2878,7 +2930,7 @@ function renderCardapioInterativoHTML(){
             ${disponiveis.map((it,i)=>`
               <label style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--creme-linha);font-size:13px;">
                 <input type="checkbox" class="cardapio-item-check" data-idx="${i}" checked>
-                <span style="flex:1;font-weight:700;">${esc(it.nome)} ${it.origem==='kit'?'<span style="color:var(--framboesa);font-size:10px;">(kit)</span>':''}</span>
+                <span style="flex:1;font-weight:700;">${esc(it.nome)} ${it.origem==='kit'?'<span style="color:var(--framboesa);font-size:10px;">(kit)</span>':''} ${it.foto?'<span title="Tem foto">📷</span>':''}</span>
                 <span style="color:var(--chocolate-suave);">R$ ${it.preco.toFixed(2)}</span>
               </label>`).join('')}
           </div>
@@ -2900,6 +2952,52 @@ async function loadLivroCaixa(){
   try{ const l = await window.storage.get("recheiopro:livro-caixa"); if(l&&l.value) livroCaixaState = JSON.parse(l.value); }catch(e){}
 }
 async function saveLivroCaixa(){ try{ await window.storage.set("recheiopro:livro-caixa", JSON.stringify(livroCaixaState)); }catch(e){} }
+
+/* =========================================================================
+   VENDA NO BALCÃO — registro rápido de venda avulsa (não é encomenda),
+   lança sozinho no Livro Caixa e no faturamento do Resumo Mensal
+========================================================================= */
+function renderVendaBalcaoHTML(){
+  const receitasComPreco = minhasReceitasState.filter(r=>parseFloat(r.precoVenda)>0);
+  return `
+    <div class="sheet-overlay"><div class="modal-bg" onclick="RP.closeSheet()"></div>
+      <div class="sheet" style="padding:24px 20px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <div class="app-h1" style="margin-bottom:0;">💰 Venda no balcão</div>
+          <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);">✕</button>
+        </div>
+        <p style="color:var(--chocolate-suave);font-size:12px;margin-bottom:14px;">Pra vendas na hora (balcão, feira), sem ser encomenda — lança sozinho no Livro Caixa e no faturamento.</p>
+
+        <div style="font-size:12px;font-weight:700;margin-bottom:6px;">Produto</div>
+        <select id="venda-produto" class="field" style="margin-bottom:10px;" onchange="RP.atualizarVendaBalcao()">
+          <option value="">Outro (digitar manualmente)</option>
+          ${receitasComPreco.map(r=>`<option value="${r.id}">${esc(r.nome)} — R$ ${parseFloat(r.precoVenda).toFixed(2)}</option>`).join('')}
+        </select>
+
+        <div id="venda-manual-campos" style="display:none;">
+          <input class="field" id="venda-nome-manual" placeholder="Nome do produto" style="margin-bottom:10px;" oninput="RP.atualizarVendaBalcao()">
+          <input class="field" id="venda-preco-manual" type="number" step="0.01" placeholder="Preço unitário (R$)" style="margin-bottom:10px;" oninput="RP.atualizarVendaBalcao()">
+        </div>
+
+        <div style="font-size:12px;font-weight:700;margin-bottom:6px;">Quantidade</div>
+        <input class="field" id="venda-quantidade" type="number" min="1" value="1" style="margin-bottom:10px;" oninput="RP.atualizarVendaBalcao()">
+
+        <div style="font-size:12px;font-weight:700;margin-bottom:6px;">Forma de pagamento</div>
+        <select id="venda-pagamento" class="field" style="margin-bottom:14px;">
+          <option>Dinheiro</option>
+          <option>PIX</option>
+          <option>Cartão débito</option>
+          <option>Cartão crédito</option>
+        </select>
+
+        <div class="card" style="background:var(--panel-dark);margin-bottom:14px;">
+          <div class="row"><span class="lbl" style="color:#E9D9C4;">Total da venda</span><span class="val" id="venda-total-valor" style="font-size:18px;color:var(--ink-on-dark);">R$ 0,00</span></div>
+        </div>
+
+        <button onclick="RP.registrarVendaBalcao()" style="width:100%;background:var(--framboesa);color:var(--ink-on-dark);padding:13px;border-radius:100px;font-weight:800;font-size:14px;">Registrar venda</button>
+      </div>
+    </div>`;
+}
 
 function renderLivroCaixaHTML(){
   const ordenado = [...livroCaixaState].sort((a,b)=> new Date(b.data) - new Date(a.data));
@@ -2940,6 +3038,7 @@ function renderLivroCaixaHTML(){
             <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);">✕</button>
           </div>
           <p style="color:var(--chocolate-suave);font-size:12px;margin-bottom:14px;">Anote qualquer dinheiro que entrou ou saiu — venda no débito, compra de ingrediente avulsa, o que for.</p>
+          <button onclick="RP.abrirVendaBalcao()" style="width:100%;background:var(--framboesa);color:var(--ink-on-dark);padding:12px;border-radius:100px;font-weight:800;font-size:13px;margin-bottom:14px;">💰 Registrar venda no balcão</button>
 
           <div class="card" style="background:var(--panel-dark);color:var(--ink-on-dark);margin-bottom:14px;">
             <div class="row"><span class="lbl" style="color:#E9D9C4;">Saldo total</span><span class="val" style="color:${saldo>=0?'#7A9E6E':'var(--framboesa)'};font-size:18px;">R$ ${saldo.toFixed(2)}</span></div>
@@ -3131,6 +3230,21 @@ function renderResumoMensalHTML(){
     return { nome, valor, pct: totalGeral>0?(valor/totalGeral)*100:0, classe };
   });
 
+  // Faturamento por canal — a partir dos pedidos confirmados/entregues do mês,
+  // agrupados pelo campo "Canal de venda" preenchido na ficha de cada pedido
+  const pedidosFechadosMes = pedidosState.filter(p=>{
+    if(!['confirmado','entregue'].includes(p.status)) return false;
+    const d = new Date(p.dataPedido);
+    return d.getMonth()===mesAtual && d.getFullYear()===anoAtual;
+  });
+  const porCanalObj = {};
+  pedidosFechadosMes.forEach(p=>{
+    const canal = p.origem || "Não informado";
+    porCanalObj[canal] = (porCanalObj[canal]||0) + (parseFloat(p.valor)||0);
+  });
+  const canaisRanking = Object.entries(porCanalObj).sort((a,b)=>b[1]-a[1]);
+  const maiorCanal = Math.max(1, ...canaisRanking.map(([,v])=>v));
+
   return `
     <div class="sheet-overlay"><div class="modal-bg" onclick="RP.closeSheet()"></div>
       <div class="sheet">
@@ -3177,6 +3291,20 @@ function renderResumoMensalHTML(){
                 <span style="font-size:11px;font-weight:700;color:var(--framboesa);">R$ ${p.valor.toFixed(2)}</span>
               </div>`).join('')}
           </div>` : ''}
+
+          <div class="card" style="margin-bottom:10px;">
+            <div style="font-weight:800;font-size:12.5px;margin-bottom:8px;">🛎️ Faturamento por canal (esse mês)</div>
+            ${canaisRanking.length===0 ? `
+              <div style="font-size:11px;color:var(--chocolate-suave);">Nenhum pedido confirmado/entregue esse mês ainda com canal preenchido. Preencha o "Canal de venda" na ficha do pedido pra esse gráfico começar a aparecer.</div>
+            ` : canaisRanking.map(([canal,valor])=>`
+              <div style="margin-bottom:8px;">
+                <div style="display:flex;justify-content:space-between;font-size:11.5px;margin-bottom:3px;">
+                  <span>${esc(canal)}</span>
+                  <span style="font-weight:800;color:var(--framboesa);">R$ ${valor.toFixed(2)}</span>
+                </div>
+                <div class="progress-track"><div class="progress-fill" style="width:${(valor/maiorCanal)*100}%;"></div></div>
+              </div>`).join('')}
+          </div>
 
           <div style="font-size:11px;color:var(--chocolate-suave);margin-bottom:16px;line-height:1.5;">💡 Isso é uma <b>estimativa</b> baseada só nos orçamentos que você gerou aqui no app — não confirma se a venda realmente aconteceu, e não substitui seu controle financeiro de verdade.</div>
 
@@ -3530,6 +3658,30 @@ function renderPerfil(){
 
 /* --- calculadoras --- */
 let calcTab = "custo";
+let camadasState = [{ tamanho:"", sabor:"", preco:"" }];
+
+function renderCamadasCalc(){
+  const total = camadasState.reduce((a,c)=>a+(parseFloat(c.preco)||0),0);
+  return `
+    <div class="card" style="margin-bottom:14px;">
+      <div style="font-weight:800;font-size:13px;margin-bottom:4px;">🎂 Calculadora de bolo em camadas</div>
+      <p style="font-size:11.5px;color:var(--chocolate-suave);margin-bottom:12px;">Adicione um andar por vez, com tamanho, sabor e preço — o total soma sozinho.</p>
+      ${camadasState.map((c,i)=>`
+        <div class="card" style="margin-bottom:8px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+            <div style="font-weight:800;font-size:11.5px;">Andar ${i+1}</div>
+            ${camadasState.length>1 ? `<button onclick="RP.removerCamada(${i})" class="del-btn">🗑️</button>` : ''}
+          </div>
+          <input class="field" placeholder="Tamanho (ex: 20cm)" value="${esc(c.tamanho)}" oninput="RP.editarCamada(${i},'tamanho',this.value)" style="margin-bottom:6px;">
+          <input class="field" placeholder="Sabor (ex: Chocolate com morango)" value="${esc(c.sabor)}" oninput="RP.editarCamada(${i},'sabor',this.value)" style="margin-bottom:6px;">
+          <input class="field" type="number" step="0.01" placeholder="Preço desse andar (R$)" value="${esc(c.preco)}" oninput="RP.editarCamada(${i},'preco',this.value)">
+        </div>`).join('')}
+      <button onclick="RP.adicionarCamada()" style="width:100%;background:var(--creme-card);color:var(--chocolate);padding:10px;border-radius:100px;font-weight:800;font-size:12.5px;margin-bottom:14px;">＋ Adicionar andar</button>
+      <div class="card" style="background:var(--panel-dark);">
+        <div class="row"><span class="lbl" style="color:#E9D9C4;">Total do bolo (${camadasState.length} andar${camadasState.length===1?'':'es'})</span><span class="val" id="camadas-total-valor" style="font-size:18px;color:var(--ink-on-dark);">R$ ${total.toFixed(2)}</span></div>
+      </div>
+    </div>`;
+}
 let custoState = { rendimento:10, itens:[{n:"",c:""}], embalagem:"", mao:"", margemPerda:"" };
 let precoState = { custo:"", margem:40, produto:"", cliente:"", enderecoCliente:"", freteKm:null, freteValor:null };
 let insumosState = [];
@@ -3737,6 +3889,7 @@ function renderCalculadoras(){
         <button class="chip ${calcTab==='preco'?'active':''}" onclick="${pro?"RP.setCalcTab('preco')":"RP.openUpgrade()"}">Preço e lucro ${pro?'':'🔒'}</button>
         <button class="chip ${calcTab==='compras'?'active':''}" onclick="${pro?"RP.setCalcTab('compras')":"RP.openUpgrade()"}">Lista de compras ${pro?'':'🔒'}</button>
         <button class="chip ${calcTab==='sazonal'?'active':''}" onclick="${pro?"RP.setCalcTab('sazonal')":"RP.openUpgrade()"}">🥚 Sazonal ${pro?'':'🔒'}</button>
+        <button class="chip ${calcTab==='camadas'?'active':''}" onclick="${pro?"RP.setCalcTab('camadas')":"RP.openUpgrade()"}">🎂 Bolo em camadas ${pro?'':'🔒'}</button>
         <button class="chip ${calcTab==='cronometro'?'active':''}" onclick="RP.setCalcTab('cronometro')">⏱ Cronômetro</button>
       </div>
       <div style="margin-top:14px;">
@@ -3744,6 +3897,7 @@ function renderCalculadoras(){
         ${calcTab==='preco' ? (pro ? renderPrecoCalc() : renderCalcLock('Calcule o preço de venda ideal e seu lucro por receita.')) : ''}
         ${calcTab==='compras' ? (pro ? renderListaCompras() : renderCalcLock('Gere sua lista de compras automaticamente a partir dos favoritos.')) : ''}
         ${calcTab==='sazonal' ? (pro ? renderSazonalTab() : renderCalcLock('Precifique ovo de páscoa e panetone por peso de componente.')) : ''}
+        ${calcTab==='camadas' ? (pro ? renderCamadasCalc() : renderCalcLock('Cote bolo de vários andares, cada um com seu tamanho, sabor e preço.')) : ''}
         ${calcTab==='cronometro' ? renderCronometroTab() : ''}
       </div>
     </div>`;
@@ -3997,6 +4151,8 @@ function renderCustoCalc(pro){
               <input class="field" id="salvar-margem-minima" type="number" placeholder="Margem mínima (%, opcional)" style="flex:1;">
             </div>
             <div style="font-size:10px;color:var(--chocolate-suave);margin:-4px 0 10px;">Preenchendo isso, o app avisa se o preço de um ingrediente subir e apertar demais essa margem.</div>
+            <input class="field" id="salvar-foto-url" type="url" placeholder="Link de uma foto (opcional, pro cardápio)" style="margin-bottom:8px;">
+            <div style="font-size:10px;color:var(--chocolate-suave);margin:-4px 0 10px;">Cola aqui o link de uma foto do doce (do Google Drive, Imgur, etc — precisa ser um link direto pra imagem). Ela aparece no cardápio interativo pro cliente ver antes de pedir.</div>
           </div>
           <input class="field" data-key="salvar-nome" id="salvar-receita-nome" placeholder="Nome pra salvar essa receita (ex: Brigadeiro gourmet)" style="margin-bottom:8px;">
           <button onclick="RP.salvarReceitaCalculada()" style="width:100%;background:var(--framboesa);color:var(--ink-on-dark);padding:12px;border-radius:100px;font-weight:800;font-size:12.5px;">💾 Salvar (recalcula sozinho quando o preço mudar)</button>
@@ -4273,11 +4429,21 @@ function openRecipeSheet(r){
 
           <div style="font-weight:800;font-size:14px;margin-bottom:8px;">Ingredientes ${fator!==1?`<span style="color:var(--framboesa);font-weight:700;font-size:11.5px;">(ajustado)</span>`:''}</div>
           ${r.ingredientes.map((i,idx)=>`<div class="checklist-row" id="ing-check-${idx}" onclick="RP.toggleChecklistItem('ing-check-${idx}')" style="display:flex;align-items:center;gap:8px;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--creme-linha);font-size:13px;cursor:pointer;"><span style="display:flex;align-items:center;gap:8px;"><span class="check-box">✓</span><span class="check-label">${esc(i.n)}</span></span><span style="font-weight:700;color:${fator!==1?'var(--framboesa)':'var(--chocolate-suave)'};">${esc(fator!==1?scaleQtyText(i.q,fator):i.q)}</span></div>`).join('')}
-          <button onclick="${state.plan==='pro'?`RP.abrirTabelaNutricional('${r.id}')`:'RP.openUpgrade()'}" style="width:100%;background:var(--creme-card);color:var(--chocolate);font-size:11.5px;font-weight:800;padding:9px 14px;border-radius:100px;margin-top:10px;">🍎 Tabela nutricional (estimativa) ${state.plan==='pro'?'':'🔒'}</button>
-          <button onclick="${state.plan==='pro'?`RP.abrirVerificacaoAlergenos('${r.id}')`:'RP.openUpgrade()'}" style="width:100%;background:var(--creme-card);color:var(--chocolate);font-size:11.5px;font-weight:800;padding:9px 14px;border-radius:100px;margin-top:8px;">⚠️ Verificar alérgenos (revisão) ${state.plan==='pro'?'':'🔒'}</button>
-          <button onclick="${state.plan==='pro'?`RP.abrirEscalaReversa('${r.id}')`:'RP.openUpgrade()'}" style="width:100%;background:var(--creme-card);color:var(--chocolate);font-size:11.5px;font-weight:800;padding:9px 14px;border-radius:100px;margin-top:8px;">🔄 O que dá pra fazer com o que sobrou? ${state.plan==='pro'?'':'🔒'}</button>
-          <button onclick="RP.abrirAdicionarColecao('${r.id}')" style="width:100%;background:var(--creme-card);color:var(--chocolate);font-size:11.5px;font-weight:800;padding:9px 14px;border-radius:100px;margin-top:8px;">📁 Adicionar a uma coleção</button>
-          <button onclick="RP.abrirGeradorPost('${r.id}')" style="width:100%;background:var(--framboesa);color:var(--ink-on-dark);font-size:11.5px;font-weight:800;padding:9px 14px;border-radius:100px;margin-top:8px;">📱 Gerar post pro Instagram</button>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;">
+            <button onclick="${state.plan==='pro'?`RP.abrirTabelaNutricional('${r.id}')`:'RP.openUpgrade()'}" style="background:var(--creme-card);color:var(--chocolate);border-radius:14px;padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:4px;">
+              <span style="font-size:18px;">🍎</span><span style="font-size:10.5px;font-weight:800;line-height:1.2;">Tabela nutricional${state.plan==='pro'?'':' 🔒'}</span>
+            </button>
+            <button onclick="${state.plan==='pro'?`RP.abrirVerificacaoAlergenos('${r.id}')`:'RP.openUpgrade()'}" style="background:var(--creme-card);color:var(--chocolate);border-radius:14px;padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:4px;">
+              <span style="font-size:18px;">⚠️</span><span style="font-size:10.5px;font-weight:800;line-height:1.2;">Verificar alérgenos${state.plan==='pro'?'':' 🔒'}</span>
+            </button>
+            <button onclick="${state.plan==='pro'?`RP.abrirEscalaReversa('${r.id}')`:'RP.openUpgrade()'}" style="background:var(--creme-card);color:var(--chocolate);border-radius:14px;padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:4px;">
+              <span style="font-size:18px;">🔄</span><span style="font-size:10.5px;font-weight:800;line-height:1.2;">Sobrou? Veja ideias${state.plan==='pro'?'':' 🔒'}</span>
+            </button>
+            <button onclick="RP.abrirAdicionarColecao('${r.id}')" style="background:var(--creme-card);color:var(--chocolate);border-radius:14px;padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:4px;">
+              <span style="font-size:18px;">📁</span><span style="font-size:10.5px;font-weight:800;line-height:1.2;">Add. a uma coleção</span>
+            </button>
+          </div>
+          <button onclick="RP.abrirGeradorPost('${r.id}')" style="width:100%;background:var(--framboesa);color:var(--ink-on-dark);font-size:12.5px;font-weight:800;padding:11px 14px;border-radius:100px;margin-top:8px;">📱 Gerar post pro Instagram</button>
           <div style="display:flex;justify-content:space-between;align-items:center;margin:16px 0 8px;">
             <div style="font-weight:800;font-size:14px;">Modo de preparo</div>
             <button onclick="RP.abrirModoCozinha('${r.id}')" style="background:var(--panel-dark);color:var(--ink-on-dark);font-size:11.5px;font-weight:800;padding:8px 14px;border-radius:100px;">👩‍🍳 Modo cozinha</button>
@@ -5343,7 +5509,7 @@ window.RP = {
     }, 30);
   },
   async novoPedido(){
-    const novo = { id: "p"+Date.now(), cliente:"", produto:"", valor:"", status:"orcamento_enviado", dataPedido:new Date().toISOString(), dataEvento:null, recorrente:false, referencias:[], observacoes:"" };
+    const novo = { id: "p"+Date.now(), cliente:"", produto:"", valor:"", status:"orcamento_enviado", dataPedido:new Date().toISOString(), dataEvento:null, recorrente:false, referencias:[], observacoes:"", origem:"" };
     pedidosState.push(novo);
     await savePedidos();
     navigateSheet(()=>renderPedidoDetalheHTML(novo.id));
@@ -5382,6 +5548,7 @@ window.RP = {
     const dataEvento = document.getElementById("pedido-data-evento").value;
     p.dataEvento = dataEvento ? dataEvento + "T12:00:00" : null;
     p.recorrente = document.getElementById("pedido-recorrente").checked;
+    p.origem = document.getElementById("pedido-origem")?.value || "";
     p.horarioRetirada = document.getElementById("pedido-horario").value.trim();
     p.sinalRecebido = document.getElementById("pedido-sinal").value.trim();
     p.referencias = document.getElementById("pedido-referencias").value.split("\n").map(l=>l.trim()).filter(Boolean);
@@ -5669,10 +5836,11 @@ Confeiteira(o)                              Cliente`;
     const incluirRateio = document.getElementById("salvar-rateio-despesas")?.checked || false;
     const precoVenda = document.getElementById("salvar-preco-venda")?.value || "";
     const margemMinima = document.getElementById("salvar-margem-minima")?.value || "";
+    const fotoUrl = document.getElementById("salvar-foto-url")?.value.trim() || "";
     minhasReceitasState.push({
       id: "mr"+Date.now(), nome, itens,
       embalagem: custoState.embalagem, mao: custoState.mao, margemPerda: custoState.margemPerda,
-      rendimento: custoState.rendimento, incluirRateio, precoVenda, margemMinima,
+      rendimento: custoState.rendimento, incluirRateio, precoVenda, margemMinima, fotoUrl,
     });
     await saveMinhasReceitas();
     nomeInput.value = "";
@@ -5684,13 +5852,19 @@ Confeiteira(o)                              Cliente`;
   async novoKit(){
     const nome = prompt("Nome do kit (ex: Kit Festa 50 pessoas):");
     if(!nome || !nome.trim()) return;
-    const novo = { id:"k"+Date.now(), nome:nome.trim(), itens:[], margem:"", desconto:"" };
+    const novo = { id:"k"+Date.now(), nome:nome.trim(), itens:[], margem:"", desconto:"", fotoUrl:"" };
     kitsState.push(novo);
     await saveKits();
     navigateSheet(()=>renderKitDetalheHTML(novo.id));
   },
   abrirKit(id){
     navigateSheet(()=>renderKitDetalheHTML(id));
+  },
+  async setFotoKit(id, valor){
+    const kit = kitsState.find(x=>x.id===id);
+    if(!kit) return;
+    kit.fotoUrl = valor.trim();
+    await saveKits();
   },
   async adicionarItemKit(kitId){
     const kit = kitsState.find(k=>k.id===kitId);
@@ -5699,6 +5873,17 @@ Confeiteira(o)                              Cliente`;
     const existente = kit.itens.find(it=>it.receitaId===select.value);
     if(existente){ existente.quantidade = (parseInt(existente.quantidade)||1) + 1; }
     else { kit.itens.push({ receitaId: select.value, quantidade: 1 }); }
+    await saveKits();
+    navigateSheet(()=>renderKitDetalheHTML(kitId));
+  },
+  async adicionarItemExtraKit(kitId){
+    const kit = kitsState.find(k=>k.id===kitId);
+    const nomeEl = document.getElementById("kit-extra-nome");
+    const custoEl = document.getElementById("kit-extra-custo");
+    const nome = (nomeEl?.value || "").trim();
+    const custoUnitario = parseFloat(custoEl?.value) || 0;
+    if(!nome){ showToast("Digita o nome do item avulso primeiro."); return; }
+    kit.itens.push({ nome, custoUnitario, quantidade: 1 });
     await saveKits();
     navigateSheet(()=>renderKitDetalheHTML(kitId));
   },
@@ -5729,8 +5914,11 @@ Confeiteira(o)                              Cliente`;
     const kit = kitsState.find(k=>k.id===kitId);
     const c = calcularKit(kit);
     const itensTexto = kit.itens.map(it=>{
-      const receita = minhasReceitasState.find(r=>r.id===it.receitaId);
-      return `• ${it.quantidade}x ${receita?receita.nome:'item'}`;
+      if(it.receitaId){
+        const receita = minhasReceitasState.find(r=>r.id===it.receitaId);
+        return `• ${it.quantidade}x ${receita?receita.nome:'item'}`;
+      }
+      return `• ${it.quantidade}x ${it.nome}`;
     }).join('\n');
     registrarOrcamento(kit.nome, c.precoFinal, c.custoTotal);
 
@@ -5758,7 +5946,7 @@ Confeiteira(o)                              Cliente`;
       try{
         const res = await fetch(VALIDATION_ENDPOINT + "?action=criar_orcamento", {
           method: "POST",
-          body: JSON.stringify({ cliente: "", produto: kit.nome, valor: c.precoFinal, itens: kit.itens.map(it=>({nome: (minhasReceitasState.find(r=>r.id===it.receitaId)||{}).nome || 'item'})) }),
+          body: JSON.stringify({ cliente: "", produto: kit.nome, valor: c.precoFinal, itens: kit.itens.map(it=>({nome: it.receitaId ? ((minhasReceitasState.find(r=>r.id===it.receitaId)||{}).nome || 'item') : it.nome})) }),
         });
         const data = await res.json();
         if(data && data.ok && data.id){
@@ -5777,9 +5965,83 @@ Confeiteira(o)                              Cliente`;
     await saveMinhasReceitas();
     navigateSheet(()=>renderMinhasReceitasHTML());
   },
+  async setFotoReceitaSalva(id, valor){
+    const receita = minhasReceitasState.find(x=>x.id===id);
+    if(!receita) return;
+    receita.fotoUrl = valor.trim();
+    await saveMinhasReceitas();
+  },
   openLivroCaixa(){
     lancamentoTipoAtual = "entrada";
     navigateSheet(()=>renderLivroCaixaHTML());
+  },
+  abrirVendaBalcao(){
+    navigateSheet(()=>renderVendaBalcaoHTML());
+    setTimeout(()=>RP.atualizarVendaBalcao(), 30);
+  },
+  atualizarVendaBalcao(){
+    const select = document.getElementById("venda-produto");
+    const manualDiv = document.getElementById("venda-manual-campos");
+    const qtdEl = document.getElementById("venda-quantidade");
+    const totalEl = document.getElementById("venda-total-valor");
+    if(!select || !totalEl) return;
+    const isManual = !select.value;
+    if(manualDiv) manualDiv.style.display = isManual ? "block" : "none";
+    let preco = 0;
+    if(isManual){
+      preco = parseFloat(document.getElementById("venda-preco-manual")?.value) || 0;
+    } else {
+      const r = minhasReceitasState.find(x=>x.id===select.value);
+      preco = r ? (parseFloat(r.precoVenda)||0) : 0;
+    }
+    const qtd = parseInt(qtdEl?.value,10) || 1;
+    totalEl.textContent = "R$ " + (preco*qtd).toFixed(2);
+  },
+  async registrarVendaBalcao(){
+    const select = document.getElementById("venda-produto");
+    const qtd = parseInt(document.getElementById("venda-quantidade")?.value,10) || 1;
+    const pagamento = document.getElementById("venda-pagamento")?.value || "Dinheiro";
+    let nome, preco, custoUnit = 0, receitaId = null;
+
+    if(select.value){
+      const r = minhasReceitasState.find(x=>x.id===select.value);
+      if(!r){ showToast("Selecione um produto válido."); return; }
+      nome = r.nome;
+      preco = parseFloat(r.precoVenda) || 0;
+      custoUnit = custoAtualReceitaSalva(r).porUnidade || 0;
+      receitaId = r.id;
+    } else {
+      nome = (document.getElementById("venda-nome-manual")?.value || "").trim();
+      preco = parseFloat(document.getElementById("venda-preco-manual")?.value) || 0;
+      if(!nome || !preco){ showToast("Preenche o nome e o preço do produto."); return; }
+    }
+
+    const total = preco * qtd;
+    const custoTotalVenda = custoUnit * qtd;
+
+    await registrarOrcamento(nome, total, custoTotalVenda);
+
+    livroCaixaState.push({
+      tipo: "entrada",
+      descricao: `Venda balcão: ${nome} (${pagamento})${qtd>1 ? ` x${qtd}` : ''}`,
+      valor: total,
+      data: new Date().toISOString(),
+    });
+    await saveLivroCaixa();
+
+    showToast(`Venda de R$ ${total.toFixed(2)} registrada! 🎉`);
+
+    // se o produto vendido é uma receita salva com quantidades de ingrediente
+    // definidas, oferece dar baixa no estoque na hora — igual já faz com pedidos
+    if(receitaId){
+      const receita = minhasReceitasState.find(x=>x.id===receitaId);
+      if(receita){
+        const ingredientes = receita.itens.filter(it=>!it.subReceitaId).map(it=>({n:it.nome, q:it.qtd||""}));
+        const html = renderBaixaEstoqueGenericaHTML(ingredientes);
+        if(html){ document.getElementById("sheet-root").innerHTML = html; return; }
+      }
+    }
+    closeSheet();
   },
   setTipoLancamento(tipo){
     lancamentoTipoAtual = tipo;
@@ -5960,7 +6222,7 @@ Confeiteira(o)                              Cliente`;
       loja: nomeLoja || "Cardápio",
       subtitulo: "Escolha os itens e monte seu pedido",
       whatsapp: whatsapp.replace(/\D/g,""),
-      itens: selecionados.map(it=>({ nome: it.nome, preco: it.preco })),
+      itens: selecionados.map(it=>({ nome: it.nome, preco: it.preco, foto: it.foto||"" })),
     };
     const json = JSON.stringify(dados);
     const codificado = btoa(unescape(encodeURIComponent(json)));
@@ -6339,6 +6601,17 @@ Confeiteira(o)                              Cliente`;
     }
   },
   setCalcTab(t){ calcTab = t; renderApp(); },
+  adicionarCamada(){ camadasState.push({ tamanho:"", sabor:"", preco:"" }); renderApp(); },
+  removerCamada(i){ camadasState.splice(i,1); renderApp(); },
+  editarCamada(i, campo, valor){
+    if(!camadasState[i]) return;
+    camadasState[i][campo] = valor;
+    const totalEl = document.getElementById("camadas-total-valor");
+    if(totalEl){
+      const total = camadasState.reduce((a,c)=>a+(parseFloat(c.preco)||0),0);
+      totalEl.textContent = "R$ " + total.toFixed(2);
+    }
+  },
   setSazonalTipo(t){ sazonalState.tipo = t; renderApp(); },
   setSazonalCampo(campo, el){
     sazonalState[campo] = el.value;
