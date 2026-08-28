@@ -230,7 +230,7 @@
   .modal-overlay{position:fixed;inset:0;z-index:80;display:flex;align-items:center;justify-content:center;padding:20px;}
   .modal-bg{position:absolute;inset:0;background:rgba(59,36,23,0.5);}
   .modal-card{position:relative;background:var(--creme);border-radius:24px;padding:32px 26px;max-width:400px;width:100%;box-shadow:0 40px 70px -30px rgba(59,36,23,0.5);}
-  .modal-close{position:absolute;top:14px;right:14px;width:30px;height:30px;border-radius:50%;background:var(--creme-card);display:flex;align-items:center;justify-content:center;}
+  .modal-close{position:absolute;top:14px;right:14px;width:30px;height:30px;border-radius:50%;background:var(--creme-card);color:var(--chocolate);display:flex;align-items:center;justify-content:center;}
   .modal-card h3{font-family:'Fraunces',serif;font-size:21px;font-weight:600;margin-bottom:6px;}
   .modal-card .desc{font-size:13.5px;color:var(--chocolate-suave);line-height:1.5;margin-bottom:20px;}
   .key-input{width:100%;background:var(--branco);border:1.5px solid var(--creme-linha);border-radius:12px;padding:14px 16px;font-size:15px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;outline:none;color:var(--chocolate);}
@@ -436,6 +436,7 @@
   <symbol id="ui-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 11V7a4 4 0 018 0v4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="16" r="1.5" fill="currentColor"/></symbol>
   <symbol id="ui-trash" viewBox="0 0 24 24"><path d="M4 7h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M9 7V4h6v3" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M6 7l1 13a2 2 0 002 2h6a2 2 0 002-2l1-13" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><line x1="10" y1="11" x2="10" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="14" y1="11" x2="14" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
   <symbol id="ui-close" viewBox="0 0 24 24"><line x1="5" y1="5" x2="19" y2="19" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><line x1="19" y1="5" x2="5" y2="19" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></symbol>
+  <symbol id="ui-arrow-left" viewBox="0 0 24 24"><path d="M19 12H5" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"/><path d="M11 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="ui-check" viewBox="0 0 24 24"><path d="M4 12.5l5.5 5.5L20 6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="ui-tip" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M12 3a6 6 0 00-3.5 10.9c.5.4.8 1 .8 1.6h5.4c0-.6.3-1.2.8-1.6A6 6 0 0012 3z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
   <symbol id="ui-warning" viewBox="0 0 24 24"><path d="M12 3l10 18H2z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><line x1="12" y1="10" x2="12" y2="14.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="17.5" r="1.1" fill="currentColor"/></symbol>
@@ -457,6 +458,7 @@
     </div>
     <div class="nav-right">
       <button id="btn-instalar-pwa" onclick="RP.instalarPWA()" style="display:none;align-items:center;gap:6px;background:var(--framboesa);color:var(--ink-on-dark);padding:9px 16px;border-radius:100px;font-weight:800;font-size:12.5px;border:none;">⬇️ Instalar app</button>
+      <button id="btn-instalar-ios" onclick="RP.mostrarDicaIOS()" style="display:none;align-items:center;gap:6px;background:var(--framboesa);color:var(--ink-on-dark);padding:9px 16px;border-radius:100px;font-weight:800;font-size:12.5px;border:none;">⬇️ Instalar app</button>
       <button class="nav-key" onclick="RP.openAparencia()" title="Aparência" style="font-size:16px;line-height:1;">🌓</button>
       <button class="nav-key" onclick="RP.openKeyModal()">Já comprei · Entrar</button>
       <a href="#planos" class="nav-cta">Ver planos</a>
@@ -1652,6 +1654,8 @@ async function loadState(){
   await loadColecoes();
   await loadEquipamentos();
   await loadLivroCaixa();
+  await loadContasPagar();
+  await loadPerdas();
   await loadLembretes();
 }
 async function saveTab(){ try{ await window.storage.set("recheiopro:tab", JSON.stringify(state.tab)); }catch(e){} }
@@ -1689,6 +1693,11 @@ async function checarEEnviarNotificacoes(){
       paraNotificar.push({ chave: "datacomemorativa-"+chaveData, titulo: `${d.emoji} ${d.nome} chegando`, corpo: `${d.diasAte===0?"É hoje!":d.diasAte===1?"É amanhã!":`Faltam ${d.diasAte} dias`}. Já pensou no cardápio dessa data?` });
       notificadosDatas[chaveData] = true;
     }
+  });
+
+  a.contasVencendo.forEach(c=>{
+    const chave = "contapagar-"+c.id+"-"+hojeStr;
+    if(!notificados[chave]) paraNotificar.push({ chave, titulo: "💳 Conta perto de vencer", corpo: `${c.descricao} — R$ ${(parseFloat(c.valor)||0).toFixed(2)}` });
   });
 
   a.followUps.forEach(p=>{
@@ -1891,7 +1900,7 @@ function renderFornecedoresHTML(){
         <div class="app-px" style="padding-top:20px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
             <div class="app-h1" style="margin-bottom:0;">Radar de fornecedores</div>
-            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
+            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);color:var(--chocolate);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
           </div>
           <p style="color:var(--chocolate-suave);font-size:12px;margin-bottom:14px;">Antes de sair de casa, bate o olho aqui e sabe onde cada coisa tá mais barata.</p>
 
@@ -2015,22 +2024,27 @@ function coletarAlertas(){
     return diasDepois >= 1 && diasDepois <= 5;
   });
   const datasComemorativas = proximasDatasComemorativas(21);
-  return { followUps, aniversarios, estoqueAlertas, validadeAlertas, pesquisasSatisfacao, datasComemorativas };
+  const contasVencendo = contasPagarState.filter(c=>{
+    if(c.pago) return false;
+    const diasAte = Math.ceil((new Date(c.vencimento+"T12:00:00") - hoje) / (1000*60*60*24));
+    return diasAte <= 5; // inclui vencidas (negativo) e as que vencem nos próximos 5 dias
+  });
+  return { followUps, aniversarios, estoqueAlertas, validadeAlertas, pesquisasSatisfacao, datasComemorativas, contasVencendo };
 }
 function totalAlertas(){
   const a = coletarAlertas();
-  return a.followUps.length + a.aniversarios.length + a.estoqueAlertas.length + a.validadeAlertas.length + a.pesquisasSatisfacao.length + a.datasComemorativas.length;
+  return a.followUps.length + a.aniversarios.length + a.estoqueAlertas.length + a.validadeAlertas.length + a.pesquisasSatisfacao.length + a.datasComemorativas.length + a.contasVencendo.length;
 }
 function renderCentralAlertasHTML(){
   const a = coletarAlertas();
-  const total = a.followUps.length + a.aniversarios.length + a.estoqueAlertas.length + a.validadeAlertas.length + a.pesquisasSatisfacao.length + a.datasComemorativas.length;
+  const total = a.followUps.length + a.aniversarios.length + a.estoqueAlertas.length + a.validadeAlertas.length + a.pesquisasSatisfacao.length + a.datasComemorativas.length + a.contasVencendo.length;
   return `
     <div class="sheet-overlay"><div class="modal-bg" onclick="RP.closeSheet()"></div>
       <div class="sheet">
         <div class="app-px" style="padding-top:20px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
             <div class="app-h1" style="margin-bottom:0;">Central de alertas</div>
-            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
+            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);color:var(--chocolate);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
           </div>
           ${total===0 ? `<div style="text-align:center;color:var(--chocolate-suave);font-size:13px;padding:30px 0;">Tudo em dia! Nenhum alerta agora.</div>` : ''}
 
@@ -2041,6 +2055,19 @@ function renderCentralAlertasHTML(){
               <div style="font-weight:800;font-size:12.5px;">${d.emoji} ${esc(d.nome)}</div>
               <div style="font-size:11px;color:var(--chocolate-suave);">${d.diasAte===0?'É hoje!':d.diasAte===1?'É amanhã':`Em ${d.diasAte} dias`} · ${formatarDataCurta(d.data)}. Já pensou no cardápio da data?</div>
             </div>`).join('')}
+          ` : ''}
+
+          ${a.contasVencendo.length>0 ? `
+          <div style="font-weight:800;font-size:12.5px;margin:14px 0 8px;">💳 Contas perto de vencer</div>
+          ${a.contasVencendo.map(c=>{
+            const dias = Math.ceil((new Date(c.vencimento+"T12:00:00") - new Date()) / (1000*60*60*24));
+            const texto = dias<0 ? `Venceu há ${Math.abs(dias)} dia${Math.abs(dias)===1?'':'s'}` : dias===0 ? "Vence hoje" : `Vence em ${dias} dias`;
+            return `
+            <div class="card" style="border-left:4px solid var(--framboesa);margin-bottom:8px;cursor:pointer;" onclick="RP.closeSheet();RP.openContasPagar()">
+              <div style="font-weight:800;font-size:12.5px;">${esc(c.descricao)}</div>
+              <div style="font-size:11px;color:var(--chocolate-suave);">${texto} · R$ ${(parseFloat(c.valor)||0).toFixed(2)}</div>
+            </div>`;
+          }).join('')}
           ` : ''}
 
           ${a.followUps.length>0 ? `
@@ -2106,7 +2133,7 @@ function renderLinhaProducaoHTML(){
         <div class="app-px" style="padding-top:20px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
             <div class="app-h1" style="margin-bottom:0;">Linha de produção</div>
-            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
+            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);color:var(--chocolate);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
           </div>
           <p style="color:var(--chocolate-suave);font-size:12px;margin-bottom:14px;">Escolha o período (ex: sexta a domingo) e vejo tudo que precisa ser produzido, somado.</p>
           <div style="display:flex;gap:8px;margin-bottom:10px;">
@@ -2192,7 +2219,7 @@ function renderCalendarioEncomendasHTML(){
         <div class="app-px" style="padding-top:20px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
             <div class="app-h1" style="margin-bottom:0;">Calendário</div>
-            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
+            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);color:var(--chocolate);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
           </div>
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
             <button onclick="RP.mudarMesCalendario(-1)" style="width:32px;height:32px;border-radius:50%;background:var(--creme-card);">‹</button>
@@ -2251,7 +2278,7 @@ function renderClientesHTML(){
         <div class="app-px" style="padding-top:20px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
             <div class="app-h1" style="margin-bottom:0;">Meus Clientes</div>
-            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
+            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);color:var(--chocolate);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
           </div>
           <p style="color:var(--chocolate-suave);font-size:12px;margin-bottom:10px;">Ranking de quem mais compra, montado a partir do nome preenchido em cada pedido. Toca num cliente pra ver o histórico completo dele.</p>
           <button onclick="RP.openFidelidadeConfig()" style="width:100%;background:var(--creme-card);color:var(--chocolate);padding:10px;border-radius:100px;font-weight:800;font-size:12px;margin-bottom:14px;">🎁 ${fidelidadeOk?'Editar':'Configurar'} programa de fidelidade</button>
@@ -2284,7 +2311,7 @@ function renderFidelidadeConfigHTML(){
       <div class="sheet" style="padding:24px 20px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
           <div class="app-h1" style="margin-bottom:0;"><svg class="icon-ui"><use href="#ui-gift"/></svg> Programa de fidelidade</div>
-          <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
+          <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);color:var(--chocolate);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
         </div>
         <p style="color:var(--chocolate-suave);font-size:12px;margin-bottom:14px;">A cada X reais que um cliente gastar (somando os pedidos confirmados/entregues), ele ganha direito a um prêmio. Isso é só um contador. Quem entrega o prêmio de verdade é você.</p>
 
@@ -2315,7 +2342,7 @@ function renderHorariosRetiradaHTML(){
         <div class="app-px" style="padding-top:20px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
             <div class="app-h1" style="margin-bottom:0;">Horários de retirada</div>
-            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
+            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);color:var(--chocolate);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
           </div>
           <p style="color:var(--chocolate-suave);font-size:12px;margin-bottom:14px;">Defina os horários que você aceita retirada e quantas vagas cada um tem. Na ficha do pedido, o app avisa quando um horário já está lotado.</p>
           ${horarios.length===0 ? `<div style="font-size:11.5px;color:var(--chocolate-suave);margin-bottom:12px;">Nenhum horário cadastrado ainda. Sem isso, o campo de horário do pedido continua sendo texto livre.</div>` : ''}
@@ -2354,7 +2381,7 @@ function renderPedidosHTML(){
         <div class="app-px" style="padding-top:20px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
             <div class="app-h1" style="margin-bottom:0;">Meus Pedidos</div>
-            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
+            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);color:var(--chocolate);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
           </div>
           <p style="color:var(--chocolate-suave);font-size:12px;margin-bottom:10px;">Cliente, data, status e referências. Tudo numa ficha só.</p>
           <button onclick="RP.openLinhaProducao()" style="width:100%;background:var(--panel-dark);color:var(--ink-on-dark);padding:11px;border-radius:100px;font-weight:800;font-size:12.5px;margin-bottom:8px;">📋 Ver linha de produção do período</button>
@@ -2424,7 +2451,7 @@ function renderPedidoDetalheHTML(id){
       <div class="sheet">
         <div class="app-px" style="padding-top:20px;">
           <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
-            <button onclick="RP.openPedidos()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);flex-shrink:0;">←</button>
+            <button onclick="RP.openPedidos()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);color:var(--chocolate);flex-shrink:0;"><svg class="icon-ui-sm"><use href="#ui-arrow-left"/></svg></button>
             <div class="app-h1" style="margin-bottom:0;">Ficha do pedido</div>
           </div>
 
@@ -2578,7 +2605,7 @@ function renderEstoqueHTML(){
         <div class="app-px" style="padding-top:20px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
             <div class="app-h1" style="margin-bottom:0;">Estoque</div>
-            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
+            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);color:var(--chocolate);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
           </div>
           <p style="color:var(--chocolate-suave);font-size:12px;margin-bottom:14px;">Cada compra vira um lote. O app sempre indica gastar primeiro o que vence antes (FIFO).</p>
 
@@ -2624,7 +2651,7 @@ function renderItemEstoqueHTML(id){
       <div class="sheet">
         <div class="app-px" style="padding-top:20px;">
           <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
-            <button onclick="RP.openEstoque()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);flex-shrink:0;">←</button>
+            <button onclick="RP.openEstoque()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);color:var(--chocolate);flex-shrink:0;"><svg class="icon-ui-sm"><use href="#ui-arrow-left"/></svg></button>
             <div class="app-h1" style="margin-bottom:0;">${esc(item.ingrediente)}</div>
           </div>
 
@@ -2762,7 +2789,7 @@ function renderMinhasReceitasHTML(){
         <div class="app-px" style="padding-top:20px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
             <div class="app-h1" style="margin-bottom:0;">Minhas Receitas Salvas</div>
-            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
+            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);color:var(--chocolate);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
           </div>
           <p style="color:var(--chocolate-suave);font-size:12px;margin-bottom:14px;">O custo aqui é sempre o de agora. Se o preço de um insumo mudar no seu banco de insumos, essas receitas já aparecem atualizadas sozinhas, sem precisar refazer conta nenhuma.</p>
           ${minhasReceitasState.length===0 ? `<div style="text-align:center;color:var(--chocolate-suave);font-size:13px;padding:20px 0;">Nenhuma receita salva ainda. Salve direto na Calculadora de Custo.</div>` : ''}
@@ -2824,7 +2851,7 @@ function renderKitsHTML(){
         <div class="app-px" style="padding-top:20px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
             <div class="app-h1" style="margin-bottom:0;">Kits Festa</div>
-            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
+            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);color:var(--chocolate);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
           </div>
           <p style="color:var(--chocolate-suave);font-size:12px;margin-bottom:14px;">Combine receitas salvas (e itens avulsos como decoração e descartáveis) num pacote fechado, com desconto de combo se quiser.</p>
 
@@ -2872,7 +2899,7 @@ function renderKitDetalheHTML(kitId){
       <div class="sheet">
         <div class="app-px" style="padding-top:20px;">
           <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
-            <button onclick="RP.openKits()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);flex-shrink:0;">←</button>
+            <button onclick="RP.openKits()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);color:var(--chocolate);flex-shrink:0;"><svg class="icon-ui-sm"><use href="#ui-arrow-left"/></svg></button>
             <div class="app-h1" style="margin-bottom:0;">${esc(kit.nome)}</div>
           </div>
 
@@ -2955,7 +2982,7 @@ function renderColecoesHTML(){
         <div class="app-px" style="padding-top:20px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
             <div class="app-h1" style="margin-bottom:0;">Minhas Coleções</div>
-            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
+            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);color:var(--chocolate);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
           </div>
           <p style="color:var(--chocolate-suave);font-size:12px;margin-bottom:14px;">Organize as receitas do seu jeito. Por ocasião, restrição, o que for útil pra você.</p>
           <button onclick="RP.novaColecao()" style="width:100%;background:var(--framboesa);color:var(--ink-on-dark);padding:12px;border-radius:100px;font-weight:800;font-size:13px;margin-bottom:14px;">＋ Nova coleção</button>
@@ -2981,7 +3008,7 @@ function renderColecaoDetalheHTML(colecaoId){
       <div class="sheet">
         <div class="app-px" style="padding-top:20px;">
           <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
-            <button onclick="RP.openColecoes()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);flex-shrink:0;">←</button>
+            <button onclick="RP.openColecoes()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);color:var(--chocolate);flex-shrink:0;"><svg class="icon-ui-sm"><use href="#ui-arrow-left"/></svg></button>
             <div class="app-h1" style="margin-bottom:0;">📁 ${esc(c.nome)}</div>
           </div>
           <button onclick="RP.excluirColecao('${c.id}')" style="color:var(--chocolate-suave);font-size:11.5px;font-weight:700;margin-bottom:14px;"><svg class="icon-ui-sm"><use href="#ui-trash"/></svg> Excluir esta coleção</button>
@@ -3035,7 +3062,7 @@ function renderEquipamentosHTML(){
         <div class="app-px" style="padding-top:20px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
             <div class="app-h1" style="margin-bottom:0;">Equipamentos</div>
-            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
+            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);color:var(--chocolate);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
           </div>
           <p style="color:var(--chocolate-suave);font-size:12px;margin-bottom:14px;">Batedeira, forno, geladeira. Tudo isso perde valor com o uso. Isso é custo real, mesmo que ninguém saque dinheiro do bolso todo mês por causa disso.</p>
 
@@ -3085,7 +3112,7 @@ function renderCardapioInterativoHTML(){
         <div class="app-px" style="padding-top:20px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
             <div class="app-h1" style="margin-bottom:0;">Cardápio Interativo</div>
-            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
+            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);color:var(--chocolate);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
           </div>
           <p style="color:var(--chocolate-suave);font-size:12px;margin-bottom:14px;">Sua cliente abre o link, escolhe quantidade de cada doce e manda o pedido pronto pro seu WhatsApp. Sem precisar instalar nada.</p>
 
@@ -3123,6 +3150,18 @@ async function loadLivroCaixa(){
 }
 async function saveLivroCaixa(){ try{ await window.storage.set("recheiopro:livro-caixa", JSON.stringify(livroCaixaState)); }catch(e){} }
 
+let contasPagarState = [];
+async function loadContasPagar(){
+  try{ const c = await window.storage.get("recheiopro:contas-pagar"); if(c&&c.value) contasPagarState = JSON.parse(c.value); }catch(e){}
+}
+async function saveContasPagar(){ try{ await window.storage.set("recheiopro:contas-pagar", JSON.stringify(contasPagarState)); }catch(e){} }
+
+let perdasState = [];
+async function loadPerdas(){
+  try{ const p = await window.storage.get("recheiopro:perdas"); if(p&&p.value) perdasState = JSON.parse(p.value); }catch(e){}
+}
+async function savePerdas(){ try{ await window.storage.set("recheiopro:perdas", JSON.stringify(perdasState)); }catch(e){} }
+
 /* =========================================================================
    VENDA NO BALCÃO. Registro rápido de venda avulsa (não é encomenda),
    lança sozinho no Livro Caixa e no faturamento do Resumo Mensal
@@ -3134,7 +3173,7 @@ function renderVendaBalcaoHTML(){
       <div class="sheet" style="padding:24px 20px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
           <div class="app-h1" style="margin-bottom:0;"><svg class="icon-ui"><use href="#ui-wallet"/></svg> Venda no balcão</div>
-          <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
+          <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);color:var(--chocolate);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
         </div>
         <p style="color:var(--chocolate-suave);font-size:12px;margin-bottom:14px;">Pra vendas na hora (balcão, feira), sem ser encomenda. Lança sozinho no Livro Caixa e no faturamento.</p>
 
@@ -3165,6 +3204,78 @@ function renderVendaBalcaoHTML(){
         </div>
 
         <button onclick="RP.registrarVendaBalcao()" style="width:100%;background:var(--framboesa);color:var(--ink-on-dark);padding:13px;border-radius:100px;font-weight:800;font-size:14px;">Registrar venda</button>
+      </div>
+    </div>`;
+}
+
+/* =========================================================================
+   CONTAS A PAGAR — compromissos futuros (aluguel, luz, insumo parcelado),
+   diferente do Livro Caixa que só registra o que já aconteceu
+========================================================================= */
+function renderContasPagarHTML(){
+  const hoje = new Date(); hoje.setHours(0,0,0,0);
+  const abertas = contasPagarState.filter(c=>!c.pago).sort((a,b)=> new Date(a.vencimento) - new Date(b.vencimento));
+  const pagas = contasPagarState.filter(c=>c.pago).sort((a,b)=> new Date(b.vencimento) - new Date(a.vencimento)).slice(0,10);
+  const totalAberto = abertas.reduce((a,c)=>a+(parseFloat(c.valor)||0),0);
+
+  function statusConta(c){
+    const venc = new Date(c.vencimento + "T12:00:00");
+    const dias = Math.round((venc-hoje)/(1000*60*60*24));
+    if(dias<0) return { cor:"var(--framboesa)", texto:`Venceu há ${Math.abs(dias)} dia${Math.abs(dias)===1?'':'s'}` };
+    if(dias===0) return { cor:"var(--framboesa)", texto:"Vence hoje" };
+    if(dias<=5) return { cor:"var(--dourado)", texto:`Vence em ${dias} dia${dias===1?'':'s'}` };
+    return { cor:"#7A9E6E", texto:`Vence em ${dias} dias` };
+  }
+
+  return `
+    <div class="sheet-overlay"><div class="modal-bg" onclick="RP.closeSheet()"></div>
+      <div class="sheet">
+        <div class="app-px" style="padding-top:20px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+            <div class="app-h1" style="margin-bottom:0;">Contas a pagar</div>
+            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);color:var(--chocolate);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
+          </div>
+          <p style="color:var(--chocolate-suave);font-size:12px;margin-bottom:14px;">Compromissos que ainda vão vencer — aluguel, luz, insumo parcelado. Diferente do Livro Caixa, que só mostra o que já entrou ou saiu.</p>
+
+          <div class="card" style="background:var(--panel-dark);margin-bottom:14px;">
+            <div class="row"><span class="lbl" style="color:#E9D9C4;">Total em aberto</span><span class="val" style="color:var(--framboesa);font-size:18px;">R$ ${totalAberto.toFixed(2)}</span></div>
+          </div>
+
+          <div style="display:flex;gap:6px;margin-bottom:10px;">
+            <input class="field" id="conta-descricao" placeholder="Ex: Aluguel" style="flex:2;">
+            <input class="field" id="conta-valor" type="number" step="0.01" placeholder="Valor" style="flex:1;">
+          </div>
+          <div style="display:flex;gap:6px;align-items:center;margin-bottom:14px;">
+            <input type="date" class="field" id="conta-vencimento" style="flex:1;">
+            <label style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--chocolate-suave);white-space:nowrap;">
+              <input type="checkbox" id="conta-recorrente"> Repete todo mês
+            </label>
+          </div>
+          <button onclick="RP.adicionarContaPagar()" style="width:100%;background:var(--framboesa);color:var(--ink-on-dark);padding:11px;border-radius:100px;font-weight:800;font-size:13px;margin-bottom:16px;">＋ Adicionar conta</button>
+
+          <div style="font-weight:800;font-size:12.5px;margin-bottom:8px;">Em aberto</div>
+          ${abertas.length===0 ? `<div style="font-size:12px;color:var(--chocolate-suave);margin-bottom:14px;">Nenhuma conta em aberto. 🎉</div>` : abertas.map(c=>{
+            const st = statusConta(c);
+            return `
+            <div class="card" style="border-left:4px solid ${st.cor};margin-bottom:8px;display:flex;align-items:center;gap:10px;">
+              <div style="flex:1;">
+                <div style="font-weight:800;font-size:12.5px;">${esc(c.descricao)} ${c.recorrente?'🔁':''}</div>
+                <div style="font-size:11px;color:var(--chocolate-suave);">${st.texto} · R$ ${(parseFloat(c.valor)||0).toFixed(2)}</div>
+              </div>
+              <button onclick="RP.marcarContaPaga('${c.id}')" style="background:var(--creme-card);color:var(--chocolate);padding:8px 12px;border-radius:100px;font-size:11px;font-weight:800;white-space:nowrap;">Marcar paga</button>
+              <button onclick="RP.excluirContaPagar('${c.id}')" style="color:var(--chocolate-suave);flex-shrink:0;"><svg class="icon-ui-sm"><use href="#ui-trash"/></svg></button>
+            </div>`;
+          }).join('')}
+
+          ${pagas.length>0 ? `
+          <div style="font-weight:800;font-size:12.5px;margin:16px 0 8px;">Pagas recentemente</div>
+          ${pagas.map(c=>`
+            <div class="card" style="margin-bottom:8px;opacity:0.6;">
+              <div style="font-weight:700;font-size:12px;text-decoration:line-through;">${esc(c.descricao)}</div>
+              <div style="font-size:10.5px;color:var(--chocolate-suave);">R$ ${(parseFloat(c.valor)||0).toFixed(2)} · venceu em ${formatarDataCurta(c.vencimento)}</div>
+            </div>`).join('')}
+          ` : ''}
+        </div>
       </div>
     </div>`;
 }
@@ -3205,7 +3316,7 @@ function renderLivroCaixaHTML(){
         <div class="app-px" style="padding-top:20px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
             <div class="app-h1" style="margin-bottom:0;">Livro Caixa</div>
-            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
+            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);color:var(--chocolate);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
           </div>
           <p style="color:var(--chocolate-suave);font-size:12px;margin-bottom:14px;">Anote qualquer dinheiro que entrou ou saiu. Venda no débito, compra de ingrediente avulsa, o que for.</p>
           <button onclick="RP.abrirVendaBalcao()" style="width:100%;background:var(--framboesa);color:var(--ink-on-dark);padding:12px;border-radius:100px;font-weight:800;font-size:13px;margin-bottom:14px;">💰 Registrar venda no balcão</button>
@@ -3301,7 +3412,7 @@ function renderFornecedoresListaHTML(lista){
 
 function renderValidadeHTML(){
   const hoje = new Date();
-  const itens = state.feitas.map(f => {
+  const itens = state.feitas.map((f,idx) => {
     const id = typeof f === "string" ? f : f.id;
     const data = typeof f === "string" ? null : f.data;
     const r = RECIPES.find(x=>x.id===id);
@@ -3313,7 +3424,7 @@ function renderValidadeHTML(){
       const diasRestantes = Math.ceil((vencimento - hoje) / (1000*60*60*24));
       validadeInfo = { vencimento, diasRestantes };
     }
-    return { r, data, statusInfo: validadeInfo };
+    return { r, data, statusInfo: validadeInfo, idx };
   }).filter(Boolean);
 
   itens.sort((a,b) => {
@@ -3322,31 +3433,44 @@ function renderValidadeHTML(){
     return da - db;
   });
 
+  const hojeStr = hoje.toISOString().slice(0,7); // AAAA-MM
+  const perdidoNoMes = perdasState.filter(p=>p.data.slice(0,7)===hojeStr).reduce((a,p)=>a+(parseFloat(p.custo)||0),0);
+
   return `
     <div class="sheet-overlay"><div class="modal-bg" onclick="RP.closeSheet()"></div>
       <div class="sheet">
         <div class="app-px" style="padding-top:20px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
             <div class="app-h1" style="margin-bottom:0;">Controle de validade</div>
-            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
+            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);color:var(--chocolate);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
           </div>
-          <p style="color:var(--chocolate-suave);font-size:12px;margin-bottom:16px;">Baseado na data em que você marcou cada receita como feita.</p>
+          <p style="color:var(--chocolate-suave);font-size:12px;margin-bottom:12px;">Baseado na data em que você marcou cada receita como feita.</p>
+
+          ${perdidoNoMes>0 ? `<div class="card" style="background:var(--panel-dark);margin-bottom:14px;">
+            <div class="row"><span class="lbl" style="color:#E9D9C4;">Perdido em desperdício esse mês</span><span class="val" style="color:var(--framboesa);font-size:16px;">R$ ${perdidoNoMes.toFixed(2)}</span></div>
+          </div>` : ''}
 
           ${itens.length===0 ? `
             <div style="text-align:center;padding:30px 0;color:var(--chocolate-suave);font-size:13px;">Marque receitas como feitas pra acompanhar a validade delas aqui.</div>
-          ` : itens.map(({r,data,statusInfo})=>{
+          ` : itens.map(({r,data,statusInfo,idx})=>{
             let corBorda = "var(--creme-linha)", texto = "Data de produção não registrada";
+            let venceu = false;
             if(statusInfo){
               const {diasRestantes} = statusInfo;
-              if(diasRestantes < 0){ corBorda = "var(--framboesa)"; texto = `Venceu há ${Math.abs(diasRestantes)} dia${Math.abs(diasRestantes)===1?'':'s'}`; }
+              if(diasRestantes < 0){ corBorda = "var(--framboesa)"; texto = `Venceu há ${Math.abs(diasRestantes)} dia${Math.abs(diasRestantes)===1?'':'s'}`; venceu = true; }
               else if(diasRestantes === 0){ corBorda = "var(--framboesa)"; texto = "Vence hoje"; }
               else if(diasRestantes <= 1){ corBorda = "var(--dourado)"; texto = `Vence amanhã (${formatarDataCurta(statusInfo.vencimento)})`; }
               else { corBorda = "#7A9E6E"; texto = `Vence em ${diasRestantes} dias (${formatarDataCurta(statusInfo.vencimento)})`; }
             }
             return `
-            <div class="card" style="border-left:4px solid ${corBorda};margin-bottom:8px;cursor:pointer;" onclick="RP.closeSheet();RP.openRecipe('${r.id}')">
-              <div style="font-weight:800;font-size:13px;">${esc(r.name)}</div>
-              <div style="font-size:11.5px;color:var(--chocolate-suave);margin-top:2px;">${texto}</div>
+            <div class="card" style="border-left:4px solid ${corBorda};margin-bottom:8px;">
+              <div style="display:flex;align-items:center;gap:8px;">
+                <div style="flex:1;cursor:pointer;" onclick="RP.closeSheet();RP.openRecipe('${r.id}')">
+                  <div style="font-weight:800;font-size:13px;">${esc(r.name)}</div>
+                  <div style="font-size:11.5px;color:var(--chocolate-suave);margin-top:2px;">${texto}</div>
+                </div>
+                ${venceu ? `<button onclick="RP.abrirRegistrarPerda('${r.id}',${idx})" style="background:var(--creme-card);color:var(--framboesa);padding:8px 12px;border-radius:100px;font-size:10.5px;font-weight:800;white-space:nowrap;flex-shrink:0;">Foi perda</button>` : ''}
+              </div>
             </div>`;
           }).join('')}
 
@@ -3415,13 +3539,31 @@ function renderResumoMensalHTML(){
   const canaisRanking = Object.entries(porCanalObj).sort((a,b)=>b[1]-a[1]);
   const maiorCanal = Math.max(1, ...canaisRanking.map(([,v])=>v));
 
+  const mesAtualStr = new Date().toISOString().slice(0,7);
+  const perdasDoMes = perdasState.filter(p=>p.data.slice(0,7)===mesAtualStr);
+  const totalPerdidoMes = perdasDoMes.reduce((a,p)=>a+(parseFloat(p.custo)||0),0);
+
+  // Taxa de retenção de clientes: dos clientes que já compraram ANTES desse mês,
+  // quantos voltaram a comprar ESSE mês? Fórmula clássica: (E-N)/S × 100.
+  const pedidosFechadosTodos = pedidosState.filter(p=>['confirmado','entregue'].includes(p.status) && p.cliente && p.cliente.trim());
+  const clientesAntesDoMes = new Set(
+    pedidosFechadosTodos.filter(p=>{
+      const d = new Date(p.dataPedido);
+      return d < new Date(anoAtual, mesAtual, 1);
+    }).map(p=>p.cliente.trim().toLowerCase())
+  );
+  const clientesEsseMes = new Set(pedidosFechadosMes.filter(p=>p.cliente&&p.cliente.trim()).map(p=>p.cliente.trim().toLowerCase()));
+  let clientesRetidos = 0;
+  clientesAntesDoMes.forEach(c=>{ if(clientesEsseMes.has(c)) clientesRetidos++; });
+  const taxaRetencao = clientesAntesDoMes.size>0 ? (clientesRetidos/clientesAntesDoMes.size)*100 : null;
+
   return `
     <div class="sheet-overlay"><div class="modal-bg" onclick="RP.closeSheet()"></div>
       <div class="sheet">
         <div class="app-px" style="padding-top:20px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
             <div class="app-h1" style="margin-bottom:0;">Resumo Mensal</div>
-            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
+            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);color:var(--chocolate);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
           </div>
 
           <div class="card" style="background:var(--creme-card);margin-bottom:10px;">
@@ -3475,6 +3617,24 @@ function renderResumoMensalHTML(){
                 <div class="progress-track"><div class="progress-fill" style="width:${(valor/maiorCanal)*100}%;"></div></div>
               </div>`).join('')}
           </div>
+
+          <div class="card" style="margin-bottom:10px;">
+            <div style="font-weight:800;font-size:12.5px;margin-bottom:6px;">🔁 Taxa de retenção de clientes</div>
+            ${taxaRetencao===null ? `
+              <div style="font-size:11px;color:var(--chocolate-suave);">Ainda não tem histórico de clientes de meses anteriores pra calcular isso.</div>
+            ` : `
+              <div style="font-size:20px;font-weight:800;color:${taxaRetencao>=30?'#7A9E6E':'var(--framboesa)'};margin-bottom:6px;">${taxaRetencao.toFixed(0)}%</div>
+              <div style="font-size:11px;color:var(--chocolate-suave);">${clientesRetidos} de ${clientesAntesDoMes.size} clientes antigos voltaram a comprar esse mês. Quanto maior, mais o negócio vive de gente que já confia em você, não só de gente nova.</div>
+            `}
+          </div>
+
+          ${perdasDoMes.length>0 ? `
+          <div class="card" style="margin-bottom:10px;border-left:4px solid var(--framboesa);">
+            <div style="font-weight:800;font-size:12.5px;margin-bottom:6px;">💔 Perdido em desperdício (esse mês)</div>
+            <div style="font-size:20px;font-weight:800;color:var(--framboesa);margin-bottom:6px;">R$ ${totalPerdidoMes.toFixed(2)}</div>
+            <div style="font-size:11px;color:var(--chocolate-suave);">${perdasDoMes.length} receita${perdasDoMes.length===1?'':'s'} venceu sem vender. Isso já saiu do estoque de graça — vale rever quantidade produzida.</div>
+          </div>
+          ` : ''}
 
           <div class="card" style="margin-bottom:10px;">
             <div style="font-weight:800;font-size:12.5px;margin-bottom:6px;">💛 Satisfação dos clientes (esse mês)</div>
@@ -3584,7 +3744,7 @@ function renderEscalaReversaHTML(recipeId){
         <div class="app-px" style="padding-top:20px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
             <div class="app-h1" style="margin-bottom:0;">O que dá pra fazer?</div>
-            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
+            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);color:var(--chocolate);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
           </div>
           <p style="color:var(--chocolate-suave);font-size:12px;margin-bottom:14px;">${esc(r.name)}. Informe quanto você TEM de cada ingrediente (deixe em branco o que não quer limitar).</p>
           ${comQtd.map(({ing},i)=>`
@@ -3756,7 +3916,7 @@ const PERFIL_CATEGORIAS = [
     ["Desafio de 7 dias", true, "desafio"],["Bônus exclusivos", true, "bonus"],["Respostas Prontas", true, "respostas"],["S.O.S. Cozinha", true, "sos"],
   ]},
   { key:"vendas", titulo:"Vendas e clientes", icone:'<svg class="icon-ui"><use href="#ui-users"/></svg>', itens:[
-    ["Meus Pedidos", true, "pedidos"],["Meus Clientes", true, "clientes"],["Horários de retirada", true, "horarios-retirada"],["Cardápio para clientes", true, "cardapio"],["Cardápio Interativo (link)", true, "cardapio-interativo"],["Resumo Mensal", true, "resumo-mensal"],["Livro Caixa", true, "livro-caixa"],["Kits Festa", true, "kits"],
+    ["Meus Pedidos", true, "pedidos"],["Meus Clientes", true, "clientes"],["Horários de retirada", true, "horarios-retirada"],["Cardápio para clientes", true, "cardapio"],["Cardápio Interativo (link)", true, "cardapio-interativo"],["Resumo Mensal", true, "resumo-mensal"],["Livro Caixa", true, "livro-caixa"],["Contas a Pagar", true, "contas-pagar"],["Kits Festa", true, "kits"],
   ]},
   { key:"producao", titulo:"Produção e custos", icone:'<svg class="icon-ui"><use href="#ui-factory"/></svg>', itens:[
     ["Estoque", true, "estoque"],["Meus Ingredientes", true, "ingredientes"],["Radar de fornecedores", true, "fornecedores"],
@@ -3767,7 +3927,7 @@ const PERFIL_CATEGORIAS = [
     ["Importar dados salvos", false, "importar"],["Aparência", false, "aparencia"],
   ]},
 ];
-const PERFIL_ROTAS = { suporte:"RP.openSuporte()", aparencia:"RP.openAparencia()", notificacoes:"RP.abrirNotificacoesSheet()", indicar:"RP.openIndicar()", cardapio:"RP.openCardapio()", "cardapio-interativo":"RP.openCardapioInterativo()", exportar:"RP.exportarDados()", importar:"RP.importarDados()", "frete-config":"RP.openFreteConfig()", "resumo-mensal":"RP.openResumoMensal()", fornecedores:"RP.openFornecedores()", pedidos:"RP.openPedidos()", clientes:"RP.openClientes()", "horarios-retirada":"RP.openHorariosRetirada()", estoque:"RP.openEstoque()", ingredientes:"RP.openIngredientes()", "minhas-receitas":"RP.openMinhasReceitas()", respostas:"RP.openRespostasProntas()", sos:"RP.openSosCozinha()", kits:"RP.openKits()", equipamentos:"RP.openEquipamentos()", "livro-caixa":"RP.openLivroCaixa()" };
+const PERFIL_ROTAS = { suporte:"RP.openSuporte()", aparencia:"RP.openAparencia()", notificacoes:"RP.abrirNotificacoesSheet()", indicar:"RP.openIndicar()", cardapio:"RP.openCardapio()", "cardapio-interativo":"RP.openCardapioInterativo()", exportar:"RP.exportarDados()", importar:"RP.importarDados()", "frete-config":"RP.openFreteConfig()", "resumo-mensal":"RP.openResumoMensal()", fornecedores:"RP.openFornecedores()", pedidos:"RP.openPedidos()", clientes:"RP.openClientes()", "horarios-retirada":"RP.openHorariosRetirada()", estoque:"RP.openEstoque()", ingredientes:"RP.openIngredientes()", "minhas-receitas":"RP.openMinhasReceitas()", respostas:"RP.openRespostasProntas()", sos:"RP.openSosCozinha()", kits:"RP.openKits()", equipamentos:"RP.openEquipamentos()", "livro-caixa":"RP.openLivroCaixa()", "contas-pagar":"RP.openContasPagar()" };
 
 function renderPerfilCategoriaHTML(catKey){
   const cat = PERFIL_CATEGORIAS.find(c=>c.key===catKey);
@@ -3777,7 +3937,7 @@ function renderPerfilCategoriaHTML(catKey){
       <div class="sheet">
         <div class="app-px" style="padding-top:20px;">
           <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
-            <button onclick="RP.openPerfilCategoria(null)" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);flex-shrink:0;">←</button>
+            <button onclick="RP.openPerfilCategoria(null)" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);color:var(--chocolate);flex-shrink:0;"><svg class="icon-ui-sm"><use href="#ui-arrow-left"/></svg></button>
             <div class="app-h1" style="margin-bottom:0;">${cat.icone} ${cat.titulo}</div>
           </div>
           <div style="border:1px solid var(--creme-linha);border-radius:16px;overflow:hidden;">
@@ -3863,7 +4023,7 @@ function renderCamadasCalc(){
     </div>`;
 }
 let custoState = { rendimento:10, itens:[{n:"",c:""}], embalagem:"", mao:"", margemPerda:"" };
-let precoState = { custo:"", margem:40, produto:"", cliente:"", enderecoCliente:"", freteKm:null, freteValor:null };
+let precoState = { custo:"", margem:40, modoCmv:false, produto:"", cliente:"", enderecoCliente:"", freteKm:null, freteValor:null };
 let insumosState = [];
 let ultimoOrcamentoTexto = "";
 async function loadInsumos(){
@@ -3910,7 +4070,7 @@ function renderIngredientesHTML(){
         <div class="app-px" style="padding-top:20px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
             <div class="app-h1" style="margin-bottom:0;">Meus Ingredientes</div>
-            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
+            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);color:var(--chocolate);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
           </div>
           <p style="color:var(--chocolate-suave);font-size:12px;margin-bottom:12px;">Preço atual de cada ingrediente e como ele variou, com base nos ajustes que você já fez na calculadora de custo.</p>
           <button onclick="RP.abrirNotaFiscalSheet()" style="width:100%;background:var(--framboesa);color:var(--ink-on-dark);padding:12px;border-radius:100px;font-weight:800;font-size:13px;margin-bottom:16px;">📸 Lançar compras tirando foto da nota</button>
@@ -4020,7 +4180,7 @@ function renderNotaFiscalHTML(){
         <div class="app-px" style="padding-top:20px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
             <div class="app-h1" style="margin-bottom:0;"><svg class="icon-ui"><use href="#ui-camera"/></svg> Lançar nota fiscal</div>
-            <button onclick="RP.fecharNotaFiscalSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
+            <button onclick="RP.fecharNotaFiscalSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);color:var(--chocolate);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
           </div>
           <p style="color:var(--chocolate-suave);font-size:12px;margin-bottom:14px;">Tire uma foto legível do cupom ou nota fiscal. A leitura automática não é perfeita. Sempre confira e ajuste antes de salvar.</p>
 
@@ -4141,7 +4301,7 @@ function renderListaCronometrosHTML(){
       </div>
       <div style="display:flex;gap:6px;">
         ${!terminado ? `<button onclick="RP.pausarCronometro('${c.id}')" style="width:34px;height:34px;border-radius:50%;background:var(--creme-card);font-size:14px;">${c.rodando?'⏸':'▶️'}</button>` : ''}
-        <button onclick="RP.removerCronometro('${c.id}')" style="width:34px;height:34px;border-radius:50%;background:var(--creme-card);font-size:14px;"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
+        <button onclick="RP.removerCronometro('${c.id}')" style="width:34px;height:34px;border-radius:50%;background:var(--creme-card);color:var(--chocolate);font-size:14px;"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
       </div>
     </div>`;
   }).join('');
@@ -4344,19 +4504,29 @@ function precoResultadoHTML(){
   const custo = parseFloat(precoState.custo)||0;
   const preco = custo / (1 - precoState.margem/100);
   const lucro = preco - custo;
+  const cmvReal = preco>0 ? (custo/preco)*100 : 0;
   return `
     <div class="row"><span class="lbl" style="color:#E9D9C4;">Preço de venda sugerido</span><span class="val" style="color:var(--dourado);font-size:16px;">R$ ${custo?preco.toFixed(2):'0.00'}</span></div>
-    <div class="row"><span class="lbl" style="color:#E9D9C4;">Lucro por unidade</span><span class="val" style="color:var(--dourado);">R$ ${custo?lucro.toFixed(2):'0.00'}</span></div>`;
+    <div class="row"><span class="lbl" style="color:#E9D9C4;">Lucro por unidade</span><span class="val" style="color:var(--dourado);">R$ ${custo?lucro.toFixed(2):'0.00'}</span></div>
+    <div class="row"><span class="lbl" style="color:#E9D9C4;">CMV real (custo ÷ preço)</span><span class="val" style="color:var(--dourado);">${custo?cmvReal.toFixed(0):'0'}%</span></div>`;
 }
 function renderPrecoCalc(){
   const custo = parseFloat(precoState.custo)||0;
+  const modoCmv = precoState.modoCmv;
+  const valorSlider = modoCmv ? (100 - precoState.margem) : precoState.margem;
   return `
     <div class="card">
       <div style="font-weight:800;font-size:14px;margin-bottom:10px;">Preço de venda e lucro</div>
       <div style="font-size:12px;font-weight:700;margin-bottom:6px;">Custo total da receita (R$)</div>
-      <input class="field" data-key="preco-custo" placeholder="Ex: 25.00" value="${esc(precoState.custo)}" oninput="RP.setPrecoField('custo',this)" style="margin-bottom:14px;">
-      <div style="font-size:12px;font-weight:700;margin-bottom:6px;">Margem de lucro desejada: <span id="preco-margem-label">${precoState.margem}%</span></div>
-      <input type="range" data-key="preco-margem" min="10" max="80" value="${precoState.margem}" oninput="RP.setPrecoField('margem',this)" style="width:100%;accent-color:#C23B5B;">
+      <input class="field" data-key="preco-custo" placeholder="Ex: 25.00" value="${esc(precoState.custo)}" oninput="RP.setPrecoField('custo',this)" style="margin-bottom:10px;">
+      <div style="display:flex;gap:6px;margin-bottom:12px;">
+        <button onclick="RP.setPrecoModo(false)" style="flex:1;background:${!modoCmv?'var(--panel-dark)':'var(--creme-card)'};color:${!modoCmv?'var(--ink-on-dark)':'var(--chocolate)'};padding:8px;border-radius:100px;font-weight:800;font-size:11.5px;">Pensar em Margem</button>
+        <button onclick="RP.setPrecoModo(true)" style="flex:1;background:${modoCmv?'var(--panel-dark)':'var(--creme-card)'};color:${modoCmv?'var(--ink-on-dark)':'var(--chocolate)'};padding:8px;border-radius:100px;font-weight:800;font-size:11.5px;">Pensar em CMV</button>
+      </div>
+      <div style="font-size:12px;font-weight:700;margin-bottom:6px;">
+        ${modoCmv ? `Quanto no máximo quero que o custo represente: <span id="preco-margem-label">${valorSlider}%</span>` : `Margem de lucro desejada: <span id="preco-margem-label">${valorSlider}%</span>`}
+      </div>
+      <input type="range" data-key="preco-margem" min="10" max="80" value="${valorSlider}" oninput="RP.setPrecoField('margem',this)" style="width:100%;accent-color:#C23B5B;">
       <div id="preco-resultado" style="background:var(--panel-dark);border-radius:12px;padding:14px;margin-top:14px;">${precoResultadoHTML()}</div>
       <div style="margin-top:14px;${custo>0?'':'opacity:0.45;pointer-events:none;'}" id="preco-produto-section">
         <div style="font-size:12px;font-weight:700;margin-bottom:6px;">Nome do produto (pro orçamento)</div>
@@ -4402,7 +4572,7 @@ function renderGeradorPostHTML(recipeId){
       <div class="sheet" style="padding:22px 20px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
           <div class="app-h1" style="margin-bottom:0;"><svg class="icon-ui"><use href="#ui-mobile"/></svg> Post pro Instagram</div>
-          <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
+          <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);color:var(--chocolate);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
         </div>
         <p style="color:var(--chocolate-suave);font-size:12px;margin-bottom:12px;">Gera uma imagem pronta com o nome (e preço, se preencher) da receita, pra postar direto no Instagram.</p>
         <div style="display:flex;gap:8px;margin-bottom:10px;">
@@ -4831,7 +5001,7 @@ function renderTabelaNutricionalHTML(recipeId){
         <div class="app-px" style="padding-top:20px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
             <div class="app-h1" style="margin-bottom:0;">Tabela nutricional</div>
-            <button onclick="RP.closeSheet()" class="no-print" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
+            <button onclick="RP.closeSheet()" class="no-print" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);color:var(--chocolate);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
           </div>
           <div class="card" style="background:var(--creme-card);border:1px solid var(--framboesa);margin-bottom:14px;">
             <div style="font-weight:800;font-size:11.5px;color:var(--framboesa-escura);"><svg class="icon-ui-sm"><use href="#ui-warning"/></svg> ESTIMATIVA. Não é laudo oficial</div>
@@ -4888,7 +5058,7 @@ function renderModoCozinhaHTML(){
           <p style="font-size:22px;line-height:1.5;font-weight:600;max-width:420px;">${esc(r.modo[i])}</p>
         </div>
         <div style="display:flex;gap:10px;padding:20px;">
-          ${i>0 ? `<button onclick="RP.passoCozinha(-1)" style="flex:1;background:rgba(255,255,255,0.12);color:var(--ink-on-dark);padding:16px;border-radius:100px;font-weight:800;font-size:14px;">← Anterior</button>` : ''}
+          ${i>0 ? `<button onclick="RP.passoCozinha(-1)" style="flex:1;background:rgba(255,255,255,0.12);color:var(--ink-on-dark);padding:16px;border-radius:100px;font-weight:800;font-size:14px;"><svg class="icon-ui-sm"><use href="#ui-arrow-left"/></svg> Anterior</button>` : ''}
           <button onclick="${ultimo ? "RP.closeSheet()" : "RP.passoCozinha(1)"}" style="flex:2;background:var(--framboesa);color:var(--ink-on-dark);padding:16px;border-radius:100px;font-weight:800;font-size:14px;">${ultimo ? '<svg class="icon-ui-sm"><use href="#ui-check"/></svg> Terminei!' : "Próximo passo →"}</button>
         </div>
       </div>
@@ -4902,7 +5072,7 @@ function renderFreteConfigHTML(){
         <div class="app-px" style="padding-top:20px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
             <div class="app-h1" style="margin-bottom:0;">Calcular frete de entrega</div>
-            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);flex-shrink:0;"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
+            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);color:var(--chocolate);flex-shrink:0;"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
           </div>
           <p style="color:var(--chocolate-suave);font-size:12.5px;margin-bottom:16px;">Configure uma vez, e toda vez que gerar um orçamento você pode calcular a distância até o cliente.</p>
 
@@ -4934,7 +5104,7 @@ function renderAparenciaSheetHTML(){
       <div class="sheet">
         <div class="app-px" style="padding-top:20px;">
           <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
-            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);flex-shrink:0;">←</button>
+            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);color:var(--chocolate);flex-shrink:0;"><svg class="icon-ui-sm"><use href="#ui-arrow-left"/></svg></button>
             <div class="app-h1" style="margin-bottom:0;">Aparência</div>
           </div>
           <div style="color:var(--chocolate-suave);font-size:12px;margin:6px 0 16px 40px;">Essa escolha fica salva só neste navegador.</div>
@@ -5069,7 +5239,7 @@ function openAula(i){
         <div class="app-px" style="padding-top:20px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
             <div class="app-h1" style="margin-bottom:0;">${a.icone} ${esc(a.titulo)}</div>
-            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);flex-shrink:0;"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
+            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);color:var(--chocolate);flex-shrink:0;"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
           </div>
           <div style="display:flex;flex-direction:column;gap:12px;font-size:13.5px;color:var(--chocolate-suave);line-height:1.65;">
             ${a.paragrafos.map(p=>`<p>${esc(p)}</p>`).join('')}
@@ -5110,7 +5280,7 @@ function openInfoSheet(type){
         <div class="app-px" style="padding-top:20px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
             <div class="app-h1" style="margin-bottom:0;">${title}</div>
-            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
+            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);color:var(--chocolate);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
           </div>
           ${body}
           <div style="height:10px;"></div>
@@ -5133,7 +5303,7 @@ function renderDesafioSheetHTML(){
         <div class="app-px" style="padding-top:20px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
             <div class="app-h1" style="margin-bottom:0;">Desafio de 7 dias</div>
-            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
+            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);color:var(--chocolate);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
           </div>
           <div style="color:var(--chocolate-suave);font-size:12.5px;margin-bottom:14px;">Uma tarefa por dia pra sair da teoria e começar a vender com preço certo.</div>
           <div class="progress-card" style="margin-bottom:16px;">
@@ -5392,7 +5562,7 @@ window.RP = {
         <div class="sheet" style="padding:24px 22px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
             <div class="app-h1" style="margin-bottom:0;">Verificação de alérgenos</div>
-            <button onclick="RP.closeSheet()" class="no-print" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
+            <button onclick="RP.closeSheet()" class="no-print" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);color:var(--chocolate);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
           </div>
           <div class="card" style="background:var(--creme-card);border:1px solid var(--framboesa);margin-bottom:14px;">
             <div style="font-weight:800;font-size:11.5px;color:var(--framboesa-escura);"><svg class="icon-ui-sm"><use href="#ui-warning"/></svg> Isso é uma AJUDA DE REVISÃO, não uma garantia</div>
@@ -5420,7 +5590,7 @@ window.RP = {
           <div class="app-px" style="padding-top:20px;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
               <div class="app-h1" style="margin-bottom:0;"><svg class="icon-ui"><use href="#ui-lifebuoy"/></svg> S.O.S. Cozinha</div>
-              <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
+              <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);color:var(--chocolate);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
             </div>
             ${SOS_COZINHA.map(s=>`
               <div class="card" style="margin-bottom:8px;">
@@ -5440,7 +5610,7 @@ window.RP = {
           <div class="app-px" style="padding-top:20px;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
               <div class="app-h1" style="margin-bottom:0;">Respostas Prontas</div>
-              <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
+              <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);color:var(--chocolate);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
             </div>
             <p style="color:var(--chocolate-suave);font-size:12px;margin-bottom:14px;">Educado mas firme. Pra você não precisar improvisar na hora, com a cabeça quente.</p>
             ${RESPOSTAS_PRONTAS.map((r,i)=>`
@@ -5862,6 +6032,25 @@ window.RP = {
     if(cupomInput) p.cupomUsado = cupomInput.value.trim();
     await savePedidos();
 
+    if(statusAntigo!=='confirmado' && p.status==='confirmado' && p.receitaVinculadaId){
+      const receitaCheck = minhasReceitasState.find(r=>r.id===p.receitaVinculadaId);
+      if(receitaCheck){
+        const avisos = [];
+        receitaCheck.itens.filter(it=>!it.subReceitaId).forEach(it=>{
+          const itemEstoque = estoqueState.find(e=>e.ingrediente.trim().toLowerCase()===it.nome.trim().toLowerCase());
+          if(!itemEstoque) return;
+          const total = totalEmEstoque(itemEstoque);
+          const reservado = estoqueReservado(it.nome);
+          if(reservado > total){
+            avisos.push(`${it.nome} (falta ${(reservado-total).toFixed(1)} ${itemEstoque.unidade})`);
+          }
+        });
+        if(avisos.length > 0){
+          showToast(`⚠️ Estoque insuficiente pra esse e outros pedidos confirmados: ${avisos.join(", ")}`);
+        }
+      }
+    }
+
     if(((statusAntigo!=='confirmado' && p.status==='confirmado') || (statusAntigo!=='entregue' && p.status==='entregue')) && p.receitaVinculadaId){
       const receita = minhasReceitasState.find(r=>r.id===p.receitaVinculadaId);
       if(receita){
@@ -5934,7 +6123,7 @@ Confeiteira(o)                              Cliente`;
         <div class="sheet" style="padding:24px 22px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
             <div class="app-h1" style="margin-bottom:0;">Termo de confirmação</div>
-            <button onclick="RP.closeSheet()" class="no-print" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
+            <button onclick="RP.closeSheet()" class="no-print" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);color:var(--chocolate);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
           </div>
           <div class="card" style="background:var(--creme-card);border:1px solid var(--dourado);margin-bottom:14px;">
             <div style="font-size:11px;color:var(--chocolate-suave);line-height:1.5;"><svg class="icon-ui-sm"><use href="#ui-tip"/></svg> Isso registra o combinado entre você e o cliente. Útil como prova em caso de desavença, mas não é um contrato jurídico formal. Pra encomendas de valor alto (casamentos grandes), considere um advogado.</div>
@@ -6248,7 +6437,7 @@ Confeiteira(o)                              Cliente`;
           <div class="sheet" style="padding:24px 22px;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
               <div class="app-h1" style="margin-bottom:0;">Orçamento do kit pronto</div>
-              <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
+              <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);color:var(--chocolate);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
             </div>
             <div style="background:var(--creme-card);border-radius:12px;padding:14px;font-size:13px;line-height:1.7;white-space:pre-wrap;margin-bottom:14px;">${esc(textoFinal)}</div>
             <a href="https://wa.me/?text=${encodeURIComponent(textoFinal)}" target="_blank" style="display:block;box-sizing:border-box;text-align:center;width:100%;background:#25D366;color:#fff;padding:13px;border-radius:100px;font-weight:800;font-size:14px;margin-bottom:8px;">Enviar por WhatsApp</a>
@@ -6292,6 +6481,67 @@ Confeiteira(o)                              Cliente`;
   openLivroCaixa(){
     lancamentoTipoAtual = "entrada";
     navigateSheet(()=>renderLivroCaixaHTML());
+  },
+  openContasPagar(){
+    navigateSheet(()=>renderContasPagarHTML());
+  },
+  abrirRegistrarPerda(recipeId, idx){
+    const r = RECIPES.find(x=>x.id===recipeId);
+    if(!r) return;
+    // tenta sugerir um custo, se essa receita também existir em Minhas Receitas Salvas
+    const receitaSalva = minhasReceitasState.find(x=>x.nome.trim().toLowerCase()===r.name.trim().toLowerCase());
+    const custoSugerido = receitaSalva ? custoAtualReceitaSalva(receitaSalva).total.toFixed(2) : "";
+    const root = document.getElementById("sheet-root");
+    root.innerHTML = `
+      <div class="sheet-overlay"><div class="modal-bg" onclick="RP.closeSheet()"></div>
+        <div class="sheet" style="padding:26px 22px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+            <div class="app-h1" style="margin-bottom:0;">Registrar perda</div>
+            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);color:var(--chocolate);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
+          </div>
+          <p style="color:var(--chocolate-suave);font-size:12px;margin-bottom:14px;">"${esc(r.name)}" venceu sem vender. Quanto isso te custou (ingredientes + o que já foi gasto nela)?</p>
+          <input class="field" id="perda-custo" type="number" step="0.01" placeholder="Ex: 25.00" value="${custoSugerido}" style="margin-bottom:16px;">
+          <button onclick="RP.confirmarPerda('${recipeId}',${idx})" style="width:100%;background:var(--framboesa);color:var(--ink-on-dark);padding:13px;border-radius:100px;font-weight:800;font-size:14px;">Confirmar perda</button>
+        </div>
+      </div>`;
+  },
+  async confirmarPerda(recipeId, idx){
+    const r = RECIPES.find(x=>x.id===recipeId);
+    const custo = document.getElementById("perda-custo").value;
+    if(!custo || parseFloat(custo)<=0){ showToast("Digita quanto essa perda custou."); return; }
+    perdasState.push({ id:"pd"+Date.now(), receitaId: recipeId, nome: r.name, custo, data: new Date().toISOString() });
+    await savePerdas();
+    state.feitas.splice(idx, 1);
+    await saveFeitas();
+    showToast("Perda registrada. 💔");
+    navigateSheet(()=>renderValidadeHTML());
+  },
+  async adicionarContaPagar(){
+    const descricao = document.getElementById("conta-descricao").value.trim();
+    const valor = document.getElementById("conta-valor").value;
+    const vencimento = document.getElementById("conta-vencimento").value;
+    const recorrente = document.getElementById("conta-recorrente").checked;
+    if(!descricao || !vencimento){ showToast("Preenche pelo menos a descrição e o vencimento."); return; }
+    contasPagarState.push({ id:"cp"+Date.now(), descricao, valor, vencimento, recorrente, pago:false });
+    await saveContasPagar();
+    navigateSheet(()=>renderContasPagarHTML());
+  },
+  async marcarContaPaga(id){
+    const conta = contasPagarState.find(c=>c.id===id);
+    if(!conta) return;
+    conta.pago = true;
+    if(conta.recorrente){
+      const proxVenc = new Date(conta.vencimento + "T12:00:00");
+      proxVenc.setMonth(proxVenc.getMonth()+1);
+      contasPagarState.push({ id:"cp"+Date.now(), descricao:conta.descricao, valor:conta.valor, vencimento: proxVenc.toISOString().slice(0,10), recorrente:true, pago:false });
+    }
+    await saveContasPagar();
+    navigateSheet(()=>renderContasPagarHTML());
+  },
+  async excluirContaPagar(id){
+    contasPagarState = contasPagarState.filter(c=>c.id!==id);
+    await saveContasPagar();
+    navigateSheet(()=>renderContasPagarHTML());
   },
   abrirVendaBalcao(){
     navigateSheet(()=>renderVendaBalcaoHTML());
@@ -6533,6 +6783,23 @@ Confeiteira(o)                              Cliente`;
     const btn = document.getElementById("btn-instalar-pwa");
     if(btn) btn.style.display = "none";
   },
+  mostrarDicaIOS(){
+    const root = document.getElementById("sheet-root");
+    root.innerHTML = `
+      <div class="sheet-overlay"><div class="modal-bg" onclick="RP.closeSheet()"></div>
+        <div class="sheet" style="padding:26px 22px;text-align:center;">
+          <button onclick="RP.closeSheet()" style="position:absolute;top:14px;right:14px;width:30px;height:30px;border-radius:50%;background:var(--creme-card);color:var(--chocolate);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
+          <div style="font-size:34px;margin-bottom:8px;">📲</div>
+          <div class="app-h1" style="margin-bottom:14px;">Instalar no iPhone</div>
+          <div style="text-align:left;font-size:13.5px;line-height:2;">
+            <b>1.</b> Toque no botão de <b>Compartilhar</b> (o quadrado com a setinha pra cima), na barra do Safari<br>
+            <b>2.</b> Role pra baixo e toque em <b>"Adicionar à Tela de Início"</b><br>
+            <b>3.</b> Toque em <b>"Adicionar"</b> no canto superior direito
+          </div>
+          <p style="font-size:11.5px;color:var(--chocolate-suave);margin-top:14px;">Isso só funciona pelo Safari — no Chrome do iPhone essa opção não aparece, é uma limitação da Apple.</p>
+        </div>
+      </div>`;
+  },
   async setTheme(theme){
     state.theme = theme;
     await saveTheme();
@@ -6672,7 +6939,7 @@ Confeiteira(o)                              Cliente`;
           <div class="app-px" style="padding-top:20px;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
               <div class="app-h1" style="margin-bottom:0;">Política de Privacidade</div>
-              <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
+              <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);color:var(--chocolate);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
             </div>
             <div style="display:flex;flex-direction:column;gap:12px;font-size:13px;color:var(--chocolate-suave);line-height:1.6;">
               <p>Última atualização: 2026.</p>
@@ -6857,7 +7124,7 @@ Confeiteira(o)                              Cliente`;
         <div class="sheet" style="padding:26px 22px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
             <div class="app-h1" style="margin-bottom:0;"><svg class="icon-ui"><use href="#ui-bell"/></svg> Notificações</div>
-            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
+            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);color:var(--chocolate);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
           </div>
           <p style="color:var(--chocolate-suave);font-size:12.5px;margin-bottom:18px;">Receba um aviso no navegador quando tiver algo urgente: encomenda pra breve, receita perto de vencer ou estoque acabando. Sem precisar ficar abrindo o app pra conferir.</p>
           ${!suportado ? `
@@ -6902,7 +7169,7 @@ Confeiteira(o)                              Cliente`;
     root.innerHTML = `
       <div class="sheet-overlay"><div class="modal-bg" onclick="RP.closeSheet()"></div>
         <div class="sheet" style="text-align:center;padding:30px 24px;">
-          <button onclick="RP.closeSheet()" style="position:absolute;top:14px;right:14px;width:30px;height:30px;border-radius:50%;background:var(--creme-card);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
+          <button onclick="RP.closeSheet()" style="position:absolute;top:14px;right:14px;width:30px;height:30px;border-radius:50%;background:var(--creme-card);color:var(--chocolate);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
           <div style="font-size:34px;margin-bottom:8px;">🚀</div>
           <div class="app-h1" style="margin-bottom:6px;">Isso é exclusivo do Pro</div>
           <p style="color:var(--chocolate-suave);font-size:13px;margin-bottom:18px;">Desbloqueie as 161 receitas, calculadoras completas (com margem de perda e frete), desafio de 7 dias e todos os bônus.</p>
@@ -6917,7 +7184,7 @@ Confeiteira(o)                              Cliente`;
     root.innerHTML = `
       <div class="sheet-overlay"><div class="modal-bg" onclick="RP.closeSheet()"></div>
         <div class="sheet" style="text-align:center;padding:30px 24px;">
-          <button onclick="RP.closeSheet()" style="position:absolute;top:14px;right:14px;width:30px;height:30px;border-radius:50%;background:var(--creme-card);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
+          <button onclick="RP.closeSheet()" style="position:absolute;top:14px;right:14px;width:30px;height:30px;border-radius:50%;background:var(--creme-card);color:var(--chocolate);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
           <div style="font-size:34px;margin-bottom:8px;">💌</div>
           <div class="app-h1" style="margin-bottom:6px;">Upgrade com desconto</div>
           <p style="color:var(--chocolate-suave);font-size:13px;margin-bottom:16px;">Digite o e-mail que você usou pra comprar o Essencial. A gente confere e libera o link com o desconto.</p>
@@ -7021,14 +7288,24 @@ Confeiteira(o)                              Cliente`;
     const t = document.getElementById("custo-total");
     if(t) t.innerHTML = custoTotalHTML(state.plan==='pro');
   },
+  setPrecoModo(cmv){
+    precoState.modoCmv = cmv;
+    renderApp();
+  },
   setPrecoField(f, el){
-    precoState[f] = f==='margem' ? parseInt(el.value) : el.value;
+    if(f==='margem'){
+      const valorSlider = parseInt(el.value);
+      precoState.margem = precoState.modoCmv ? (100 - valorSlider) : valorSlider;
+    } else {
+      precoState[f] = el.value;
+    }
     if(f==='produto') return;
     const resultado = document.getElementById("preco-resultado");
     if(resultado) resultado.innerHTML = precoResultadoHTML();
     if(f==='margem'){
       const label = document.getElementById("preco-margem-label");
-      if(label) label.textContent = precoState.margem + "%";
+      const valorExibido = precoState.modoCmv ? (100 - precoState.margem) : precoState.margem;
+      if(label) label.textContent = valorExibido + "%";
     }
     if(f==='custo'){
       const secao = document.getElementById("preco-produto-section");
@@ -7101,7 +7378,7 @@ Confeiteira(o)                              Cliente`;
           <div class="sheet" style="padding:24px 22px;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
               <div class="app-h1" style="margin-bottom:0;">Orçamento pronto</div>
-              <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
+              <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);color:var(--chocolate);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
             </div>
             <div style="background:var(--creme-card);border-radius:12px;padding:14px;font-size:13px;line-height:1.7;white-space:pre-wrap;margin-bottom:14px;">${esc(textoFinal)}</div>
             <a href="https://wa.me/?text=${encodeURIComponent(textoFinal)}" target="_blank" style="display:block;box-sizing:border-box;text-align:center;width:100%;background:#25D366;color:#fff;padding:13px;border-radius:100px;font-weight:800;font-size:14px;margin-bottom:8px;">Enviar por WhatsApp</a>
@@ -7302,6 +7579,15 @@ Confeiteira(o)                              Cliente`;
       })
       .catch(()=>{}); // falhou a busca? não mostra nada. Sem fallback inventado
   })();
+
+  // no iPhone/iPad o Safari nunca oferece instalação automática — mostra
+  // um botão com instrução manual em vez do botão que nunca vai aparecer
+  const ehIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
+  const jaInstalado = window.matchMedia("(display-mode: standalone)").matches || navigator.standalone;
+  if(ehIOS && !jaInstalado){
+    const btnIOS = document.getElementById("btn-instalar-ios");
+    if(btnIOS) btnIOS.style.display = "inline-flex";
+  }
 
   // registra o service worker, pra funcionar instalado e offline (PWA)
   if("serviceWorker" in navigator){
