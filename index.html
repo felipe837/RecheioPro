@@ -116,7 +116,7 @@
   .solucao{padding:60px 0;background:var(--creme-card);border-top:1px solid var(--creme-linha);border-bottom:1px solid var(--creme-linha);}
   .feature-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
   @media(min-width:640px){.feature-grid{grid-template-columns:1fr 1fr 1fr;}}
-  .feature{background:var(--branco);border-radius:14px;padding:16px;border:1px solid var(--creme-linha);box-shadow:0 10px 24px -18px rgba(59,36,23,0.25);transition:transform .18s ease;}
+  .feature{background:var(--branco);border-radius:14px;padding:16px;border:1px solid var(--creme-linha);box-shadow:0 10px 24px -18px rgba(59,36,23,0.25);transition:transform .18s ease;text-align:center;}
   .feature:hover{transform:translateY(-3px);}
   .feature h3{font-size:14px;font-weight:700;margin-bottom:3px;}
   .feature p{font-size:12px;color:var(--chocolate-suave);line-height:1.45;}
@@ -249,8 +249,8 @@
   .app-body{flex:1;overflow-y:auto;padding-bottom:18px;}
   .app-bottomnav{display:flex;align-items:stretch;justify-content:space-around;padding:8px 2px;border-top:1px solid var(--creme-linha);background:var(--branco);}
   .nav-btn{display:flex;flex-direction:column;align-items:center;gap:4px;padding:4px 6px;flex:1;color:var(--chocolate-suave);}
-  .icon-ui{width:20px;height:20px;flex-shrink:0;vertical-align:-5px;}
-  .icon-ui-sm{width:15px;height:15px;flex-shrink:0;vertical-align:-2px;}
+  .icon-ui{width:20px;height:20px;flex-shrink:0;vertical-align:-5px;display:inline-block;}
+  .icon-ui-sm{width:15px;height:15px;flex-shrink:0;vertical-align:-2px;display:inline-block;}
   .nav-btn.active{color:var(--framboesa);}
   .nav-btn span{font-size:10px;font-weight:700;}
 
@@ -349,6 +349,8 @@
   .social-proof-popup{position:fixed;left:16px;bottom:16px;z-index:80;background:var(--branco);border-radius:18px;box-shadow:0 14px 34px -6px rgba(59,36,23,0.28),0 2px 8px rgba(59,36,23,0.1);padding:14px 36px 14px 14px;display:flex;align-items:center;gap:12px;max-width:280px;border:1px solid rgba(226,168,87,0.25);transform:translateY(130%) scale(.96);opacity:0;transition:transform .45s cubic-bezier(.2,.8,.2,1),opacity .45s ease;pointer-events:none;}
   .social-proof-popup.show{transform:translateY(0) scale(1);opacity:1;pointer-events:auto;}
   .social-proof-avatar{position:relative;width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--dourado),var(--framboesa));color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-weight:800;font-size:15px;font-family:'Fraunces',serif;box-shadow:0 3px 8px rgba(194,59,91,0.35);}
+  .social-proof-avatar.plano-essencial{background:linear-gradient(135deg,#E3A857,#C98A3A);box-shadow:0 3px 8px rgba(227,168,87,0.4);}
+  .social-proof-avatar.plano-pro{background:linear-gradient(135deg,#C23B5B,#8F2A44);box-shadow:0 3px 8px rgba(194,59,91,0.4);}
   .social-proof-live{position:absolute;bottom:-2px;right:-2px;width:14px;height:14px;border-radius:50%;background:#7A9E6E;border:2px solid var(--branco);}
   .social-proof-live::after{content:"";position:absolute;inset:0;border-radius:50%;background:#7A9E6E;animation:socialProofPulse 1.8s ease-out infinite;}
   @keyframes socialProofPulse{0%{transform:scale(1);opacity:.7;}100%{transform:scale(2.2);opacity:0;}}
@@ -515,25 +517,27 @@
   <div class="wrap">
     <div class="sect-head reveal"><span class="kicker">A solução</span><h2>Tudo que a sua confeitaria precisa, num app só</h2><p>Receitas testadas, calculadoras que fazem a conta por você e as ferramentas que faltavam pra organizar de verdade o negócio.</p></div>
 
-    <div style="font-weight:800;font-size:14px;color:var(--dourado);margin:28px 0 12px;display:flex;align-items:center;gap:8px;" class="reveal"><svg class="icon-ui"><use href="#ui-book"/></svg> Receitas e precificação</div>
-    <div class="feature-grid">
-      <div class="feature reveal"><h3><svg class="icon-ui-sm"><use href="#ui-book"/></svg> Receitas testadas</h3><p>Rendimento, tempo e dicas de conservação.</p></div>
-      <div class="feature reveal"><h3><svg class="icon-ui-sm"><use href="#ui-calculator"/></svg> Calculadora de custo e preço</h3><p>Some ingredientes e veja quanto cobrar com lucro real.</p></div>
-      <div class="feature reveal"><h3><svg class="icon-ui-sm"><use href="#ui-camera"/></svg> Nota fiscal por foto</h3><p>Atualiza o preço do ingrediente sozinho, sem digitar.</p></div>
-    </div>
+    <div style="max-width:900px;margin:0 auto;">
+      <div style="font-weight:800;font-size:14px;color:var(--dourado);margin:28px 0 12px;display:flex;align-items:center;justify-content:center;gap:8px;text-align:center;" class="reveal"><svg class="icon-ui"><use href="#ui-book"/></svg> Receitas e precificação</div>
+      <div class="feature-grid">
+        <div class="feature reveal"><h3><svg class="icon-ui-sm"><use href="#ui-book"/></svg> Receitas testadas</h3><p>Rendimento, tempo e dicas de conservação.</p></div>
+        <div class="feature reveal"><h3><svg class="icon-ui-sm"><use href="#ui-calculator"/></svg> Calculadora de custo e preço</h3><p>Some ingredientes e veja quanto cobrar com lucro real.</p></div>
+        <div class="feature reveal"><h3><svg class="icon-ui-sm"><use href="#ui-camera"/></svg> Nota fiscal por foto</h3><p>Atualiza o preço do ingrediente sozinho, sem digitar.</p></div>
+      </div>
 
-    <div style="font-weight:800;font-size:14px;color:var(--dourado);margin:28px 0 12px;display:flex;align-items:center;gap:8px;" class="reveal"><svg class="icon-ui"><use href="#ui-users"/></svg> Vendas, clientes e produção</div>
-    <div class="feature-grid">
-      <div class="feature reveal"><h3><svg class="icon-ui-sm"><use href="#ui-users"/></svg> CRM de pedidos</h3><p>Histórico de cliente, follow-up e calendário de encomendas.</p></div>
-      <div class="feature reveal"><h3><svg class="icon-ui-sm"><use href="#ui-mobile"/></svg> Cardápio interativo</h3><p>Cliente monta o pedido sozinho, você só confirma.</p></div>
-      <div class="feature reveal"><h3><svg class="icon-ui-sm"><use href="#ui-clipboard"/></svg> Produção do dia</h3><p>Lista organizada por horário de entrega, sem esquecer nada.</p></div>
-    </div>
+      <div style="font-weight:800;font-size:14px;color:var(--dourado);margin:28px 0 12px;display:flex;align-items:center;justify-content:center;gap:8px;text-align:center;" class="reveal"><svg class="icon-ui"><use href="#ui-users"/></svg> Vendas, clientes e produção</div>
+      <div class="feature-grid">
+        <div class="feature reveal"><h3><svg class="icon-ui-sm"><use href="#ui-users"/></svg> CRM de pedidos</h3><p>Histórico de cliente, follow-up e calendário de encomendas.</p></div>
+        <div class="feature reveal"><h3><svg class="icon-ui-sm"><use href="#ui-mobile"/></svg> Cardápio interativo</h3><p>Cliente monta o pedido sozinho, você só confirma.</p></div>
+        <div class="feature reveal"><h3><svg class="icon-ui-sm"><use href="#ui-clipboard"/></svg> Produção do dia</h3><p>Lista organizada por horário de entrega, sem esquecer nada.</p></div>
+      </div>
 
-    <div style="font-weight:800;font-size:14px;color:var(--dourado);margin:28px 0 12px;display:flex;align-items:center;gap:8px;" class="reveal"><svg class="icon-ui"><use href="#ui-wallet"/></svg> Estoque e financeiro</div>
-    <div class="feature-grid">
-      <div class="feature reveal"><h3><svg class="icon-ui-sm"><use href="#ui-box"/></svg> Estoque inteligente</h3><p>Baixa automática e aviso antes de faltar ingrediente.</p></div>
-      <div class="feature reveal"><h3><svg class="icon-ui-sm"><use href="#ui-wallet"/></svg> Financeiro completo</h3><p>Livro caixa, contas a pagar e resumo do mês.</p></div>
-      <div class="feature reveal"><h3><svg class="icon-ui-sm"><use href="#ui-warning"/></svg> Controle de perdas</h3><p>Saiba quanto desperdício custou no mês.</p></div>
+      <div style="font-weight:800;font-size:14px;color:var(--dourado);margin:28px 0 12px;display:flex;align-items:center;justify-content:center;gap:8px;text-align:center;" class="reveal"><svg class="icon-ui"><use href="#ui-wallet"/></svg> Estoque e financeiro</div>
+      <div class="feature-grid">
+        <div class="feature reveal"><h3><svg class="icon-ui-sm"><use href="#ui-box"/></svg> Estoque inteligente</h3><p>Baixa automática e aviso antes de faltar ingrediente.</p></div>
+        <div class="feature reveal"><h3><svg class="icon-ui-sm"><use href="#ui-wallet"/></svg> Financeiro completo</h3><p>Livro caixa, contas a pagar e resumo do mês.</p></div>
+        <div class="feature reveal"><h3><svg class="icon-ui-sm"><use href="#ui-warning"/></svg> Controle de perdas</h3><p>Saiba quanto desperdício custou no mês.</p></div>
+      </div>
     </div>
   </div>
 </section>
@@ -2860,6 +2864,64 @@ function margemEmRisco(receita){
   return margemAtual != null && margemAtual < margemMinima;
 }
 
+/* =========================================================================
+   FICHA TÉCNICA — duas versões da mesma receita salva: gerencial (com
+   custo e margem, só pra você) e operacional (só ingredientes e modo de
+   preparo, pra imprimir e colar na cozinha ou dar pra quem te ajuda)
+========================================================================= */
+function renderFichaTecnicaHTML(receitaId, versao){
+  const r = minhasReceitasState.find(x=>x.id===receitaId);
+  if(!r) return `<div class="sheet-overlay"><div class="sheet"><div class="app-px" style="padding-top:20px;">Receita não encontrada.</div></div></div>`;
+  const c = custoAtualReceitaSalva(r);
+  const gerencial = versao === 'gerencial';
+
+  return `
+    <div class="sheet-overlay"><div class="modal-bg" onclick="RP.closeSheet()"></div>
+      <div class="sheet">
+        <div class="app-px" style="padding-top:20px;">
+          <div class="no-print" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+            <div class="app-h1" style="margin-bottom:0;">Ficha ${gerencial?'gerencial':'operacional'}</div>
+            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);color:var(--chocolate);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
+          </div>
+
+          <div style="text-align:center;margin-bottom:16px;">
+            <div style="font-size:20px;font-weight:800;font-family:'Fraunces',serif;">${esc(r.nome)}</div>
+            <div style="font-size:11.5px;color:var(--chocolate-suave);">Rendimento: ${esc(r.rendimento||'—')} ${gerencial?'· Ficha gerencial (uso interno)':'· Ficha operacional'}</div>
+          </div>
+
+          <div style="font-weight:800;font-size:12.5px;margin-bottom:8px;">Ingredientes</div>
+          ${r.itens.map(it=>{
+            if(it.subReceitaId){
+              const sub = minhasReceitasState.find(x=>x.id===it.subReceitaId);
+              return `<div class="card" style="margin-bottom:6px;padding:10px 12px;"><b>${esc(sub?sub.nome:'(sub-receita removida)')}</b> — ${esc(it.quantidade||1)}x</div>`;
+            }
+            return `<div class="card" style="margin-bottom:6px;padding:10px 12px;display:flex;justify-content:space-between;">
+              <span>${esc(it.nome)}</span>
+              <span style="display:flex;gap:10px;">
+                ${it.qtd ? `<b>${esc(it.qtd)}</b>` : ''}
+                ${gerencial ? `<span style="color:var(--chocolate-suave);">R$ ${(parseFloat(precoAtualInsumo(it.nome) ?? it.custoOriginal)||0).toFixed(2)}</span>` : ''}
+              </span>
+            </div>`;
+          }).join('')}
+
+          ${gerencial ? `
+          <div class="card" style="background:var(--panel-dark);margin-top:14px;">
+            <div class="row"><span class="lbl" style="color:#E9D9C4;">Custo total</span><span class="val" style="color:var(--dourado);">R$ ${c.total.toFixed(2)}</span></div>
+            <div class="row"><span class="lbl" style="color:#E9D9C4;">Custo por unidade</span><span class="val" style="color:var(--dourado);">R$ ${c.porUnidade.toFixed(2)}</span></div>
+            ${r.precoVenda ? `<div class="row"><span class="lbl" style="color:#E9D9C4;">Preço de venda</span><span class="val" style="color:var(--framboesa);">R$ ${parseFloat(r.precoVenda).toFixed(2)}</span></div>` : ''}
+          </div>` : ''}
+
+          ${r.modoPreparo ? `
+          <div style="font-weight:800;font-size:12.5px;margin:16px 0 8px;">Modo de preparo</div>
+          <div class="card" style="white-space:pre-wrap;line-height:1.6;font-size:12.5px;">${esc(r.modoPreparo)}</div>
+          ` : ''}
+
+          <button onclick="window.print()" class="no-print" style="width:100%;background:var(--framboesa);color:var(--ink-on-dark);padding:12px;border-radius:100px;font-weight:800;font-size:13px;margin-top:16px;">🖨️ Imprimir / Exportar PDF</button>
+        </div>
+      </div>
+    </div>`;
+}
+
 function renderMinhasReceitasHTML(){
   return `
     <div class="sheet-overlay"><div class="modal-bg" onclick="RP.closeSheet()"></div>
@@ -2886,6 +2948,11 @@ function renderMinhasReceitasHTML(){
               ${margemAtual != null ? `<div style="font-size:11px;margin-top:2px;color:${risco?'var(--framboesa)':'#7A9E6E'};font-weight:700;">${risco?'<svg class="icon-ui-sm"><use href="#ui-warning"/></svg>':'<svg class="icon-ui-sm"><use href="#ui-check"/></svg>'} Margem atual: ${margemAtual.toFixed(1)}% ${receita.margemMinima?`(mínima definida: ${receita.margemMinima}%)`:''}</div>` : ''}
               ${c.itensSemPreco>0 ? `<div style="font-size:10px;color:var(--dourado);margin-top:2px;"><svg class="icon-ui-sm"><use href="#ui-warning"/></svg> ${c.itensSemPreco} ingrediente(s) não está mais no seu banco de insumos. Usando o último preço salvo.</div>` : ''}
               <input class="field" placeholder="Link de foto (opcional, pro cardápio)" value="${esc(receita.fotoUrl||'')}" onchange="RP.setFotoReceitaSalva('${receita.id}',this.value)" style="margin-top:8px;font-size:11.5px;padding:8px 10px;">
+              <textarea placeholder="Modo de preparo (opcional, pra ficha operacional)" onchange="RP.setModoPreparoReceitaSalva('${receita.id}',this.value)" style="width:100%;margin-top:8px;font-size:11.5px;padding:8px 10px;border-radius:10px;border:1px solid var(--creme-linha);background:var(--creme);color:var(--chocolate);min-height:60px;font-family:inherit;">${esc(receita.modoPreparo||'')}</textarea>
+              <div style="display:flex;gap:6px;margin-top:8px;">
+                <button onclick="RP.abrirFichaTecnica('${receita.id}','gerencial')" style="flex:1;background:var(--panel-dark);color:var(--ink-on-dark);padding:9px;border-radius:100px;font-size:10.5px;font-weight:800;">🔒 Ficha gerencial</button>
+                <button onclick="RP.abrirFichaTecnica('${receita.id}','operacional')" style="flex:1;background:var(--creme-card);color:var(--chocolate);padding:9px;border-radius:100px;font-size:10.5px;font-weight:800;">📋 Ficha operacional</button>
+              </div>
             </div>`;
           }).join('')}
         </div>
@@ -6731,6 +6798,15 @@ Confeiteira(o)                              Cliente`;
     receita.fotoUrl = valor.trim();
     await saveMinhasReceitas();
   },
+  async setModoPreparoReceitaSalva(id, valor){
+    const receita = minhasReceitasState.find(x=>x.id===id);
+    if(!receita) return;
+    receita.modoPreparo = valor.trim();
+    await saveMinhasReceitas();
+  },
+  abrirFichaTecnica(id, versao){
+    navigateSheet(()=>renderFichaTecnicaHTML(id, versao));
+  },
   openLivroCaixa(){
     lancamentoTipoAtual = "entrada";
     navigateSheet(()=>renderLivroCaixaHTML());
@@ -7927,8 +8003,12 @@ Confeiteira(o)                              Cliente`;
           if(state.plan){ pararTudo(); return; } // logou entre uma exibição e outra
           const v = vendas[idx % vendas.length];
           idx++;
+          const ehPro = /pro/i.test(v.plano);
+          const avatar = el.querySelector(".social-proof-avatar");
+          avatar.classList.remove("plano-essencial","plano-pro");
+          avatar.classList.add(ehPro ? "plano-pro" : "plano-essencial");
           el.querySelector(".social-proof-initial").textContent = (v.nome||"?").charAt(0).toUpperCase();
-          el.querySelector(".social-proof-text").innerHTML = `<b>${esc(v.nome)}</b> assinou o plano<span class="social-proof-plano">${esc(v.plano)}</span><br><span style="color:var(--chocolate-suave);">🕐 ${relativo(v.data)}</span>`;
+          el.querySelector(".social-proof-text").innerHTML = `🧁 <b>${esc(v.nome)}</b> acabou de garantir o RecheioPro<span class="social-proof-plano">${esc(v.plano)}</span><br><span style="color:var(--chocolate-suave);">🕐 ${relativo(v.data)}</span>`;
           el.classList.add("show");
           setTimeout(()=>{ el.classList.remove("show"); }, 5500);
         }
