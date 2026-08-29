@@ -114,7 +114,7 @@
 
   /* ---- solucao ---- */
   .solucao{padding:60px 0;background:var(--creme-card);border-top:1px solid var(--creme-linha);border-bottom:1px solid var(--creme-linha);}
-  .feature-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:640px;margin:0 auto;}
+  .feature-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
   @media(min-width:640px){.feature-grid{grid-template-columns:1fr 1fr 1fr;}}
   .feature{background:var(--branco);border-radius:14px;padding:16px;border:1px solid var(--creme-linha);box-shadow:0 10px 24px -18px rgba(59,36,23,0.25);transition:transform .18s ease;}
   .feature:hover{transform:translateY(-3px);}
@@ -1685,6 +1685,7 @@ async function loadState(){
   await loadEquipamentos();
   await loadLivroCaixa();
   await loadContasPagar();
+  await loadContasReceber();
   await loadPerdas();
   await loadLembretes();
 }
@@ -1873,7 +1874,7 @@ function tempoAtivoMinutos(tempo){ return tempoMinutos(tempo.split('+')[0]); }
    FRETE POR DISTÂNCIA (OpenCage Geocoding API)
 ========================================================================= */
 let freteConfig = { apikey:"", origem:"", precoKm:"" };
-let negocioConfig = { despesasFixas:"", producaoMensalEstimada:"", nomeLoja:"", whatsappLoja:"", politicaCancelamento:"É necessário sinal de 50% para confirmar o pedido. Em caso de cancelamento com menos de 48h de antecedência, o sinal não será devolvido, já que os ingredientes já foram comprados e o preparo pode já ter sido iniciado.", horariosRetirada:[], fidelidadeAtiva:false, fidelidadeMeta:"", fidelidadePremio:"" };
+let negocioConfig = { despesasFixas:"", producaoMensalEstimada:"", nomeLoja:"", whatsappLoja:"", politicaCancelamento:"É necessário sinal de 50% para confirmar o pedido. Em caso de cancelamento com menos de 48h de antecedência, o sinal não será devolvido, já que os ingredientes já foram comprados e o preparo pode já ter sido iniciado.", horariosRetirada:[], fidelidadeAtiva:false, fidelidadeMeta:"", fidelidadePremio:"", metaMensal:"" };
 async function loadNegocioConfig(){
   try{ const n = await window.storage.get("recheiopro:negocio-config"); if(n&&n.value) negocioConfig = JSON.parse(n.value); }catch(e){}
 }
@@ -2603,6 +2604,7 @@ function renderPedidoDetalheHTML(id){
           <button onclick="RP.salvarPedido('${p.id}')" class="no-print" style="width:100%;background:var(--framboesa);color:var(--ink-on-dark);padding:13px;border-radius:100px;font-weight:800;font-size:14px;margin-bottom:8px;">Salvar</button>
           ${p.orcamentoPublicoId ? `<button onclick="RP.verificarRespostaOrcamento('${p.id}')" class="no-print" style="width:100%;background:#25D366;color:#fff;padding:11px;border-radius:100px;font-weight:800;font-size:12.5px;margin-bottom:8px;">🔎 Ver se o cliente já respondeu</button>` : ''}
           <button onclick="RP.gerarTermoEncomenda('${p.id}')" class="no-print" style="width:100%;background:var(--panel-dark);color:var(--ink-on-dark);padding:13px;border-radius:100px;font-weight:800;font-size:13px;margin-bottom:8px;">📄 Gerar termo de encomenda</button>
+          ${p.dataEvento ? `<button onclick="RP.adicionarAoGoogleCalendar('${p.id}')" class="no-print" style="width:100%;background:var(--creme-card);color:var(--chocolate);padding:12px;border-radius:100px;font-weight:800;font-size:12.5px;margin-bottom:8px;">📅 Adicionar ao Google Calendar</button>` : ''}
           <button onclick="window.print()" class="no-print" style="width:100%;background:var(--creme-card);color:var(--chocolate);padding:12px;border-radius:100px;font-weight:800;font-size:12.5px;margin-bottom:8px;">🖨️ Exportar PDF / imprimir</button>
           <button onclick="RP.excluirPedido('${p.id}')" class="no-print" style="width:100%;color:var(--chocolate-suave);font-weight:700;font-size:12.5px;padding:8px;">Excluir pedido</button>
         </div>
@@ -3232,6 +3234,12 @@ async function loadContasPagar(){
 }
 async function saveContasPagar(){ try{ await window.storage.set("recheiopro:contas-pagar", JSON.stringify(contasPagarState)); }catch(e){} }
 
+let contasReceberState = [];
+async function loadContasReceber(){
+  try{ const c = await window.storage.get("recheiopro:contas-receber"); if(c&&c.value) contasReceberState = JSON.parse(c.value); }catch(e){}
+}
+async function saveContasReceber(){ try{ await window.storage.set("recheiopro:contas-receber", JSON.stringify(contasReceberState)); }catch(e){} }
+
 let perdasState = [];
 async function loadPerdas(){
   try{ const p = await window.storage.get("recheiopro:perdas"); if(p&&p.value) perdasState = JSON.parse(p.value); }catch(e){}
@@ -3288,6 +3296,84 @@ function renderVendaBalcaoHTML(){
    CONTAS A PAGAR — compromissos futuros (aluguel, luz, insumo parcelado),
    diferente do Livro Caixa que só registra o que já aconteceu
 ========================================================================= */
+/* =========================================================================
+   CONTAS A RECEBER — o espelho das Contas a Pagar: quem ainda te deve.
+   Junta automático (saldo pendente de pedido confirmado, comparando valor
+   com sinal recebido) com lançamentos manuais (coisa que não veio de pedido)
+========================================================================= */
+function renderContasReceberHTML(){
+  const hoje = new Date(); hoje.setHours(0,0,0,0);
+
+  const pendentesAuto = pedidosState.filter(p=>{
+    if(p.status !== 'confirmado') return false;
+    const valor = parseFloat(p.valor)||0;
+    const sinal = parseFloat(p.sinalRecebido)||0;
+    return valor - sinal > 0.01;
+  }).map(p=>({
+    tipo: 'auto', id: p.id, descricao: p.produto, cliente: p.cliente,
+    valor: (parseFloat(p.valor)||0) - (parseFloat(p.sinalRecebido)||0),
+    vencimento: p.dataEvento ? p.dataEvento.slice(0,10) : null,
+  }));
+
+  const manuaisAbertas = contasReceberState.filter(c=>!c.recebido).map(c=>({ tipo:'manual', ...c }));
+  const todasAbertas = [...pendentesAuto, ...manuaisAbertas].sort((a,b)=>{
+    if(!a.vencimento) return 1;
+    if(!b.vencimento) return -1;
+    return new Date(a.vencimento) - new Date(b.vencimento);
+  });
+  const totalAberto = todasAbertas.reduce((a,c)=>a+(parseFloat(c.valor)||0),0);
+
+  function statusConta(vencimento){
+    if(!vencimento) return { cor:"var(--creme-linha)", texto:"Sem data de vencimento" };
+    const venc = new Date(vencimento + "T12:00:00");
+    const dias = Math.round((venc-hoje)/(1000*60*60*24));
+    if(dias<0) return { cor:"var(--framboesa)", texto:`Venceu há ${Math.abs(dias)} dia${Math.abs(dias)===1?'':'s'}` };
+    if(dias===0) return { cor:"var(--framboesa)", texto:"Vence hoje" };
+    if(dias<=5) return { cor:"var(--dourado)", texto:`Vence em ${dias} dia${dias===1?'':'s'}` };
+    return { cor:"#7A9E6E", texto:`Vence em ${dias} dias` };
+  }
+
+  return `
+    <div class="sheet-overlay"><div class="modal-bg" onclick="RP.closeSheet()"></div>
+      <div class="sheet">
+        <div class="app-px" style="padding-top:20px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+            <div class="app-h1" style="margin-bottom:0;">Contas a receber</div>
+            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);color:var(--chocolate);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
+          </div>
+          <p style="color:var(--chocolate-suave);font-size:12px;margin-bottom:14px;">Quem ainda te deve — saldo de pedido confirmado (valor menos sinal) e outras pendências avulsas.</p>
+
+          <div class="card" style="background:var(--panel-dark);margin-bottom:14px;">
+            <div class="row"><span class="lbl" style="color:#E9D9C4;">Total a receber</span><span class="val" style="color:#7A9E6E;font-size:18px;">${fmtMoeda(totalAberto)}</span></div>
+          </div>
+
+          <div style="display:flex;gap:6px;margin-bottom:10px;">
+            <input class="field" id="receber-descricao" placeholder="Ex: Kit festa, Maria" style="flex:2;">
+            <input class="field" id="receber-valor" type="number" step="0.01" placeholder="Valor" style="flex:1;">
+          </div>
+          <input type="date" class="field" id="receber-vencimento" style="margin-bottom:10px;">
+          <button onclick="RP.adicionarContaReceber()" style="width:100%;background:#7A9E6E;color:var(--ink-on-dark);padding:11px;border-radius:100px;font-weight:800;font-size:13px;margin-bottom:16px;">＋ Adicionar pendência avulsa</button>
+
+          <div style="font-weight:800;font-size:12.5px;margin-bottom:8px;">Em aberto</div>
+          ${todasAbertas.length===0 ? `<div style="font-size:12px;color:var(--chocolate-suave);margin-bottom:14px;">Nada pendente pra receber. 🎉</div>` : todasAbertas.map(c=>{
+            const st = statusConta(c.vencimento);
+            return `
+            <div class="card" style="border-left:4px solid ${st.cor};margin-bottom:8px;display:flex;align-items:center;gap:10px;${c.tipo==='auto'?'cursor:pointer;':''}" ${c.tipo==='auto'?`onclick="RP.closeSheet();RP.abrirPedido('${c.id}')"`:''}>
+              <div style="flex:1;">
+                <div style="font-weight:800;font-size:12.5px;">${esc(c.descricao)}${c.cliente?` · ${esc(c.cliente)}`:''} ${c.tipo==='auto'?'<span style="font-size:9px;color:var(--chocolate-suave);">(saldo de pedido)</span>':''}</div>
+                <div style="font-size:11px;color:var(--chocolate-suave);">${st.texto} · ${fmtMoeda(c.valor)}</div>
+              </div>
+              ${c.tipo==='manual' ? `
+                <button onclick="event.stopPropagation();RP.marcarContaRecebida('${c.id}')" style="background:var(--creme-card);color:var(--chocolate);padding:8px 12px;border-radius:100px;font-size:11px;font-weight:800;white-space:nowrap;">Recebi</button>
+                <button onclick="event.stopPropagation();RP.excluirContaReceber('${c.id}')" style="color:var(--chocolate-suave);flex-shrink:0;"><svg class="icon-ui-sm"><use href="#ui-trash"/></svg></button>
+              ` : ''}
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+    </div>`;
+}
+
 function renderContasPagarHTML(){
   const hoje = new Date(); hoje.setHours(0,0,0,0);
   const abertas = contasPagarState.filter(c=>!c.pago).sort((a,b)=> new Date(a.vencimento) - new Date(b.vencimento));
@@ -3392,15 +3478,18 @@ function renderLivroCaixaHTML(){
         <div class="app-px" style="padding-top:20px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
             <div class="app-h1" style="margin-bottom:0;">Livro Caixa</div>
-            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);color:var(--chocolate);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <button onclick="RP.toggleValoresEscondidosLivroCaixa()" title="${valoresEscondidos?'Mostrar valores':'Esconder valores'}" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);color:var(--chocolate);display:flex;align-items:center;justify-content:center;">${valoresEscondidos?'🙈':'👁️'}</button>
+              <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);color:var(--chocolate);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
+            </div>
           </div>
           <p style="color:var(--chocolate-suave);font-size:12px;margin-bottom:14px;">Anote qualquer dinheiro que entrou ou saiu. Venda no débito, compra de ingrediente avulsa, o que for.</p>
           <button onclick="RP.abrirVendaBalcao()" style="width:100%;background:var(--framboesa);color:var(--ink-on-dark);padding:12px;border-radius:100px;font-weight:800;font-size:13px;margin-bottom:14px;">💰 Registrar venda no balcão</button>
 
           <div class="card" style="background:var(--panel-dark);color:var(--ink-on-dark);margin-bottom:14px;">
-            <div class="row"><span class="lbl" style="color:#E9D9C4;">Saldo total</span><span class="val" style="color:${saldo>=0?'#7A9E6E':'var(--framboesa)'};font-size:18px;">R$ ${saldo.toFixed(2)}</span></div>
-            <div class="row"><span class="lbl" style="color:#E9D9C4;">Entradas do mês</span><span class="val" style="color:#7A9E6E;">R$ ${entradasMes.toFixed(2)}</span></div>
-            <div class="row"><span class="lbl" style="color:#E9D9C4;">Saídas do mês</span><span class="val" style="color:var(--framboesa);">R$ ${saidasMes.toFixed(2)}</span></div>
+            <div class="row"><span class="lbl" style="color:#E9D9C4;">Saldo total</span><span class="val" style="color:${saldo>=0?'#7A9E6E':'var(--framboesa)'};font-size:18px;">${fmtMoeda(saldo)}</span></div>
+            <div class="row"><span class="lbl" style="color:#E9D9C4;">Entradas do mês</span><span class="val" style="color:#7A9E6E;">${fmtMoeda(entradasMes)}</span></div>
+            <div class="row"><span class="lbl" style="color:#E9D9C4;">Saídas do mês</span><span class="val" style="color:var(--framboesa);">${fmtMoeda(saidasMes)}</span></div>
           </div>
 
           ${livroCaixaState.length>0 ? `
@@ -3557,9 +3646,13 @@ function renderValidadeHTML(){
     </div>`;
 }
 
+let resumoMesSelecionado = new Date().getMonth();
+let resumoAnoSelecionado = new Date().getFullYear();
+let valoresEscondidos = false;
+function fmtMoeda(v){ return valoresEscondidos ? "R$ ••••" : "R$ " + v.toFixed(2); }
+
 function renderResumoMensalHTML(){
-  const agora = new Date();
-  const mesAtual = agora.getMonth(), anoAtual = agora.getFullYear();
+  const mesAtual = resumoMesSelecionado, anoAtual = resumoAnoSelecionado;
   const doMes = orcamentosLog.filter(o=>{ const d=new Date(o.data); return d.getMonth()===mesAtual && d.getFullYear()===anoAtual; });
   const doAno = orcamentosLog.filter(o=>{ const d=new Date(o.data); return d.getFullYear()===anoAtual; });
   const totalMes = doMes.reduce((a,o)=>a+o.valor,0);
@@ -3639,19 +3732,50 @@ function renderResumoMensalHTML(){
         <div class="app-px" style="padding-top:20px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
             <div class="app-h1" style="margin-bottom:0;">Resumo Mensal</div>
-            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);color:var(--chocolate);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <button onclick="RP.toggleValoresEscondidos()" title="${valoresEscondidos?'Mostrar valores':'Esconder valores'}" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);color:var(--chocolate);display:flex;align-items:center;justify-content:center;">${valoresEscondidos?'🙈':'👁️'}</button>
+              <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);color:var(--chocolate);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
+            </div>
+          </div>
+
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;background:var(--creme-card);border-radius:100px;padding:6px 6px 6px 16px;">
+            <span style="font-weight:800;font-size:13px;">${nomesMeses[mesAtual].charAt(0).toUpperCase()+nomesMeses[mesAtual].slice(1)} de ${anoAtual}</span>
+            <div style="display:flex;gap:4px;">
+              <button onclick="RP.mudarMesResumo(-1)" style="width:30px;height:30px;border-radius:50%;background:var(--branco);color:var(--chocolate);"><svg class="icon-ui-sm"><use href="#ui-arrow-left"/></svg></button>
+              <button onclick="RP.mudarMesResumo(1)" style="width:30px;height:30px;border-radius:50%;background:var(--branco);color:var(--chocolate);transform:scaleX(-1);"><svg class="icon-ui-sm"><use href="#ui-arrow-left"/></svg></button>
+            </div>
           </div>
 
           <div class="card" style="background:var(--creme-card);margin-bottom:10px;">
             <div style="font-size:11px;font-weight:800;color:var(--caramelo-escuro);text-transform:uppercase;margin-bottom:8px;">${nomesMeses[mesAtual]} de ${anoAtual}</div>
             <div class="row"><span class="lbl">Orçamentos gerados</span><span class="val">${doMes.length}</span></div>
-            <div class="row"><span class="lbl">Faturamento estimado</span><span class="val" style="color:var(--framboesa);font-size:16px;">R$ ${totalMes.toFixed(2)}</span></div>
-            ${custoMes>0 ? `<div class="row"><span class="lbl">Custo dos produtos</span><span class="val">R$ ${custoMes.toFixed(2)}</span></div>
-            <div class="row"><span class="lbl">Lucro líquido (com despesas fixas)</span><span class="val" style="color:${lucroLiquidoMes>=0?'#7A9E6E':'var(--framboesa)'};font-size:15px;">R$ ${lucroLiquidoMes.toFixed(2)}</span></div>
+            <div class="row"><span class="lbl">Faturamento estimado</span><span class="val" style="color:var(--framboesa);font-size:16px;">${fmtMoeda(totalMes)}</span></div>
+            ${custoMes>0 ? `<div class="row"><span class="lbl">Custo dos produtos</span><span class="val">${fmtMoeda(custoMes)}</span></div>
+            <div class="row"><span class="lbl">Lucro líquido (com despesas fixas)</span><span class="val" style="color:${lucroLiquidoMes>=0?'#7A9E6E':'var(--framboesa)'};font-size:15px;">${fmtMoeda(lucroLiquidoMes)}</span></div>
             <div class="row"><span class="lbl">CMV (custo ÷ faturamento)</span><span class="val" style="color:${cmvPct<=35?'#7A9E6E':'var(--dourado)'};">${cmvPct.toFixed(1)}%</span></div>` : ''}
             ${maisPedido ? `<div class="row"><span class="lbl">Mais pedido</span><span class="val" style="font-size:12px;">${esc(maisPedido)}</span></div>` : ''}
           </div>
           ${custoMes>0 ? `<div style="font-size:10.5px;color:var(--chocolate-suave);margin:-4px 0 10px;"><svg class="icon-ui-sm"><use href="#ui-tip"/></svg> CMV saudável em confeitaria costuma ficar entre 25% e 35%. Bem acima disso, vale revisar preços ou desperdício.</div>` : ''}
+
+          <div class="card" style="margin-bottom:10px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+              <div style="font-weight:800;font-size:12.5px;">🎯 Meta do mês</div>
+              <button onclick="RP.editarMetaMensal()" style="font-size:10.5px;color:var(--framboesa);font-weight:800;">${negocioConfig.metaMensal?'Editar':'＋ Definir'}</button>
+            </div>
+            ${negocioConfig.metaMensal ? (() => {
+              const meta = parseFloat(negocioConfig.metaMensal) || 0;
+              const pct = meta>0 ? Math.min(100, (totalMes/meta)*100) : 0;
+              const atingiu = totalMes >= meta && meta > 0;
+              return `
+              <div class="progress-track" style="height:10px;"><div class="progress-fill" style="width:${pct}%;background:${atingiu?'#7A9E6E':'var(--framboesa)'};"></div></div>
+              <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--chocolate-suave);margin-top:6px;">
+                <span>${fmtMoeda(totalMes)} faturado</span>
+                <span>meta: ${fmtMoeda(meta)}</span>
+              </div>
+              ${atingiu ? `<div style="text-align:center;font-weight:800;color:#7A9E6E;font-size:12.5px;margin-top:8px;">🎉 Meta atingida esse mês!</div>` : `<div style="text-align:center;font-size:11px;color:var(--chocolate-suave);margin-top:8px;">${pct.toFixed(0)}% da meta</div>`}
+              `;
+            })() : `<div style="font-size:11.5px;color:var(--chocolate-suave);">Defina quanto quer faturar esse mês e acompanhe o progresso aqui.</div>`}
+          </div>
 
           <div class="card" style="margin-bottom:10px;">
             <div style="font-weight:800;font-size:12.5px;margin-bottom:10px;">📊 Faturamento. Últimos 6 meses</div>
@@ -4003,7 +4127,7 @@ const PERFIL_CATEGORIAS = [
     ["Desafio de 7 dias", true, "desafio"],["Bônus exclusivos", true, "bonus"],["Respostas Prontas", true, "respostas"],["S.O.S. Cozinha", true, "sos"],
   ]},
   { key:"vendas", titulo:"Vendas e clientes", icone:'<svg class="icon-ui"><use href="#ui-users"/></svg>', itens:[
-    ["Meus Pedidos", true, "pedidos"],["Produção de Hoje", true, "producao-hoje"],["Meus Clientes", true, "clientes"],["Horários de retirada", true, "horarios-retirada"],["Cardápio para clientes", true, "cardapio"],["Cardápio Interativo (link)", true, "cardapio-interativo"],["Resumo Mensal", true, "resumo-mensal"],["Livro Caixa", true, "livro-caixa"],["Contas a Pagar", true, "contas-pagar"],["Kits Festa", true, "kits"],
+    ["Meus Pedidos", true, "pedidos"],["Produção de Hoje", true, "producao-hoje"],["Meus Clientes", true, "clientes"],["Horários de retirada", true, "horarios-retirada"],["Cardápio para clientes", true, "cardapio"],["Cardápio Interativo (link)", true, "cardapio-interativo"],["Resumo Mensal", true, "resumo-mensal"],["Livro Caixa", true, "livro-caixa"],["Contas a Receber", true, "contas-receber"],["Contas a Pagar", true, "contas-pagar"],["Kits Festa", true, "kits"],
   ]},
   { key:"producao", titulo:"Produção e custos", icone:'<svg class="icon-ui"><use href="#ui-factory"/></svg>', itens:[
     ["Estoque", true, "estoque"],["Meus Ingredientes", true, "ingredientes"],["Radar de fornecedores", true, "fornecedores"],
@@ -4014,7 +4138,7 @@ const PERFIL_CATEGORIAS = [
     ["Importar dados salvos", false, "importar"],["Aparência", false, "aparencia"],
   ]},
 ];
-const PERFIL_ROTAS = { suporte:"RP.openSuporte()", aparencia:"RP.openAparencia()", notificacoes:"RP.abrirNotificacoesSheet()", indicar:"RP.openIndicar()", cardapio:"RP.openCardapio()", "cardapio-interativo":"RP.openCardapioInterativo()", exportar:"RP.exportarDados()", importar:"RP.importarDados()", "frete-config":"RP.openFreteConfig()", "resumo-mensal":"RP.openResumoMensal()", fornecedores:"RP.openFornecedores()", pedidos:"RP.openPedidos()", "producao-hoje":"RP.openProducaoHoje()", clientes:"RP.openClientes()", "horarios-retirada":"RP.openHorariosRetirada()", estoque:"RP.openEstoque()", ingredientes:"RP.openIngredientes()", "minhas-receitas":"RP.openMinhasReceitas()", respostas:"RP.openRespostasProntas()", sos:"RP.openSosCozinha()", kits:"RP.openKits()", equipamentos:"RP.openEquipamentos()", "livro-caixa":"RP.openLivroCaixa()", "contas-pagar":"RP.openContasPagar()" };
+const PERFIL_ROTAS = { suporte:"RP.openSuporte()", aparencia:"RP.openAparencia()", notificacoes:"RP.abrirNotificacoesSheet()", indicar:"RP.openIndicar()", cardapio:"RP.openCardapio()", "cardapio-interativo":"RP.openCardapioInterativo()", exportar:"RP.exportarDados()", importar:"RP.importarDados()", "frete-config":"RP.openFreteConfig()", "resumo-mensal":"RP.openResumoMensal()", fornecedores:"RP.openFornecedores()", pedidos:"RP.openPedidos()", "producao-hoje":"RP.openProducaoHoje()", clientes:"RP.openClientes()", "horarios-retirada":"RP.openHorariosRetirada()", estoque:"RP.openEstoque()", ingredientes:"RP.openIngredientes()", "minhas-receitas":"RP.openMinhasReceitas()", respostas:"RP.openRespostasProntas()", sos:"RP.openSosCozinha()", kits:"RP.openKits()", equipamentos:"RP.openEquipamentos()", "livro-caixa":"RP.openLivroCaixa()", "contas-receber":"RP.openContasReceber()", "contas-pagar":"RP.openContasPagar()" };
 
 function renderPerfilCategoriaHTML(catKey){
   const cat = PERFIL_CATEGORIAS.find(c=>c.key===catKey);
@@ -6204,6 +6328,28 @@ window.RP = {
       }
     }catch(e){ showToast("Não consegui verificar agora. Tente de novo em instantes."); }
   },
+  adicionarAoGoogleCalendar(id){
+    const p = pedidosState.find(x=>x.id===id);
+    if(!p || !p.dataEvento) return;
+    const data = new Date(p.dataEvento);
+    // tenta usar o horário de retirada, se for um "HH:MM" válido; senão, evento de 1h às 9h
+    let horaInicio = 9, minutoInicio = 0;
+    if(p.horarioRetirada && /^\d{1,2}:\d{2}/.test(p.horarioRetirada)){
+      const [h,m] = p.horarioRetirada.split(":");
+      horaInicio = parseInt(h,10); minutoInicio = parseInt(m,10);
+    }
+    const inicio = new Date(data.getFullYear(), data.getMonth(), data.getDate(), horaInicio, minutoInicio);
+    const fim = new Date(inicio.getTime() + 60*60*1000); // 1h de duração
+    const formatarData = d => d.toISOString().replace(/[-:]/g,"").split(".")[0]+"Z";
+    const titulo = encodeURIComponent(`${p.produto}${p.cliente?` — ${p.cliente}`:''}`);
+    const detalhes = encodeURIComponent([
+      p.cliente ? `Cliente: ${p.cliente}` : '',
+      p.observacoes ? `Observações: ${p.observacoes}` : '',
+      p.valor ? `Valor: R$ ${parseFloat(p.valor).toFixed(2)}` : '',
+    ].filter(Boolean).join('\n'));
+    const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${titulo}&dates=${formatarData(inicio)}/${formatarData(fim)}&details=${detalhes}`;
+    window.open(url, "_blank");
+  },
   gerarTermoEncomenda(id){
     const p = pedidosState.find(x=>x.id===id);
     if(!p) return;
@@ -6592,6 +6738,30 @@ Confeiteira(o)                              Cliente`;
   openContasPagar(){
     navigateSheet(()=>renderContasPagarHTML());
   },
+  openContasReceber(){
+    navigateSheet(()=>renderContasReceberHTML());
+  },
+  async adicionarContaReceber(){
+    const descricao = document.getElementById("receber-descricao").value.trim();
+    const valor = document.getElementById("receber-valor").value;
+    const vencimento = document.getElementById("receber-vencimento").value || null;
+    if(!descricao || !valor){ showToast("Preenche pelo menos a descrição e o valor."); return; }
+    contasReceberState.push({ id:"cr"+Date.now(), descricao, valor, vencimento, recebido:false });
+    await saveContasReceber();
+    navigateSheet(()=>renderContasReceberHTML());
+  },
+  async marcarContaRecebida(id){
+    const conta = contasReceberState.find(c=>c.id===id);
+    if(!conta) return;
+    conta.recebido = true;
+    await saveContasReceber();
+    navigateSheet(()=>renderContasReceberHTML());
+  },
+  async excluirContaReceber(id){
+    contasReceberState = contasReceberState.filter(c=>c.id!==id);
+    await saveContasReceber();
+    navigateSheet(()=>renderContasReceberHTML());
+  },
   abrirRegistrarPerda(recipeId, idx){
     const r = RECIPES.find(x=>x.id===recipeId);
     if(!r) return;
@@ -6810,8 +6980,39 @@ Confeiteira(o)                              Cliente`;
     RP.openResumoMensal();
   },
   openResumoMensal(){
+    resumoMesSelecionado = new Date().getMonth();
+    resumoAnoSelecionado = new Date().getFullYear();
     navigateSheet(()=>renderResumoMensalHTML());
     setTimeout(()=>RP.carregarMetricasResumoMensal(), 50);
+  },
+  mudarMesResumo(delta){
+    let m = resumoMesSelecionado + delta;
+    let a = resumoAnoSelecionado;
+    if(m < 0){ m = 11; a--; }
+    if(m > 11){ m = 0; a++; }
+    resumoMesSelecionado = m;
+    resumoAnoSelecionado = a;
+    navigateSheet(()=>renderResumoMensalHTML());
+    setTimeout(()=>RP.carregarMetricasResumoMensal(), 50);
+  },
+  toggleValoresEscondidos(){
+    valoresEscondidos = !valoresEscondidos;
+    navigateSheet(()=>renderResumoMensalHTML());
+    setTimeout(()=>RP.carregarMetricasResumoMensal(), 50);
+  },
+  toggleValoresEscondidosLivroCaixa(){
+    valoresEscondidos = !valoresEscondidos;
+    navigateSheet(()=>renderLivroCaixaHTML());
+  },
+  async editarMetaMensal(){
+    const atual = negocioConfig.metaMensal || "";
+    const valor = prompt("Quanto você quer faturar esse mês? (R$)", atual);
+    if(valor === null) return;
+    const num = parseFloat(valor.replace(",","."));
+    if(isNaN(num) || num<=0){ showToast("Digita um valor válido."); return; }
+    negocioConfig.metaMensal = num;
+    await saveNegocioConfig();
+    navigateSheet(()=>renderResumoMensalHTML());
   },
   async carregarMetricasResumoMensal(){
     const satisfacaoEl = document.getElementById("resumo-satisfacao-resultado");
