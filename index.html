@@ -2172,6 +2172,52 @@ async function loadLembretes(){
   try{ const d = await window.storage.get("recheiopro:lembretes"); if(d&&d.value) lembretesState = JSON.parse(d.value); }catch(e){}
 }
 async function saveLembretes(){ try{ await window.storage.set("recheiopro:lembretes", JSON.stringify(lembretesState)); }catch(e){} }
+/* =========================================================================
+   PRODUÇÃO DE HOJE — o que precisa sair hoje, ordenado por horário de
+   retirada, com observações (alergia, pedido especial) bem visíveis
+========================================================================= */
+function renderProducaoHojeHTML(){
+  const hojeStr = new Date().toISOString().slice(0,10);
+  const pedidosHoje = pedidosState.filter(p=>{
+    if(!p.dataEvento) return false;
+    return p.dataEvento.slice(0,10)===hojeStr && ['confirmado','entregue'].includes(p.status);
+  }).sort((a,b)=>{
+    const ha = a.horarioRetirada || "99:99";
+    const hb = b.horarioRetirada || "99:99";
+    return ha.localeCompare(hb);
+  });
+
+  return `
+    <div class="sheet-overlay"><div class="modal-bg" onclick="RP.closeSheet()"></div>
+      <div class="sheet">
+        <div class="app-px" style="padding-top:20px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+            <div class="app-h1" style="margin-bottom:0;">Produção de hoje</div>
+            <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);color:var(--chocolate);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
+          </div>
+          <p style="color:var(--chocolate-suave);font-size:12px;margin-bottom:14px;">${formatarDataCurta(hojeStr)} · o que precisa sair hoje, na ordem de entrega.</p>
+
+          ${pedidosHoje.length===0 ? `
+            <div style="text-align:center;padding:40px 0;color:var(--chocolate-suave);font-size:13px;">Nenhum pedido confirmado pra hoje. 🎉</div>
+          ` : pedidosHoje.map(p=>{
+            const entregue = p.status==='entregue';
+            return `
+            <div class="card" style="border-left:4px solid ${entregue?'#7A9E6E':'var(--framboesa)'};margin-bottom:10px;${entregue?'opacity:0.6;':''}">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+                <div style="flex:1;cursor:pointer;" onclick="RP.closeSheet();RP.abrirPedido('${p.id}')">
+                  <div style="font-weight:800;font-size:13.5px;${entregue?'text-decoration:line-through;':''}">${p.horarioRetirada?`⏰ ${esc(p.horarioRetirada)} · `:''}${esc(p.cliente||'Sem nome')}</div>
+                  <div style="font-size:12px;color:var(--chocolate-suave);margin-top:2px;">${esc(p.produto)}</div>
+                  ${p.observacoes ? `<div style="font-size:11.5px;color:var(--framboesa);font-weight:700;margin-top:6px;background:rgba(194,59,91,0.1);padding:6px 8px;border-radius:8px;">⚠️ ${esc(p.observacoes)}</div>` : ''}
+                </div>
+                ${!entregue ? `<button onclick="RP.marcarProducaoEntregue('${p.id}')" style="background:var(--creme-card);color:var(--chocolate);padding:8px 12px;border-radius:100px;font-size:10.5px;font-weight:800;white-space:nowrap;flex-shrink:0;">✓ Pronto</button>` : `<span style="font-size:10.5px;color:#7A9E6E;font-weight:800;white-space:nowrap;">Entregue</span>`}
+              </div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+    </div>`;
+}
+
 function renderCalendarioEncomendasHTML(){
   const nomesMeses = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
   const primeiroDia = new Date(calendarioAnoAtual, calendarioMesAtual, 1);
@@ -3802,7 +3848,9 @@ function renderInicio(){
   const desbloqueadas = RECIPES.filter(isUnlocked).length;
   const progresso = Math.round((desbloqueadas/RECIPES.length)*100);
   const hoje = new Date();
+  const hojeStr = hoje.toISOString().slice(0,10);
   const faturamentoMes = orcamentosLog.filter(o=>{ const d=new Date(o.data); return d.getMonth()===hoje.getMonth() && d.getFullYear()===hoje.getFullYear(); }).reduce((a,o)=>a+o.valor,0);
+  const qtdPedidosHoje = pedidosState.filter(p=>p.dataEvento && p.dataEvento.slice(0,10)===hojeStr && p.status==='confirmado').length;
   return `
     <div class="app-px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
@@ -3810,6 +3858,15 @@ function renderInicio(){
         <span class="plan-pill ${state.plan}">${state.plan==='pro'?'★ PRO':'ESSENCIAL'}</span>
       </div>
       <div class="search-pill" onclick="RP.goTab('receitas')"><span><svg class="icon-ui-sm"><use href="#ui-search"/></svg></span><span style="color:var(--chocolate-suave);font-size:13.5px;">Buscar receitas...</span></div>
+      ${qtdPedidosHoje>0 ? `
+      <div class="card" style="margin-bottom:14px;cursor:pointer;background:var(--framboesa);color:var(--ink-on-dark);display:flex;align-items:center;gap:12px;" onclick="RP.openProducaoHoje()">
+        <div style="width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,0.18);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">🧁</div>
+        <div style="flex:1;">
+          <div style="font-size:11px;font-weight:700;opacity:0.9;">Produção de hoje</div>
+          <div style="font-size:16px;font-weight:800;">${qtdPedidosHoje} pedido${qtdPedidosHoje===1?'':'s'} pra sair hoje</div>
+        </div>
+        <span style="font-weight:800;font-size:11.5px;">Ver lista ›</span>
+      </div>` : ''}
       ${state.plan==='pro' ? `
       <div class="card" style="margin-bottom:14px;cursor:pointer;background:var(--panel-dark);color:var(--ink-on-dark);display:flex;align-items:center;gap:12px;" onclick="RP.openResumoMensal()">
         <div style="width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">📊</div>
@@ -3916,7 +3973,7 @@ const PERFIL_CATEGORIAS = [
     ["Desafio de 7 dias", true, "desafio"],["Bônus exclusivos", true, "bonus"],["Respostas Prontas", true, "respostas"],["S.O.S. Cozinha", true, "sos"],
   ]},
   { key:"vendas", titulo:"Vendas e clientes", icone:'<svg class="icon-ui"><use href="#ui-users"/></svg>', itens:[
-    ["Meus Pedidos", true, "pedidos"],["Meus Clientes", true, "clientes"],["Horários de retirada", true, "horarios-retirada"],["Cardápio para clientes", true, "cardapio"],["Cardápio Interativo (link)", true, "cardapio-interativo"],["Resumo Mensal", true, "resumo-mensal"],["Livro Caixa", true, "livro-caixa"],["Contas a Pagar", true, "contas-pagar"],["Kits Festa", true, "kits"],
+    ["Meus Pedidos", true, "pedidos"],["Produção de Hoje", true, "producao-hoje"],["Meus Clientes", true, "clientes"],["Horários de retirada", true, "horarios-retirada"],["Cardápio para clientes", true, "cardapio"],["Cardápio Interativo (link)", true, "cardapio-interativo"],["Resumo Mensal", true, "resumo-mensal"],["Livro Caixa", true, "livro-caixa"],["Contas a Pagar", true, "contas-pagar"],["Kits Festa", true, "kits"],
   ]},
   { key:"producao", titulo:"Produção e custos", icone:'<svg class="icon-ui"><use href="#ui-factory"/></svg>', itens:[
     ["Estoque", true, "estoque"],["Meus Ingredientes", true, "ingredientes"],["Radar de fornecedores", true, "fornecedores"],
@@ -3927,7 +3984,7 @@ const PERFIL_CATEGORIAS = [
     ["Importar dados salvos", false, "importar"],["Aparência", false, "aparencia"],
   ]},
 ];
-const PERFIL_ROTAS = { suporte:"RP.openSuporte()", aparencia:"RP.openAparencia()", notificacoes:"RP.abrirNotificacoesSheet()", indicar:"RP.openIndicar()", cardapio:"RP.openCardapio()", "cardapio-interativo":"RP.openCardapioInterativo()", exportar:"RP.exportarDados()", importar:"RP.importarDados()", "frete-config":"RP.openFreteConfig()", "resumo-mensal":"RP.openResumoMensal()", fornecedores:"RP.openFornecedores()", pedidos:"RP.openPedidos()", clientes:"RP.openClientes()", "horarios-retirada":"RP.openHorariosRetirada()", estoque:"RP.openEstoque()", ingredientes:"RP.openIngredientes()", "minhas-receitas":"RP.openMinhasReceitas()", respostas:"RP.openRespostasProntas()", sos:"RP.openSosCozinha()", kits:"RP.openKits()", equipamentos:"RP.openEquipamentos()", "livro-caixa":"RP.openLivroCaixa()", "contas-pagar":"RP.openContasPagar()" };
+const PERFIL_ROTAS = { suporte:"RP.openSuporte()", aparencia:"RP.openAparencia()", notificacoes:"RP.abrirNotificacoesSheet()", indicar:"RP.openIndicar()", cardapio:"RP.openCardapio()", "cardapio-interativo":"RP.openCardapioInterativo()", exportar:"RP.exportarDados()", importar:"RP.importarDados()", "frete-config":"RP.openFreteConfig()", "resumo-mensal":"RP.openResumoMensal()", fornecedores:"RP.openFornecedores()", pedidos:"RP.openPedidos()", "producao-hoje":"RP.openProducaoHoje()", clientes:"RP.openClientes()", "horarios-retirada":"RP.openHorariosRetirada()", estoque:"RP.openEstoque()", ingredientes:"RP.openIngredientes()", "minhas-receitas":"RP.openMinhasReceitas()", respostas:"RP.openRespostasProntas()", sos:"RP.openSosCozinha()", kits:"RP.openKits()", equipamentos:"RP.openEquipamentos()", "livro-caixa":"RP.openLivroCaixa()", "contas-pagar":"RP.openContasPagar()" };
 
 function renderPerfilCategoriaHTML(catKey){
   const cat = PERFIL_CATEGORIAS.find(c=>c.key===catKey);
@@ -5811,6 +5868,26 @@ window.RP = {
   openCentralAlertas(){
     navigateSheet(()=>renderCentralAlertasHTML());
   },
+  openProducaoHoje(){
+    navigateSheet(()=>renderProducaoHojeHTML());
+  },
+  async marcarProducaoEntregue(id){
+    const p = pedidosState.find(x=>x.id===id);
+    if(!p) return;
+    const statusAntigo = p.status;
+    p.status = 'entregue';
+    await savePedidos();
+
+    if(statusAntigo!=='entregue' && p.receitaVinculadaId){
+      const receita = minhasReceitasState.find(r=>r.id===p.receitaVinculadaId);
+      if(receita){
+        const ingredientes = receita.itens.filter(it=>!it.subReceitaId).map(it=>({n:it.nome, q:it.qtd||""}));
+        const html = renderBaixaEstoqueGenericaHTML(ingredientes);
+        if(html){ document.getElementById("sheet-root").innerHTML = html; return; }
+      }
+    }
+    navigateSheet(()=>renderProducaoHojeHTML());
+  },
   openCalendarioEncomendas(){
     calendarioMesAtual = new Date().getMonth();
     calendarioAnoAtual = new Date().getFullYear();
@@ -7422,12 +7499,12 @@ Confeiteira(o)                              Cliente`;
 /* =========================================================================
    INIT
 ========================================================================= */
-(async function init(){
-  await esperarFirebaseCarregar(2000);
-  await loadTheme();
-  applyTheme();
-  await loadState();
-
+// Parte 1: tudo que é da PÁGINA DE VENDAS (visível pra qualquer visitante) —
+// roda na hora, sem depender do Firebase nem de nenhum dado salvo. Antes,
+// isso ficava esperando o Firebase carregar, o que podia travar a página
+// inteira por até 2 segundos se o navegador bloqueasse o Firebase (comum
+// com bloqueador de anúncio). Agora aparece na hora sempre.
+(function initVisual(){
   // faq
   document.getElementById("faq-list").innerHTML = FAQS.map((f,i)=>`
     <div class="faq-item">
@@ -7511,6 +7588,41 @@ Confeiteira(o)                              Cliente`;
     startAutoplay();
   })();
 
+  // no iPhone/iPad o Safari nunca oferece instalação automática — mostra
+  // um botão com instrução manual em vez do botão que nunca vai aparecer
+  const ehIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
+  const jaInstalado = window.matchMedia("(display-mode: standalone)").matches || navigator.standalone;
+  if(ehIOS && !jaInstalado){
+    const btnIOS = document.getElementById("btn-instalar-ios");
+    if(btnIOS) btnIOS.style.display = "inline-flex";
+  }
+
+  // registra o service worker, pra funcionar instalado e offline (PWA)
+  if("serviceWorker" in navigator){
+    window.addEventListener("load", ()=>{
+      navigator.serviceWorker.register("sw.js").catch(()=>{});
+    });
+  }
+
+  // guarda o evento de instalação do navegador, pra mostrar nosso próprio
+  // botão "Instalar app" (em vez de depender só do menu escondido do navegador)
+  window.addEventListener("beforeinstallprompt", (e)=>{
+    e.preventDefault();
+    window.__promptInstalarPWA = e;
+    const btn = document.getElementById("btn-instalar-pwa");
+    if(btn) btn.style.display = "inline-flex";
+  });
+})();
+
+// Parte 2: dados do APP em si (login salvo, sincronização com a nuvem).
+// Essa parte sim pode esperar o Firebase com calma — roda em paralelo com
+// a Parte 1 acima, sem travar a página de vendas, que já está visível.
+(async function initApp(){
+  await esperarFirebaseCarregar(2000);
+  await loadTheme();
+  applyTheme();
+  await loadState();
+
   // notificações: retoma a checagem periódica se a pessoa já tinha ativado antes
   if(state.notificacoesAtivas && typeof Notification !== "undefined" && Notification.permission === "granted"){
     iniciarChecagemNotificacoes();
@@ -7579,31 +7691,6 @@ Confeiteira(o)                              Cliente`;
       })
       .catch(()=>{}); // falhou a busca? não mostra nada. Sem fallback inventado
   })();
-
-  // no iPhone/iPad o Safari nunca oferece instalação automática — mostra
-  // um botão com instrução manual em vez do botão que nunca vai aparecer
-  const ehIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
-  const jaInstalado = window.matchMedia("(display-mode: standalone)").matches || navigator.standalone;
-  if(ehIOS && !jaInstalado){
-    const btnIOS = document.getElementById("btn-instalar-ios");
-    if(btnIOS) btnIOS.style.display = "inline-flex";
-  }
-
-  // registra o service worker, pra funcionar instalado e offline (PWA)
-  if("serviceWorker" in navigator){
-    window.addEventListener("load", ()=>{
-      navigator.serviceWorker.register("sw.js").catch(()=>{});
-    });
-  }
-
-  // guarda o evento de instalação do navegador, pra mostrar nosso próprio
-  // botão "Instalar app" (em vez de depender só do menu escondido do navegador)
-  window.addEventListener("beforeinstallprompt", (e)=>{
-    e.preventDefault();
-    window.__promptInstalarPWA = e;
-    const btn = document.getElementById("btn-instalar-pwa");
-    if(btn) btn.style.display = "inline-flex";
-  });
 
   // se já tinha plano salvo (chave usada antes), entra direto na área liberada.
   // Exceção: se o link tiver "?site" no final, mostra a página de vendas mesmo
