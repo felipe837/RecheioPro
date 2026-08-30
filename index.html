@@ -7922,6 +7922,28 @@ Confeiteira(o)                              Cliente`;
     if(btnIOS) btnIOS.style.display = "inline-flex";
   }
 
+  // sincronização automática: se a internet cair, os dados continuam
+  // salvos no aparelho normalmente (window.storage.set já garante isso) —
+  // mas sem isso aqui, só sincronizavam com a nuvem se a pessoa mexesse
+  // de novo naquele dado específico depois. Agora, assim que a conexão
+  // volta, tudo que ficou pendente é reenviado sozinho, sem precisar
+  // editar nada de novo.
+  window.addEventListener("online", async ()=>{
+    const db = typeof getFirebaseDb === "function" ? getFirebaseDb() : null;
+    const chave = typeof getChaveUsuario === "function" ? getChaveUsuario() : null;
+    if(!db || !chave) return;
+    const chavesPendentes = Object.keys(localStorage).filter(k=>k.startsWith("recheiopro-storage:"));
+    for(const chaveCompleta of chavesPendentes){
+      const nomeChave = chaveCompleta.replace("recheiopro-storage:", "");
+      const valor = localStorage.getItem(chaveCompleta);
+      if(valor === null) continue;
+      try{
+        await db.collection("usuarios").doc(chave).collection("dados").doc(nomeChave)
+          .set({ value: valor, atualizadoEm: new Date().toISOString() });
+      }catch(e){ /* tenta os outros mesmo se um falhar */ }
+    }
+  });
+
   // registra o service worker, pra funcionar instalado e offline (PWA)
   if("serviceWorker" in navigator){
     window.addEventListener("load", ()=>{
