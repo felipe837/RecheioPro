@@ -7984,6 +7984,24 @@ Confeiteira(o)                              Cliente`;
 // inteira por até 2 segundos se o navegador bloqueasse o Firebase (comum
 // com bloqueador de anúncio). Agora aparece na hora sempre.
 (function initVisual(){
+  // se já tinha chave salva de uma vez anterior, mostra a área do app na
+  // hora (mesmo antes dos dados terminarem de carregar) — sem isso, a
+  // pessoa via o site de vendas por 1-2s toda vez que atualizava a página,
+  // até o app assumir depois de esperar o Firebase. Agora é instantâneo:
+  // aparece a "casca" do app na hora, e o conteúdo de verdade preenche
+  // assim que os dados terminam de carregar (que ainda roda em paralelo).
+  (function mostrarAppNaHoraSeJaLogado(){
+    try{
+      const chaveSalva = localStorage.getItem("recheiopro-userkey");
+      const planoSalvo = localStorage.getItem("recheiopro-storage:recheiopro:plan");
+      const verSiteMesmoLogado = new URLSearchParams(location.search).has("site");
+      if(chaveSalva && planoSalvo && !verSiteMesmoLogado){
+        document.getElementById("app-overlay").classList.remove("hidden");
+        document.body.style.overflow = "hidden";
+      }
+    }catch(e){}
+  })();
+
   // esconde o preloader assim que a página estiver pronta (fontes, imagens
   // acima da dobra). Nunca fica mais que 1,2s na tela, custe o que custar —
   // esse teto garante que o preloader nunca vira ele mesmo um motivo de demora.
