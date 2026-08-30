@@ -846,9 +846,6 @@
     <input class="key-input" id="key-field" placeholder="SUA-CHAVE-AQUI" maxlength="30" onkeydown="if(event.key==='Enter')RP.submitKey()">
     <div class="key-error" id="key-error"></div>
     <button class="modal-submit" onclick="RP.submitKey()">Entrar</button>
-    <div class="key-hint">
-      🔑 <b>Demonstração:</b> use <b>RECHEIO-ESSENCIAL</b> para testar o plano Essencial ou <b>RECHEIO-PRO</b> para testar o plano Pro. Numa versão em produção, essa chave sai automaticamente por e-mail depois do pagamento.
-    </div>
   </div>
 </div>
 
@@ -1669,7 +1666,7 @@ const VALIDATION_ENDPOINT = "https://script.google.com/macros/s/AKfycbxMe6nECiS6
 /* =========================================================================
    ESTADO
 ========================================================================= */
-let state = { plan:null, favorites:[], feitas:[], avaliacoes:{}, tab:"inicio", query:"", category:null, tempoFiltro:null, theme:"device", novidadesFechadas:false, notificacoesAtivas:false };
+let state = { plan:null, favorites:[], feitas:[], avaliacoes:{}, tab:"inicio", query:"", category:null, tempoFiltro:null, theme:"dark", novidadesFechadas:false, notificacoesAtivas:false };
 
 async function loadTheme(){
   try{ const t = await window.storage.get("recheiopro:theme"); if(t&&t.value) state.theme = JSON.parse(t.value); }catch(e){}
