@@ -48,7 +48,14 @@
   .nav-inner{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;max-width:1120px;margin:0 auto;gap:10px;}
   .logo{display:flex;align-items:center;gap:8px;font-family:'Fraunces',serif;font-weight:700;font-size:19px;color:var(--chocolate);}
   .logo .dot{width:9px;height:9px;border-radius:50%;background:var(--framboesa);display:inline-block;}
-  .nav-right{display:flex;align-items:center;gap:14px;}
+  .nav-right{display:flex;align-items:center;gap:14px;flex-wrap:nowrap;min-width:0;}
+  @media(max-width:480px){
+    .nav-right{gap:8px;}
+    .nav-aparencia{display:none;}
+    .nav-entrar-completo{display:none;}
+    .nav-instalar-texto{display:none;}
+    .nav-cta{padding:9px 14px;font-size:12.5px;}
+  }
   .nav-links{display:none;}
   @media(min-width:760px){.nav-links{display:flex !important;}}
   .nav-key{font-size:12.5px;font-weight:700;color:var(--chocolate-suave);white-space:nowrap;}
@@ -476,10 +483,10 @@
       <a href="#faq" style="color:var(--chocolate-suave);font-weight:600;font-size:13.5px;text-decoration:none;">Dúvidas</a>
     </div>
     <div class="nav-right">
-      <button id="btn-instalar-pwa" onclick="RP.instalarPWA()" style="display:none;align-items:center;gap:6px;background:var(--framboesa);color:var(--ink-on-dark);padding:9px 16px;border-radius:100px;font-weight:800;font-size:12.5px;border:none;">⬇️ Instalar app</button>
-      <button id="btn-instalar-ios" onclick="RP.mostrarDicaIOS()" style="display:none;align-items:center;gap:6px;background:var(--framboesa);color:var(--ink-on-dark);padding:9px 16px;border-radius:100px;font-weight:800;font-size:12.5px;border:none;">⬇️ Instalar app</button>
-      <button class="nav-key" onclick="RP.openAparencia()" title="Aparência" style="font-size:16px;line-height:1;">🌓</button>
-      <button class="nav-key" onclick="RP.openKeyModal()">Já comprei · Entrar</button>
+      <button id="btn-instalar-pwa" onclick="RP.instalarPWA()" style="display:none;align-items:center;gap:6px;background:var(--framboesa);color:var(--ink-on-dark);padding:9px 14px;border-radius:100px;font-weight:800;font-size:12px;border:none;white-space:nowrap;flex-shrink:0;">⬇️ <span class="nav-instalar-texto">Instalar app</span></button>
+      <button id="btn-instalar-ios" onclick="RP.mostrarDicaIOS()" style="display:none;align-items:center;gap:6px;background:var(--framboesa);color:var(--ink-on-dark);padding:9px 14px;border-radius:100px;font-weight:800;font-size:12px;border:none;white-space:nowrap;flex-shrink:0;">⬇️ <span class="nav-instalar-texto">Instalar app</span></button>
+      <button class="nav-key nav-aparencia" onclick="RP.openAparencia()" title="Aparência" style="font-size:16px;line-height:1;">🌓</button>
+      <button class="nav-key" onclick="RP.openKeyModal()"><span class="nav-entrar-completo">Já comprei · </span>Entrar</button>
       <a href="#planos" class="nav-cta">Ver planos</a>
     </div>
   </div>
