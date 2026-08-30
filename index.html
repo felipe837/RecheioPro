@@ -64,7 +64,10 @@
   .nav-cta:hover{transform:translateY(-1px);}
 
   /* ---- hero ---- */
-  .hero{padding:56px 0 40px;}
+  .hero{padding:56px 0 40px;position:relative;overflow:hidden;}
+  .hero-bg-video{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:0;}
+  .hero-bg-overlay{position:absolute;inset:0;background:linear-gradient(180deg, rgba(255,248,236,0.45) 0%, rgba(255,248,236,0.7) 65%, var(--creme) 100%);z-index:1;}
+  .hero-inner{position:relative;z-index:2;}
   .hero-inner{display:flex;flex-direction:column;gap:32px;align-items:center;text-align:center;}
   .eyebrow{display:inline-flex;align-items:center;gap:8px;background:var(--creme-card);border:1px solid var(--creme-linha);padding:7px 16px;border-radius:100px;font-size:13px;font-weight:600;color:var(--caramelo-escuro);}
   .hero h1{font-size:clamp(32px,6vw,54px);line-height:1.08;font-weight:700;letter-spacing:-0.02em;max-width:800px;}
@@ -491,6 +494,11 @@
 </nav>
 
 <section class="hero">
+  <video class="hero-bg-video" autoplay muted loop playsinline>
+    <source src="hero-bg.webm" type="video/webm">
+    <source src="hero-bg.mp4" type="video/mp4">
+  </video>
+  <div class="hero-bg-overlay"></div>
   <div class="wrap hero-inner">
     <h1 class="reveal">Receitas que rendem, preços que <em>fecham a conta</em></h1>
     <p class="sub reveal">O app que reúne receitas testadas, calculadora de custo e de lucro, lista de compras e aulas, pra você parar de vender doce no prejuízo.</p>
@@ -5163,12 +5171,12 @@ const DESAFIO_DIAS = [
 ];
 
 const TOUR_SLIDES = [
-  { emoji:"🧁", titulo:"Bem-vinda ao RecheioPro!", texto:"Receitas testadas, calculadoras de custo e lucro, tudo num app só. Vamos te mostrar rapidinho onde fica cada coisa." },
-  { emoji:"📖", titulo:"Suas receitas", texto:"Na aba Receitas, busque por nome ou por ingrediente (tenta digitar 'chocolate'). Toque no coração pra favoritar." },
-  { emoji:"🧮", titulo:"Calculadoras de verdade", texto:"Calcule o custo de cada receita, o preço de venda ideal, e gere um orçamento pronto pra mandar no WhatsApp do cliente. Tem até cronômetro múltiplo pra quando forno e fogão estão cheios ao mesmo tempo." },
-  { emoji:"🤝", titulo:"Meus Pedidos", texto:"No Perfil, controle cliente, data de entrega e status de cada pedido. O app avisa sozinho quando faz tempo que mandou orçamento e não teve resposta, ou quando uma data especial de cliente tá chegando." },
-  { emoji:"📦", titulo:"Estoque e fornecedores", texto:"Controle seus ingredientes por lote (com validade), compare preço entre mercados, e desconte automaticamente do estoque quando fizer uma receita." },
-  { emoji:"✨", titulo:"E ainda tem mais", texto:"Kits Festa, calendário de encomendas, verificação de alérgenos, tabela nutricional, checklist na hora de cozinhar e orçamento com link pro cliente aceitar direto pelo celular. Vá explorando aos poucos!" },
+  { emoji:"🧁", titulo:"Bem-vinda ao RecheioPro!", texto:"Receitas testadas, calculadoras de custo e lucro, vendas, estoque e financeiro, tudo num app só. Vamos te mostrar rapidinho onde fica cada coisa." },
+  { emoji:"🧮", titulo:"Receitas e calculadoras", texto:"Busque receita por nome ou ingrediente, favorite com o coração, e escale qualquer uma com 1 clique (x2, x3, ou a quantidade exata). Calcule custo, preço de venda ideal e gere orçamento pronto pro WhatsApp." },
+  { emoji:"🤝", titulo:"Vendas e produção", texto:"Controle pedidos com histórico de cada cliente, monte um cardápio onde o cliente escolhe e monta o carrinho sozinho, e veja a 'Produção de Hoje' organizada por horário de entrega, sem esquecer nada." },
+  { emoji:"📦", titulo:"Estoque e financeiro", texto:"Estoque com baixa automática, Livro Caixa, Contas a Pagar e a Receber, e Controle de Perdas — pra saber exatamente quanto desperdício custou no mês." },
+  { emoji:"📲", titulo:"Recursos que quase ninguém tem", texto:"Instale o app no seu celular (ícone na tela inicial, funciona até sem internet), dite um pedido por voz, e gere um post pronto pro Instagram direto da receita." },
+  { emoji:"✨", titulo:"E ainda tem mais", texto:"Kits Festa, fidelidade automática de clientes, calendário com lembretes e datas comemorativas, verificação de alérgenos, tabela nutricional e checklist na hora de cozinhar. Vá explorando aos poucos!" },
   { emoji:"🏆", titulo:"Desafio de 7 dias", texto:"No Perfil tem um desafio guiado pra sair da teoria e começar a vender com preço certo. Bora começar?" },
 ];
 let tourIndex = 0;
