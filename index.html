@@ -483,8 +483,6 @@
       <a href="#faq" style="color:var(--chocolate-suave);font-weight:600;font-size:13.5px;text-decoration:none;">Dúvidas</a>
     </div>
     <div class="nav-right">
-      <button id="btn-instalar-pwa" onclick="RP.instalarPWA()" style="display:none;align-items:center;gap:6px;background:var(--framboesa);color:var(--ink-on-dark);padding:9px 14px;border-radius:100px;font-weight:800;font-size:12px;border:none;white-space:nowrap;flex-shrink:0;">⬇️ <span class="nav-instalar-texto">Instalar app</span></button>
-      <button id="btn-instalar-ios" onclick="RP.mostrarDicaIOS()" style="display:none;align-items:center;gap:6px;background:var(--framboesa);color:var(--ink-on-dark);padding:9px 14px;border-radius:100px;font-weight:800;font-size:12px;border:none;white-space:nowrap;flex-shrink:0;">⬇️ <span class="nav-instalar-texto">Instalar app</span></button>
       <button class="nav-key nav-aparencia" onclick="RP.openAparencia()" title="Aparência" style="font-size:16px;line-height:1;">🌓</button>
       <button class="nav-key" onclick="RP.openKeyModal()"><span class="nav-entrar-completo">Já comprei · </span>Entrar</button>
       <a href="#planos" class="nav-cta">Ver planos</a>
@@ -849,7 +847,10 @@
   <div class="app-shell">
     <div class="app-topbar">
       <div class="logo"><img src="logo.png" alt="RecheioPro" style="height:22px;width:auto;vertical-align:middle;"> RecheioPro</div>
-      <button class="app-exit" onclick="RP.exitApp()">Sair ↩</button>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <button id="btn-instalar-pwa-app" onclick="RP.abrirInstalarApp()" style="display:none;align-items:center;gap:5px;background:var(--framboesa);color:var(--ink-on-dark);padding:7px 12px;border-radius:100px;font-weight:800;font-size:11px;border:none;white-space:nowrap;">📲 Instalar</button>
+        <button class="app-exit" onclick="RP.exitApp()">Sair ↩</button>
+      </div>
     </div>
     <div class="app-body" id="app-body"></div>
     <div class="app-bottomnav">
@@ -4208,11 +4209,11 @@ const PERFIL_CATEGORIAS = [
     ["Minhas Receitas Salvas", true, "minhas-receitas"],["Calcular frete de entrega", true, "frete-config"],["Equipamentos", true, "equipamentos"],
   ]},
   { key:"conta", titulo:"Conta e dados", icone:'<svg class="icon-ui"><use href="#ui-settings"/></svg>', itens:[
-    ["Notificações", false, "notificacoes"],["Indique o RecheioPro", false, "indicar"],["Exportar meus dados", false, "exportar"],
+    ["Instalar app no celular", false, "instalar-app"],["Notificações", false, "notificacoes"],["Indique o RecheioPro", false, "indicar"],["Exportar meus dados", false, "exportar"],
     ["Importar dados salvos", false, "importar"],["Aparência", false, "aparencia"],
   ]},
 ];
-const PERFIL_ROTAS = { suporte:"RP.openSuporte()", aparencia:"RP.openAparencia()", notificacoes:"RP.abrirNotificacoesSheet()", indicar:"RP.openIndicar()", cardapio:"RP.openCardapio()", "cardapio-interativo":"RP.openCardapioInterativo()", exportar:"RP.exportarDados()", importar:"RP.importarDados()", "frete-config":"RP.openFreteConfig()", "resumo-mensal":"RP.openResumoMensal()", fornecedores:"RP.openFornecedores()", pedidos:"RP.openPedidos()", "producao-hoje":"RP.openProducaoHoje()", clientes:"RP.openClientes()", "horarios-retirada":"RP.openHorariosRetirada()", estoque:"RP.openEstoque()", ingredientes:"RP.openIngredientes()", "minhas-receitas":"RP.openMinhasReceitas()", respostas:"RP.openRespostasProntas()", sos:"RP.openSosCozinha()", kits:"RP.openKits()", equipamentos:"RP.openEquipamentos()", "livro-caixa":"RP.openLivroCaixa()", "contas-receber":"RP.openContasReceber()", "contas-pagar":"RP.openContasPagar()" };
+const PERFIL_ROTAS = { suporte:"RP.openSuporte()", aparencia:"RP.openAparencia()", "instalar-app":"RP.abrirInstalarApp()", notificacoes:"RP.abrirNotificacoesSheet()", indicar:"RP.openIndicar()", cardapio:"RP.openCardapio()", "cardapio-interativo":"RP.openCardapioInterativo()", exportar:"RP.exportarDados()", importar:"RP.importarDados()", "frete-config":"RP.openFreteConfig()", "resumo-mensal":"RP.openResumoMensal()", fornecedores:"RP.openFornecedores()", pedidos:"RP.openPedidos()", "producao-hoje":"RP.openProducaoHoje()", clientes:"RP.openClientes()", "horarios-retirada":"RP.openHorariosRetirada()", estoque:"RP.openEstoque()", ingredientes:"RP.openIngredientes()", "minhas-receitas":"RP.openMinhasReceitas()", respostas:"RP.openRespostasProntas()", sos:"RP.openSosCozinha()", kits:"RP.openKits()", equipamentos:"RP.openEquipamentos()", "livro-caixa":"RP.openLivroCaixa()", "contas-receber":"RP.openContasReceber()", "contas-pagar":"RP.openContasPagar()" };
 
 function renderPerfilCategoriaHTML(catKey){
   const cat = PERFIL_CATEGORIAS.find(c=>c.key===catKey);
@@ -5712,6 +5713,10 @@ window.RP = {
     if(isFreshLogin){ state.tab = "inicio"; await saveTab(); }
     window.dispatchEvent(new Event("recheiopro:enterApp"));
     renderApp();
+    const btnInstalar = document.getElementById("btn-instalar-pwa-app");
+    if(btnInstalar && !window.__pwaJaInstalado && (window.__promptInstalarPWA || window.__ehIOS)){
+      btnInstalar.style.display = "flex";
+    }
     let tourVisto = false;
     try{ const t = await window.storage.get("recheiopro:tourVisto"); tourVisto = !!(t&&t.value); }catch(e){}
     if(!tourVisto){
@@ -7162,6 +7167,21 @@ Confeiteira(o)                              Cliente`;
       resultado.textContent = err.message || "Não consegui calcular. Confira os endereços.";
     }
   },
+  abrirInstalarApp(){
+    if(window.__pwaJaInstalado){
+      showToast("Você já está usando o app instalado! 🎉");
+      return;
+    }
+    if(window.__ehIOS){
+      RP.mostrarDicaIOS();
+      return;
+    }
+    if(window.__promptInstalarPWA){
+      RP.instalarPWA();
+      return;
+    }
+    showToast("Seu navegador não oferece instalação direta agora — procura 'Adicionar à tela inicial' no menu dele.");
+  },
   openAparencia(){
     navigateSheet(()=>renderAparenciaSheetHTML());
   },
@@ -7171,7 +7191,7 @@ Confeiteira(o)                              Cliente`;
     prompt.prompt();
     await prompt.userChoice;
     window.__promptInstalarPWA = null;
-    const btn = document.getElementById("btn-instalar-pwa");
+    const btn = document.getElementById("btn-instalar-pwa-app");
     if(btn) btn.style.display = "none";
   },
   mostrarDicaIOS(){
@@ -7920,14 +7940,11 @@ Confeiteira(o)                              Cliente`;
     startAutoplay();
   })();
 
-  // no iPhone/iPad o Safari nunca oferece instalação automática — mostra
-  // um botão com instrução manual em vez do botão que nunca vai aparecer
-  const ehIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
-  const jaInstalado = window.matchMedia("(display-mode: standalone)").matches || navigator.standalone;
-  if(ehIOS && !jaInstalado){
-    const btnIOS = document.getElementById("btn-instalar-ios");
-    if(btnIOS) btnIOS.style.display = "inline-flex";
-  }
+  // no iPhone/iPad o Safari nunca oferece instalação automática — guarda
+  // essa info pra mostrar a dica certa mais tarde, dentro do app (não aqui
+  // no site público, que qualquer visitante vê mesmo sem ter comprado)
+  window.__ehIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
+  window.__pwaJaInstalado = window.matchMedia("(display-mode: standalone)").matches || navigator.standalone;
 
   // sincronização automática: se a internet cair, os dados continuam
   // salvos no aparelho normalmente (window.storage.set já garante isso) —
@@ -7959,12 +7976,12 @@ Confeiteira(o)                              Cliente`;
   }
 
   // guarda o evento de instalação do navegador, pra mostrar nosso próprio
-  // botão "Instalar app" (em vez de depender só do menu escondido do navegador)
+  // botão "Instalar app" mais tarde — dentro do app, só pra quem já comprou
   window.addEventListener("beforeinstallprompt", (e)=>{
     e.preventDefault();
     window.__promptInstalarPWA = e;
-    const btn = document.getElementById("btn-instalar-pwa");
-    if(btn) btn.style.display = "inline-flex";
+    const btn = document.getElementById("btn-instalar-pwa-app");
+    if(btn) btn.style.display = "flex";
   });
 })();
 
