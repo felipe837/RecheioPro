@@ -264,6 +264,8 @@
   .icon-ui{width:20px;height:20px;flex-shrink:0;vertical-align:-5px;display:inline-block;}
   .icon-ui-sm{width:15px;height:15px;flex-shrink:0;vertical-align:-2px;display:inline-block;}
   .nav-btn.active{color:var(--framboesa);}
+  .nav-icon-wrap{display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:50%;transition:background .25s ease,transform .25s ease;}
+  .nav-btn.active .nav-icon-wrap{background:var(--framboesa);color:var(--ink-on-dark);transform:translateY(-6px) scale(1.08);box-shadow:0 6px 14px -4px rgba(194,59,91,0.55);}
   .nav-btn span{font-size:10px;font-weight:700;}
 
   .app-px{padding:16px;}
@@ -449,6 +451,14 @@
 <svg style="display:none" aria-hidden="true">
   <symbol id="ui-home" viewBox="0 0 24 24"><path d="M4 12L12 4l8 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 10v10h5v-6h2v6h5V10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="ui-book" viewBox="0 0 24 24"><path d="M4 5a2 2 0 012-2h5v18H6a2 2 0 01-2-2V5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M20 5a2 2 0 00-2-2h-5v18h5a2 2 0 002-2V5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+  <symbol id="ui-cookbook" viewBox="0 0 24 24">
+    <path d="M2 8.5l7.5 2.7v9.3L2 17.8V8.5z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+    <path d="M22 8.5l-7.5 2.7v9.3L22 17.8V8.5z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+    <path d="M9.5 11.2L12 12l2.5-.8" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+    <path d="M12 12v9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+    <path d="M9.7 7.6c-1-.3-1.7-1.1-1.7-2.1a2 2 0 013.4-1.3A2 2 0 0115 4.5c0 1-.7 1.8-1.7 2.1" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="10" y="7" width="4" height="2" rx="0.4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+  </symbol>
   <symbol id="ui-calculator" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><line x1="8" y1="6" x2="16" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="8" cy="11" r="1" fill="currentColor"/><circle cx="12" cy="11" r="1" fill="currentColor"/><circle cx="16" cy="11" r="1" fill="currentColor"/><circle cx="8" cy="15" r="1" fill="currentColor"/><circle cx="12" cy="15" r="1" fill="currentColor"/><circle cx="16" cy="15" r="1" fill="currentColor"/><circle cx="8" cy="19" r="1" fill="currentColor"/><circle cx="12" cy="19" r="1" fill="currentColor"/></symbol>
   <symbol id="ui-heart" viewBox="0 0 24 24"><path d="M12 21s-7-4.5-9.5-9C.7 8.3 2 4.7 5.2 4.1 7.5 3.6 9.8 5 12 7.3 14.2 5 16.5 3.6 18.8 4.1c3.2.6 4.5 4.2 2.7 7.9C19 16.5 12 21 12 21z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
   <symbol id="ui-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 21c0-4 4-7 8-7s8 3 8 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
@@ -533,9 +543,9 @@
     <div class="sect-head reveal"><span class="kicker">A solução</span><h2>Tudo que a sua confeitaria precisa, num app só</h2><p>Receitas testadas, calculadoras que fazem a conta por você e as ferramentas que faltavam pra organizar de verdade o negócio.</p></div>
 
     <div style="max-width:900px;margin:0 auto;">
-      <div style="font-weight:800;font-size:14px;color:var(--dourado);margin:28px 0 12px;display:flex;align-items:center;justify-content:center;gap:8px;text-align:center;" class="reveal"><svg class="icon-ui"><use href="#ui-book"/></svg> Receitas e precificação</div>
+      <div style="font-weight:800;font-size:14px;color:var(--dourado);margin:28px 0 12px;display:flex;align-items:center;justify-content:center;gap:8px;text-align:center;" class="reveal"><svg class="icon-ui"><use href="#ui-cookbook"/></svg> Receitas e precificação</div>
       <div class="feature-grid">
-        <div class="feature reveal"><h3><svg class="icon-ui-sm"><use href="#ui-book"/></svg> Receitas testadas</h3><p>Rendimento, tempo e dicas de conservação.</p></div>
+        <div class="feature reveal"><h3><svg class="icon-ui-sm"><use href="#ui-cookbook"/></svg> Receitas testadas</h3><p>Rendimento, tempo e dicas de conservação.</p></div>
         <div class="feature reveal"><h3><svg class="icon-ui-sm"><use href="#ui-calculator"/></svg> Calculadora de custo e preço</h3><p>Some ingredientes e veja quanto cobrar com lucro real.</p></div>
         <div class="feature reveal"><h3><svg class="icon-ui-sm"><use href="#ui-camera"/></svg> Nota fiscal por foto</h3><p>Atualiza o preço do ingrediente sozinho, sem digitar.</p></div>
       </div>
@@ -854,18 +864,26 @@
   <div class="app-shell">
     <div class="app-topbar">
       <div class="logo"><img src="logo.png" alt="RecheioPro" style="height:22px;width:auto;vertical-align:middle;"> RecheioPro</div>
-      <div style="display:flex;align-items:center;gap:8px;">
+      <div style="display:flex;align-items:center;gap:10px;">
         <button id="btn-instalar-pwa-app" onclick="RP.abrirInstalarApp()" style="display:none;align-items:center;gap:5px;background:var(--framboesa);color:var(--ink-on-dark);padding:7px 12px;border-radius:100px;font-weight:800;font-size:11px;border:none;white-space:nowrap;">📲 Instalar</button>
+        <button id="btn-notificacoes-topo" onclick="RP.openCentralAlertas()" style="position:relative;background:none;border:none;color:var(--chocolate);padding:4px;display:flex;">
+          <svg class="icon-ui"><use href="#ui-bell"/></svg>
+          <span id="badge-notificacoes-topo" style="display:none;position:absolute;top:-2px;right:-2px;background:var(--framboesa);color:var(--ink-on-dark);font-size:9px;font-weight:800;min-width:16px;height:16px;border-radius:50%;align-items:center;justify-content:center;padding:0 3px;line-height:1;"></span>
+        </button>
+        <button id="btn-avatar-topo" onclick="RP.goTab('perfil')" style="width:30px;height:30px;border-radius:50%;overflow:hidden;border:none;padding:0;background:var(--creme-card);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <img id="avatar-topo-img" src="" alt="" style="display:none;width:100%;height:100%;object-fit:cover;">
+          <svg class="icon-ui-sm" id="avatar-topo-icone" style="color:var(--chocolate-suave);"><use href="#ui-user"/></svg>
+        </button>
         <button class="app-exit" onclick="RP.exitApp()">Sair ↩</button>
       </div>
     </div>
     <div class="app-body" id="app-body"></div>
     <div class="app-bottomnav">
-      <button class="nav-btn" data-tab="inicio" onclick="RP.goTab('inicio')"><span><svg class="icon-ui"><use href="#ui-home"/></svg></span><span>Início</span></button>
-      <button class="nav-btn" data-tab="receitas" onclick="RP.goTab('receitas')"><span><svg class="icon-ui"><use href="#ui-book"/></svg></span><span>Receitas</span></button>
-      <button class="nav-btn" data-tab="calculadoras" onclick="RP.goTab('calculadoras')"><span><svg class="icon-ui"><use href="#ui-calculator"/></svg></span><span>Calc.</span></button>
-      <button class="nav-btn" data-tab="favoritos" onclick="RP.goTab('favoritos')"><span><svg class="icon-ui"><use href="#ui-heart"/></svg></span><span>Favoritos</span></button>
-      <button class="nav-btn" data-tab="perfil" onclick="RP.goTab('perfil')"><span><svg class="icon-ui"><use href="#ui-user"/></svg></span><span>Perfil</span></button>
+      <button class="nav-btn" data-tab="inicio" onclick="RP.goTab('inicio')"><span class="nav-icon-wrap"><svg class="icon-ui"><use href="#ui-home"/></svg></span><span>Início</span></button>
+      <button class="nav-btn" data-tab="receitas" onclick="RP.goTab('receitas')"><span class="nav-icon-wrap"><svg class="icon-ui"><use href="#ui-cookbook"/></svg></span><span>Receitas</span></button>
+      <button class="nav-btn" data-tab="calculadoras" onclick="RP.goTab('calculadoras')"><span class="nav-icon-wrap"><svg class="icon-ui"><use href="#ui-calculator"/></svg></span><span>Calc.</span></button>
+      <button class="nav-btn" data-tab="favoritos" onclick="RP.goTab('favoritos')"><span class="nav-icon-wrap"><svg class="icon-ui"><use href="#ui-heart"/></svg></span><span>Favoritos</span></button>
+      <button class="nav-btn" data-tab="perfil" onclick="RP.goTab('perfil')"><span class="nav-icon-wrap"><svg class="icon-ui"><use href="#ui-user"/></svg></span><span>Perfil</span></button>
     </div>
   </div>
 </div>
@@ -1691,6 +1709,7 @@ async function loadState(){
   try{ const nv = await window.storage.get("recheiopro:novidadesFechadas:"+NOVIDADES_A_PARTIR_DE); if(nv&&nv.value) state.novidadesFechadas = JSON.parse(nv.value); }catch(e){}
   try{ const tb = await window.storage.get("recheiopro:tab"); if(tb&&tb.value){ const t = JSON.parse(tb.value); if(["inicio","receitas","calculadoras","favoritos","perfil"].includes(t)) state.tab = t; } }catch(e){}
   try{ const nt = await window.storage.get("recheiopro:notificacoesAtivas"); if(nt&&nt.value) state.notificacoesAtivas = JSON.parse(nt.value); }catch(e){}
+  try{ const fp = await window.storage.get("recheiopro:foto-perfil"); if(fp&&fp.value) state.fotoPerfil = JSON.parse(fp.value); }catch(e){}
   await loadInsumos();
   await loadFreteConfig();
   await loadNegocioConfig();
@@ -1707,8 +1726,10 @@ async function loadState(){
   await loadContasReceber();
   await loadPerdas();
   await loadLembretes();
+  await loadAlertasLidos();
 }
 async function saveTab(){ try{ await window.storage.set("recheiopro:tab", JSON.stringify(state.tab)); }catch(e){} }
+async function saveFotoPerfil(){ try{ await window.storage.set("recheiopro:foto-perfil", JSON.stringify(state.fotoPerfil)); }catch(e){} }
 async function saveNotificacoesAtivas(){ try{ await window.storage.set("recheiopro:notificacoesAtivas", JSON.stringify(state.notificacoesAtivas)); }catch(e){} }
 
 /* ---------------------------------------------------------------
@@ -1750,7 +1771,7 @@ async function checarEEnviarNotificacoes(){
     if(!notificados[chave]) paraNotificar.push({ chave, titulo: "💳 Conta perto de vencer", corpo: `${c.descricao} — R$ ${(parseFloat(c.valor)||0).toFixed(2)}` });
   });
 
-  a.followUps.forEach(p=>{
+  a.followUps.forEach(({p})=>{
     const chave = "followup-"+p.id+"-"+hojeStr;
     if(!notificados[chave]) paraNotificar.push({ chave, titulo: "⏰ Cliente esperando resposta", corpo: `${p.cliente} · ${p.produto}, sem resposta há ${diasDesde(p.dataPedido)} dias.` });
   });
@@ -2046,15 +2067,25 @@ function proximasDatasComemorativas(diasJanela){
   }).filter(x=>x.diasAte>=0 && x.diasAte<=diasJanela).sort((a,b)=>a.diasAte-b.diasAte);
 }
 
+let alertasLidosState = {};
+async function loadAlertasLidos(){
+  try{ const a = await window.storage.get("recheiopro:alertas-lidos"); if(a&&a.value) alertasLidosState = JSON.parse(a.value); }catch(e){}
+}
+async function saveAlertasLidos(){ try{ await window.storage.set("recheiopro:alertas-lidos", JSON.stringify(alertasLidosState)); }catch(e){} }
+
 function coletarAlertas(){
   const hoje = new Date();
-  const followUps = pedidosState.filter(p => p.status==='orcamento_enviado' && diasDesde(p.dataPedido) >= 2);
+  const naoLido = chave => !alertasLidosState[chave];
+
+  const followUps = pedidosState.filter(p => p.status==='orcamento_enviado' && diasDesde(p.dataPedido) >= 2)
+    .map(p=>({ p, chave: "followup-"+p.id })).filter(x=>naoLido(x.chave));
   const aniversarios = pedidosState.filter(p => p.recorrente && p.dataEvento).map(p=>{
     const prox = proximaOcorrencia(p.dataEvento);
     const diasAte = Math.ceil((prox-hoje)/(1000*60*60*24));
-    return { p, diasAte };
-  }).filter(x=>x.diasAte>=0 && x.diasAte<=30);
-  const estoqueAlertas = estoqueState.filter(it => statusEstoqueItem(it).cor !== "#7A9E6E");
+    return { p, diasAte, chave: "aniversario-"+p.id+"-"+prox.getFullYear() };
+  }).filter(x=>x.diasAte>=0 && x.diasAte<=30 && naoLido(x.chave));
+  const estoqueAlertas = estoqueState.filter(it => statusEstoqueItem(it).cor !== "#7A9E6E")
+    .map(it=>({ ...it, chave: "estoque-"+it.id })).filter(x=>naoLido(x.chave));
   const validadeAlertas = state.feitas.map(f=>{
     const id = typeof f==="string"?f:f.id;
     const data = typeof f==="string"?null:f.data;
@@ -2065,20 +2096,21 @@ function coletarAlertas(){
     const venc = addDias(data, diasVal);
     const diasRestantes = Math.ceil((venc-hoje)/(1000*60*60*24));
     if(diasRestantes > 2) return null;
-    return { r, diasRestantes };
-  }).filter(Boolean);
+    return { r, diasRestantes, chave: "validade-"+id+"-"+data };
+  }).filter(Boolean).filter(x=>naoLido(x.chave));
   const pesquisasSatisfacao = pedidosState.filter(p=>{
     if(!p.dataEvento || p.pesquisaEnviada) return false;
     if(!['confirmado','entregue'].includes(p.status)) return false;
     const diasDepois = Math.floor((hoje - new Date(p.dataEvento)) / (1000*60*60*24));
     return diasDepois >= 1 && diasDepois <= 5;
-  });
-  const datasComemorativas = proximasDatasComemorativas(21);
+  }).map(p=>({ p, chave: "pesquisa-"+p.id })).filter(x=>naoLido(x.chave));
+  const datasComemorativas = proximasDatasComemorativas(21)
+    .map(d=>({ ...d, chave: "data-"+d.nome+"-"+d.data.getFullYear() })).filter(x=>naoLido(x.chave));
   const contasVencendo = contasPagarState.filter(c=>{
     if(c.pago) return false;
     const diasAte = Math.ceil((new Date(c.vencimento+"T12:00:00") - hoje) / (1000*60*60*24));
     return diasAte <= 5; // inclui vencidas (negativo) e as que vencem nos próximos 5 dias
-  });
+  }).map(c=>({ ...c, chave: "conta-"+c.id })).filter(x=>naoLido(x.chave));
   return { followUps, aniversarios, estoqueAlertas, validadeAlertas, pesquisasSatisfacao, datasComemorativas, contasVencendo };
 }
 function totalAlertas(){
@@ -2096,6 +2128,7 @@ function renderCentralAlertasHTML(){
             <div class="app-h1" style="margin-bottom:0;">Central de alertas</div>
             <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);color:var(--chocolate);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
           </div>
+          ${total>0 ? `<button onclick="RP.marcarTodosAlertasLidos()" style="width:100%;background:var(--creme-card);color:var(--chocolate);padding:10px;border-radius:100px;font-weight:800;font-size:12px;margin-bottom:14px;"><svg class="icon-ui-sm"><use href="#ui-check"/></svg> Marcar todos como lidos</button>` : ''}
           ${total===0 ? `<div style="text-align:center;color:var(--chocolate-suave);font-size:13px;padding:30px 0;">Tudo em dia! Nenhum alerta agora.</div>` : ''}
 
           ${a.datasComemorativas.length>0 ? `
@@ -2122,7 +2155,7 @@ function renderCentralAlertasHTML(){
 
           ${a.followUps.length>0 ? `
           <div style="font-weight:800;font-size:12.5px;margin:14px 0 8px;">⏰ Follow-up de cliente</div>
-          ${a.followUps.map(p=>`
+          ${a.followUps.map(({p})=>`
             <div class="card" style="border-left:4px solid var(--dourado);margin-bottom:8px;cursor:pointer;" onclick="RP.closeSheet();RP.abrirPedido('${p.id}')">
               <div style="font-weight:800;font-size:12.5px;">${esc(p.cliente)} · ${esc(p.produto)}</div>
               <div style="font-size:11px;color:var(--chocolate-suave);">Faz ${diasDesde(p.dataPedido)} dias sem resposta</div>
@@ -2158,7 +2191,7 @@ function renderCentralAlertasHTML(){
 
           ${a.pesquisasSatisfacao.length>0 ? `
           <div style="font-weight:800;font-size:12.5px;margin:14px 0 8px;">💬 Que tal perguntar como ficou?</div>
-          ${a.pesquisasSatisfacao.map(p=>`
+          ${a.pesquisasSatisfacao.map(({p})=>`
             <div class="card" style="border-left:4px solid #7A9E6E;margin-bottom:8px;">
               <div style="font-weight:800;font-size:12.5px;">${esc(p.cliente||'Cliente')} · ${esc(p.produto)}</div>
               <div style="font-size:11px;color:var(--chocolate-suave);margin-bottom:8px;">Entregue há alguns dias, ainda sem retorno sobre a satisfação</div>
@@ -4204,7 +4237,7 @@ function renderFavoritos(){
 }
 
 const PERFIL_CATEGORIAS = [
-  { key:"aprender", titulo:"Aprender e conteúdo", icone:'<svg class="icon-ui"><use href="#ui-book"/></svg>', itens:[
+  { key:"aprender", titulo:"Aprender e conteúdo", icone:'<svg class="icon-ui"><use href="#ui-cookbook"/></svg>', itens:[
     ["Guia de conservação", true, "conservacao"],["Tabela de conversão", true, "conversao"],
     ["Desafio de 7 dias", true, "desafio"],["Bônus exclusivos", true, "bonus"],["Respostas Prontas", true, "respostas"],["S.O.S. Cozinha", true, "sos"],
   ]},
@@ -4254,7 +4287,11 @@ function renderPerfil(){
     <div class="app-px">
       <div class="app-h1">Perfil</div>
       <div class="card" style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
-        <div style="width:44px;height:44px;border-radius:50%;background:var(--creme-card);display:flex;align-items:center;justify-content:center;font-size:18px;">👤</div>
+        <div onclick="document.getElementById('input-foto-perfil').click()" style="position:relative;width:44px;height:44px;border-radius:50%;background:var(--creme-card);display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;overflow:hidden;flex-shrink:0;">
+          ${state.fotoPerfil ? `<img src="${state.fotoPerfil}" alt="" style="width:100%;height:100%;object-fit:cover;">` : `<svg class="icon-ui"><use href="#ui-user"/></svg>`}
+          <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;padding:2px 0;"><svg class="icon-ui-sm" style="color:#fff;width:11px;height:11px;"><use href="#ui-camera"/></svg></div>
+        </div>
+        <input type="file" id="input-foto-perfil" accept="image/*" style="display:none;" onchange="RP.trocarFotoPerfil(this)">
         <div style="flex:1;"><div style="font-weight:700;font-size:14px;">Minha conta</div><div style="font-size:11.5px;color:var(--chocolate-suave);">Plano atual: ${state.plan==='pro'?'Pro':'Essencial'}</div></div>
         <span class="plan-pill ${state.plan}">${state.plan==='pro'?'★ PRO':'ESSENCIAL'}</span>
       </div>
@@ -5137,6 +5174,7 @@ function closeSheet(){
   } else {
     document.getElementById("sheet-root").innerHTML = "";
   }
+  if(window.RP && RP.atualizarTopoApp) RP.atualizarTopoApp();
 }
 function closeSheetTudo(){
   sheetNavStack = [];
@@ -5724,6 +5762,7 @@ window.RP = {
     if(btnInstalar && !window.__pwaJaInstalado && (window.__promptInstalarPWA || window.__ehIOS)){
       btnInstalar.style.display = "flex";
     }
+    RP.atualizarTopoApp();
     let tourVisto = false;
     try{ const t = await window.storage.get("recheiopro:tourVisto"); tourVisto = !!(t&&t.value); }catch(e){}
     if(!tourVisto){
@@ -6107,6 +6146,66 @@ window.RP = {
   },
   openCentralAlertas(){
     navigateSheet(()=>renderCentralAlertasHTML());
+  },
+  async marcarTodosAlertasLidos(){
+    const a = coletarAlertas();
+    [...a.followUps, ...a.aniversarios, ...a.estoqueAlertas, ...a.validadeAlertas, ...a.pesquisasSatisfacao, ...a.datasComemorativas, ...a.contasVencendo]
+      .forEach(item => { if(item.chave) alertasLidosState[item.chave] = true; });
+    await saveAlertasLidos();
+    showToast("Alertas marcados como lidos.");
+    navigateSheet(()=>renderCentralAlertasHTML());
+    RP.atualizarTopoApp();
+  },
+  async trocarFotoPerfil(inputEl){
+    const arquivo = inputEl.files && inputEl.files[0];
+    if(!arquivo) return;
+    if(!arquivo.type.startsWith("image/")){ showToast("Escolhe uma imagem."); return; }
+
+    const imagem = new Image();
+    const leitor = new FileReader();
+    leitor.onload = () => {
+      imagem.onload = async () => {
+        // redimensiona pra 160x160 (recortando quadrado no meio), pra não pesar no armazenamento
+        const tamanho = 160;
+        const canvas = document.createElement("canvas");
+        canvas.width = tamanho; canvas.height = tamanho;
+        const ctx = canvas.getContext("2d");
+        const escala = Math.max(tamanho/imagem.width, tamanho/imagem.height);
+        const w = imagem.width*escala, h = imagem.height*escala;
+        ctx.drawImage(imagem, (tamanho-w)/2, (tamanho-h)/2, w, h);
+        state.fotoPerfil = canvas.toDataURL("image/jpeg", 0.85);
+        await saveFotoPerfil();
+        RP.atualizarTopoApp();
+        renderApp();
+        showToast("Foto atualizada! 📸");
+      };
+      imagem.src = leitor.result;
+    };
+    leitor.readAsDataURL(arquivo);
+  },
+  atualizarTopoApp(){
+    const badge = document.getElementById("badge-notificacoes-topo");
+    if(badge){
+      const total = typeof totalAlertas === "function" ? totalAlertas() : 0;
+      if(total > 0){
+        badge.textContent = total > 9 ? "9+" : String(total);
+        badge.style.display = "flex";
+      } else {
+        badge.style.display = "none";
+      }
+    }
+    const img = document.getElementById("avatar-topo-img");
+    const icone = document.getElementById("avatar-topo-icone");
+    if(img && icone){
+      if(state.fotoPerfil){
+        img.src = state.fotoPerfil;
+        img.style.display = "block";
+        icone.style.display = "none";
+      } else {
+        img.style.display = "none";
+        icone.style.display = "block";
+      }
+    }
   },
   openProducaoHoje(){
     navigateSheet(()=>renderProducaoHojeHTML());
