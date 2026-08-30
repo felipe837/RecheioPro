@@ -277,16 +277,15 @@
   .search-pill{display:flex;align-items:center;gap:8px;background:var(--branco);border:1px solid var(--creme-linha);border-radius:100px;padding:11px 16px;margin-bottom:14px;}
   .search-pill input{border:none;background:none;outline:none;font-size:13.5px;flex:1;color:var(--chocolate);}
 
-  .chip-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;cursor:grab;scrollbar-width:thin;scrollbar-color:var(--caramelo) transparent;}
+  .chip-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;cursor:grab;scrollbar-width:none;-ms-overflow-style:none;-webkit-mask-image:linear-gradient(to right, black calc(100% - 42px), transparent 100%);mask-image:linear-gradient(to right, black calc(100% - 42px), transparent 100%);}
   .chip-row:active{cursor:grabbing;}
-  .chip-row::-webkit-scrollbar{display:block;height:6px;}
-  .chip-row::-webkit-scrollbar-track{background:var(--creme-linha);border-radius:10px;}
-  .chip-row::-webkit-scrollbar-thumb{background:var(--caramelo);border-radius:10px;}
+  .chip-row::-webkit-scrollbar{display:none;}
   .chip{font-size:12px;font-weight:700;padding:8px 14px;border-radius:100px;white-space:nowrap;background:var(--branco);color:var(--chocolate-suave);border:1px solid var(--creme-linha);}
   .chip.active{background:var(--framboesa);color:var(--ink-on-dark);border-color:var(--framboesa);}
 
   .rgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;}
-  .hscroll{display:flex;gap:12px;overflow-x:auto;margin-top:10px;padding-bottom:10px;cursor:grab;scrollbar-width:thin;scrollbar-color:var(--caramelo) transparent;}
+  .hscroll{display:flex;gap:12px;overflow-x:auto;margin-top:10px;padding-bottom:2px;cursor:grab;scrollbar-width:none;-ms-overflow-style:none;-webkit-mask-image:linear-gradient(to right, black calc(100% - 42px), transparent 100%);mask-image:linear-gradient(to right, black calc(100% - 42px), transparent 100%);}
+  .hscroll::-webkit-scrollbar{display:none;}
   .hscroll:active{cursor:grabbing;}
   .hscroll::-webkit-scrollbar{display:block;height:6px;}
   .hscroll::-webkit-scrollbar-track{background:var(--creme-linha);border-radius:10px;}
@@ -648,7 +647,7 @@
       <div class="plan-card pro reveal">
         <div class="ribbon">★ MAIS VENDIDO</div>
         <div><div class="plan-tag">Melhor custo-benefício</div><div class="plan-name">Pro</div></div>
-        <div><div class="price-row"><span class="price">R$37,90</span></div><div class="price-note">pagamento único · catálogo crescendo toda semana</div></div>
+        <div><div style="font-size:14px;color:var(--chocolate-suave);text-decoration:line-through;margin-bottom:2px;">De R$147,90</div><div class="price-row"><span class="price">R$37,90</span></div><div class="price-note">pagamento único · catálogo crescendo toda semana</div></div>
         <ul class="plan-list">
           <li><svg class="icon-ui-sm" style="color:#7A9E6E"><use href="#ui-check"/></svg> 161 receitas completas</li>
           <li><svg class="icon-ui-sm" style="color:#7A9E6E"><use href="#ui-check"/></svg> Calculadoras de preço, lucro e perda</li>
@@ -1667,6 +1666,30 @@ const RECIPES = [
    ingredientes:[{n:"Leite condensado",q:"395g"},{n:"Creme de leite",q:"200g"},{n:"Chocolate em pó 50% cacau",q:"40g"},{n:"Manteiga",q:"20g"},{n:"Chocolate meio amargo",q:"80g"}],
    modo:["Misture o leite condensado, o creme de leite, o chocolate em pó e a manteiga numa panela.","Leve ao fogo médio, mexendo sempre, até engrossar e desgrudar levemente do fundo.","Desligue o fogo, acrescente o chocolate meio amargo picado e misture até derreter por completo.","Cubra com filme plástico em contato e deixe esfriar antes de usar."],
    dicas:"Pique o chocolate meio amargo bem fininho. Derrete só com o calor da massa, sem precisar voltar ao fogo.",conservacao:"Até 5 dias na geladeira."},
+  {id:"r162",foto:"images/r162.jpg",temporada:"Natal",name:"Rabanada Tradicional de Natal",category:"Docinhos",emoji:"🎄",essencial:true,rendimento:"20 unidades",tempo:"40 min",
+   ingredientes:[{n:"Pão francês amanhecido",q:"10 unidades"},{n:"Leite",q:"500ml"},{n:"Leite condensado",q:"1 lata"},{n:"Ovos",q:"3 unidades"},{n:"Açúcar",q:"1 xícara"},{n:"Canela em pó",q:"2 colheres (sopa)"},{n:"Óleo pra fritar",q:"o quanto baste"}],
+   modo:["Corte cada pão em 2 fatias e misture o leite com o leite condensado numa tigela funda.","Bata os ovos à parte, numa tigela separada.","Mergulhe as fatias no leite por uns 10 segundos (sem desmanchar), depois passe rapidamente pelo ovo batido.","Frite em óleo quente até dourar dos dois lados. Escorra em papel toalha.","Ainda quentes, passe as rabanadas na mistura de açúcar com canela."],
+   dicas:"Pão realmente amanhecido (de um dia pro outro) absorve o leite sem desmanchar. Pão fresco demais vira papa.",conservacao:"Melhor no dia. Se sobrar, até 2 dias em pote fechado, fora da geladeira — esquenta rapidinho na air fryer antes de servir."},
+  {id:"r163",foto:"images/r163.jpg",temporada:"Natal",name:"Bolo de Reis com Frutas Cristalizadas",category:"Bolos",emoji:"👑",essencial:false,rendimento:"1 bolo (16 fatias)",tempo:"1h20",
+   ingredientes:[{n:"Farinha de trigo",q:"3 xícaras"},{n:"Açúcar",q:"1 xícara"},{n:"Manteiga",q:"150g"},{n:"Ovos",q:"3 unidades"},{n:"Leite morno",q:"1 xícara"},{n:"Fermento biológico seco",q:"10g"},{n:"Frutas cristalizadas",q:"200g"},{n:"Açúcar de confeiteiro",q:"3 colheres (sopa)"}],
+   modo:["Dissolva o fermento no leite morno com uma colher de açúcar e deixe espumar por 10 min.","Bata a manteiga com o açúcar e os ovos até ficar cremoso, junte o leite fermentado.","Incorpore a farinha aos poucos até formar uma massa lisa, e por último as frutas cristalizadas picadas.","Modele em formato de rosca numa forma untada e deixe crescer por 1h, coberta com um pano.","Asse a 180°C por 35 min. Depois de frio, polvilhe açúcar de confeiteiro."],
+   dicas:"Reserve algumas frutas cristalizadas inteiras pra decorar por cima antes de assar, fica mais bonito.",conservacao:"Até 4 dias em pote fechado, fora da geladeira."},
+  {id:"r164",foto:"images/r164.jpg",temporada:"Natal",name:"Biscoito de Gengibre de Natal",category:"Docinhos",emoji:"🍪",essencial:false,rendimento:"~30 unidades",tempo:"45 min + 30 min geladeira",
+   ingredientes:[{n:"Farinha de trigo",q:"3 xícaras"},{n:"Gengibre em pó",q:"1 colher (sopa)"},{n:"Canela em pó",q:"1 colher (chá)"},{n:"Manteiga",q:"100g"},{n:"Açúcar mascavo",q:"3/4 xícara"},{n:"Mel",q:"1/2 xícara"},{n:"Ovo",q:"1 unidade"},{n:"Bicarbonato de sódio",q:"1 colher (chá)"}],
+   modo:["Bata a manteiga com o açúcar mascavo até ficar cremoso, junte o mel e o ovo.","Misture a farinha com o gengibre, a canela e o bicarbonato à parte, e incorpore aos poucos na massa.","Embrulhe a massa em filme plástico e leve à geladeira por 30 min.","Abra a massa numa superfície enfarinhada até uns 5mm de espessura e corte com cortadores (formato de boneco, estrela, etc).","Asse a 180°C por 10-12 min, até as bordas ficarem levemente douradas."],
+   dicas:"Não deixe passar do ponto no forno — o biscoito continua endurecendo enquanto esfria fora dele.",conservacao:"Até 15 dias em pote bem fechado, fora da geladeira."},
+  {id:"r165",foto:"images/r165.jpg",temporada:"Natal",name:"Manjar de Coco com Calda de Ameixa",category:"Docinhos",emoji:"🥥",essencial:false,rendimento:"1 travessa (10 porções)",tempo:"30 min + 4h geladeira",
+   ingredientes:[{n:"Leite de coco",q:"200ml"},{n:"Leite",q:"500ml"},{n:"Leite condensado",q:"1 lata"},{n:"Amido de milho",q:"5 colheres (sopa)"},{n:"Coco ralado",q:"1/2 xícara"},{n:"Ameixa seca sem caroço",q:"200g"},{n:"Açúcar",q:"1/2 xícara"}],
+   modo:["Misture o leite, o leite de coco, o leite condensado e o amido de milho numa panela, ainda fria.","Leve ao fogo médio mexendo sempre até engrossar e soltar do fundo da panela.","Junte o coco ralado, misture e despeje numa travessa molhada. Leve à geladeira por pelo menos 4h.","Pra calda, cozinhe as ameixas com o açúcar e um pouco de água até formar uma calda encorpada.","Sirva o manjar gelado, coberto com a calda de ameixa."],
+   dicas:"Molhar a travessa antes de despejar o manjar ajuda a desenformar depois, se quiser virar num prato.",conservacao:"Até 4 dias na geladeira."},
+  {id:"r166",foto:"images/r166.jpg",temporada:"Natal",name:"Mousse de Maracujá Cremosa",category:"Docinhos",emoji:"🍈",essencial:false,rendimento:"8 porções",tempo:"20 min + 3h geladeira",
+   ingredientes:[{n:"Suco concentrado de maracujá",q:"1 lata (395g)"},{n:"Leite condensado",q:"1 lata"},{n:"Creme de leite",q:"1 caixa"},{n:"Polpa de maracujá",q:"2 colheres (sopa)"}],
+   modo:["Bata no liquidificador o suco concentrado, o leite condensado e o creme de leite até ficar homogêneo.","Distribua em taças ou potinhos individuais.","Finalize com uma colher de polpa de maracujá por cima de cada um.","Leve à geladeira por pelo menos 3h antes de servir."],
+   dicas:"Se usar suco concentrado bem ácido, pode ajustar com um pouco mais de leite condensado a gosto.",conservacao:"Até 4 dias na geladeira."},
+  {id:"r167",foto:"images/r167.jpg",temporada:"Natal",name:"Panetone Trufado de Chocolate",category:"Docinhos",emoji:"🍫",essencial:false,rendimento:"1 panetone médio",tempo:"25 min",
+   ingredientes:[{n:"Panetone pronto",q:"1 unidade (500g)"},{n:"Chocolate meio amargo",q:"300g"},{n:"Creme de leite",q:"200g"},{n:"Chocolate granulado ou confeitos",q:"a gosto"}],
+   modo:["Corte uma tampa na parte de cima do panetone e reserve.","Com cuidado, retire parte do miolo de dentro, formando um espaço oco (pique o miolo retirado em pedaços e reserve).","Derreta o chocolate com o creme de leite em banho-maria até formar uma ganache lisa.","Misture metade da ganache com os pedaços de miolo reservados e recheie o panetone com essa mistura.","Cubra por cima com o restante da ganache, decore com os confeitos e recoloque a tampinha, se quiser."],
+   dicas:"Deixe a ganache amornar um pouco antes de rechear, pra não derreter demais a estrutura do panetone.",conservacao:"Até 5 dias em pote fechado, fora da geladeira (ou na geladeira se o clima estiver muito quente)."},
 ];
 const FAQS = [
   ["Funciona no meu celular?","Sim. O RecheioPro roda em Android e iOS, direto no navegador. Sem precisar de celular potente."],
@@ -3872,6 +3895,20 @@ function renderResumoMensalHTML(){
           </div>
           ${custoMes>0 ? `<div style="font-size:10.5px;color:var(--chocolate-suave);margin:-4px 0 10px;"><svg class="icon-ui-sm"><use href="#ui-tip"/></svg> CMV saudável em confeitaria costuma ficar entre 25% e 35%. Bem acima disso, vale revisar preços ou desperdício.</div>` : ''}
 
+          ${totalMes>0 ? `
+          <div class="card" style="margin-bottom:10px;">
+            <div style="font-weight:800;font-size:12.5px;margin-bottom:10px;">📋 DRE simplificado (${nomesMeses[mesAtual]})</div>
+            <div style="font-size:12px;">
+              <div style="display:flex;justify-content:space-between;padding:5px 0;"><span>Receita bruta</span><span style="font-weight:700;">${fmtMoeda(totalMes)}</span></div>
+              <div style="display:flex;justify-content:space-between;padding:5px 0;color:var(--chocolate-suave);"><span>(−) CMV — custo dos produtos</span><span>${fmtMoeda(custoMes)}</span></div>
+              <div style="display:flex;justify-content:space-between;padding:6px 0;border-top:1px solid var(--creme-linha);font-weight:800;"><span>= Lucro bruto</span><span>${fmtMoeda(totalMes-custoMes)}</span></div>
+              <div style="display:flex;justify-content:space-between;padding:5px 0;color:var(--chocolate-suave);"><span>(−) Despesas fixas${depreciacao>0?' + depreciação':''}</span><span>${fmtMoeda(despesasFixas)}</span></div>
+              <div style="display:flex;justify-content:space-between;padding:8px 0 0;border-top:2px solid var(--creme-linha);margin-top:2px;font-weight:800;font-size:14px;"><span>= Lucro líquido</span><span style="color:${lucroLiquidoMes>=0?'#7A9E6E':'var(--framboesa)'};">${fmtMoeda(lucroLiquidoMes)}</span></div>
+            </div>
+          </div>
+          <div style="font-size:10.5px;color:var(--chocolate-suave);margin:-4px 0 14px;"><svg class="icon-ui-sm"><use href="#ui-tip"/></svg> Esse é um formato parecido com o que contador usa (Demonstração de Resultado). Ajuda a mostrar pra alguém de fora, ou só pra você entender de onde vem o lucro de verdade.</div>
+          ` : ''}
+
           <div class="card" style="margin-bottom:10px;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
               <div style="font-weight:800;font-size:12.5px;">🎯 Meta do mês</div>
@@ -4199,7 +4236,8 @@ function receitasFiltradasHTML(){
     const matchNome = r.name.toLowerCase().includes(q);
     const matchIngrediente = q.length>=3 && r.ingredientes.some(i=>i.n.toLowerCase().includes(q));
     const matchTempo = !faixa || faixa.test(tempoMinutos(r.tempo));
-    return (q==="" || matchNome || matchIngrediente) && (!state.category || r.category===state.category) && matchTempo;
+    const matchCategoria = !state.category || (state.category==='Sazonal' ? !!r.temporada : r.category===state.category);
+    return (q==="" || matchNome || matchIngrediente) && matchCategoria && matchTempo;
   });
   return filtered.map(recipeCardHTML).join('') || '<div style="grid-column:1/-1;text-align:center;color:var(--chocolate-suave);font-size:13px;padding:30px 0;">Nenhuma receita encontrada. Tenta buscar por um ingrediente, tipo "chocolate".</div>';
 }
@@ -4212,6 +4250,7 @@ function renderReceitas(){
       <div class="chip-row">
         <button class="chip ${!state.category?'active':''}" onclick="RP.setCategory(null)">Todas</button>
         ${CATEGORIES.map(c=>`<button class="chip ${state.category===c?'active':''}" onclick="RP.setCategory('${esc(c)}')">${esc(c)}</button>`).join('')}
+        <button class="chip ${state.category==='Sazonal'?'active':''}" onclick="RP.setCategory('Sazonal')">🎄 Sazonal</button>
       </div>
       <div class="chip-row" style="margin-top:8px;">
         <button class="chip ${!state.tempoFiltro?'active':''}" onclick="RP.setTempoFiltro(null)">⏱ Qualquer tempo</button>
