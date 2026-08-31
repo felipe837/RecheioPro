@@ -2,7 +2,7 @@
 // ele continuar abrindo mesmo sem internet (o que já foi carregado antes).
 // Sempre que o index.html mudar de verdade, sobe uma versão nova aqui em
 // baixo (CACHE_NOME) pra forçar todo mundo a baixar os arquivos atualizados.
-const CACHE_NOME = "recheiopro-v1";
+const CACHE_NOME = "recheiopro-v2";
 const ARQUIVOS_ESSENCIAIS = [
   "./",
   "./index.html",
@@ -40,6 +40,31 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
   if (url.origin !== location.origin) return;
 
+  // a página principal (index.html, ou a raiz "/") sempre busca a versão
+  // mais nova primeiro — assim, qualquer atualização já aparece na hora,
+  // sem precisar lembrar de mudar o CACHE_NOME toda vez. Só usa a cópia
+  // guardada se a pessoa estiver mesmo sem internet.
+  const ehPaginaPrincipal = event.request.mode === "navigate" ||
+    url.pathname === "/" || url.pathname.endsWith("/index.html");
+
+  if (ehPaginaPrincipal) {
+    event.respondWith(
+      fetch(event.request)
+        .then((respostaRede) => {
+          if (respostaRede && respostaRede.ok) {
+            const copia = respostaRede.clone();
+            caches.open(CACHE_NOME).then((cache) => cache.put(event.request, copia));
+          }
+          return respostaRede;
+        })
+        .catch(() => caches.match(event.request)) // sem internet? usa o que já tem guardado
+    );
+    return;
+  }
+
+  // arquivos mais "estáticos" (imagens, ícones, manifest) continuam
+  // instantâneos: mostra o que já está em cache na hora, e atualiza em
+  // segundo plano pra próxima vez
   event.respondWith(
     caches.match(event.request).then((respostaCache) => {
       const buscaRede = fetch(event.request)
@@ -52,7 +77,6 @@ self.addEventListener("fetch", (event) => {
         })
         .catch(() => respostaCache); // sem internet? usa o que já tem guardado
 
-      // mostra o que já está em cache na hora (rápido), e atualiza em segundo plano
       return respostaCache || buscaRede;
     })
   );
