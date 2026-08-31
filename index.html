@@ -470,6 +470,13 @@
   <symbol id="ui-mobile" viewBox="0 0 24 24"><rect x="7" y="2" width="10" height="20" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><line x1="11" y1="18" x2="13" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
   <symbol id="ui-wallet" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16 12h4v3h-4a1.5 1.5 0 010-3z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M3 9h13" stroke="currentColor" stroke-width="2"/></symbol>
   <symbol id="ui-gift" viewBox="0 0 24 24"><rect x="4" y="9" width="16" height="11" rx="1" fill="none" stroke="currentColor" stroke-width="2"/><line x1="12" y1="9" x2="12" y2="20" stroke="currentColor" stroke-width="2"/><path d="M3 9h18v3H3z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M12 9c-2-4-7-3-6 0M12 9c2-4 7-3 6 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+  <symbol id="ui-folder" viewBox="0 0 24 24"><path d="M3 6a1 1 0 011-1h5l2 2h9a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1V6z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+  <symbol id="ui-chef" viewBox="0 0 24 24">
+    <path d="M8.5 8c-1.3-1.8.3-3.6 1.8-2.4.5-1.3 2.9-1.3 3.4 0 1.5-1.2 3.1.6 1.8 2.4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="8.3" y="7.6" width="7.4" height="2" rx="0.6" fill="none" stroke="currentColor" stroke-width="1.5"/>
+    <circle cx="12" cy="12.8" r="3" fill="none" stroke="currentColor" stroke-width="1.5"/>
+    <path d="M5.5 21v-1.5c0-2.6 2.9-4.3 6.5-4.3s6.5 1.7 6.5 4.3V21" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
   <symbol id="ui-lifebuoy" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><line x1="5.5" y1="5.5" x2="9" y2="9" stroke="currentColor" stroke-width="2"/><line x1="15" y1="15" x2="18.5" y2="18.5" stroke="currentColor" stroke-width="2"/><line x1="18.5" y1="5.5" x2="15" y2="9" stroke="currentColor" stroke-width="2"/><line x1="9" y1="15" x2="5.5" y2="18.5" stroke="currentColor" stroke-width="2"/></symbol>
   <symbol id="ui-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 11V7a4 4 0 018 0v4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="16" r="1.5" fill="currentColor"/></symbol>
   <symbol id="ui-trash" viewBox="0 0 24 24"><path d="M4 7h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M9 7V4h6v3" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M6 7l1 13a2 2 0 002 2h6a2 2 0 002-2l1-13" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><line x1="10" y1="11" x2="10" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="14" y1="11" x2="14" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
@@ -1725,31 +1732,33 @@ if(window.matchMedia){
    PERSISTÊNCIA
 ========================================================================= */
 async function loadState(){
-  try{ const p = await window.storage.get("recheiopro:plan"); if(p&&p.value) state.plan = JSON.parse(p.value); }catch(e){}
-  try{ const f = await window.storage.get("recheiopro:favorites"); if(f&&f.value) state.favorites = JSON.parse(f.value); }catch(e){}
-  try{ const ft = await window.storage.get("recheiopro:feitas"); if(ft&&ft.value) state.feitas = JSON.parse(ft.value); }catch(e){}
-  try{ const av = await window.storage.get("recheiopro:avaliacoes"); if(av&&av.value) state.avaliacoes = JSON.parse(av.value); }catch(e){}
-  try{ const nv = await window.storage.get("recheiopro:novidadesFechadas:"+NOVIDADES_A_PARTIR_DE); if(nv&&nv.value) state.novidadesFechadas = JSON.parse(nv.value); }catch(e){}
-  try{ const tb = await window.storage.get("recheiopro:tab"); if(tb&&tb.value){ const t = JSON.parse(tb.value); if(["inicio","receitas","calculadoras","favoritos","perfil"].includes(t)) state.tab = t; } }catch(e){}
-  try{ const nt = await window.storage.get("recheiopro:notificacoesAtivas"); if(nt&&nt.value) state.notificacoesAtivas = JSON.parse(nt.value); }catch(e){}
-  try{ const fp = await window.storage.get("recheiopro:foto-perfil"); if(fp&&fp.value) state.fotoPerfil = JSON.parse(fp.value); }catch(e){}
-  await loadInsumos();
-  await loadFreteConfig();
-  await loadNegocioConfig();
-  await loadOrcamentosLog();
-  await loadPedidos();
-  await loadFornecedores();
-  await loadEstoque();
-  await loadMinhasReceitas();
-  await loadKits();
-  await loadColecoes();
-  await loadEquipamentos();
-  await loadLivroCaixa();
-  await loadContasPagar();
-  await loadContasReceber();
-  await loadPerdas();
-  await loadLembretes();
-  await loadAlertasLidos();
+  await Promise.all([
+    (async()=>{ try{ const p = await window.storage.get("recheiopro:plan"); if(p&&p.value) state.plan = JSON.parse(p.value); }catch(e){} })(),
+    (async()=>{ try{ const f = await window.storage.get("recheiopro:favorites"); if(f&&f.value) state.favorites = JSON.parse(f.value); }catch(e){} })(),
+    (async()=>{ try{ const ft = await window.storage.get("recheiopro:feitas"); if(ft&&ft.value) state.feitas = JSON.parse(ft.value); }catch(e){} })(),
+    (async()=>{ try{ const av = await window.storage.get("recheiopro:avaliacoes"); if(av&&av.value) state.avaliacoes = JSON.parse(av.value); }catch(e){} })(),
+    (async()=>{ try{ const nv = await window.storage.get("recheiopro:novidadesFechadas:"+NOVIDADES_A_PARTIR_DE); if(nv&&nv.value) state.novidadesFechadas = JSON.parse(nv.value); }catch(e){} })(),
+    (async()=>{ try{ const tb = await window.storage.get("recheiopro:tab"); if(tb&&tb.value){ const t = JSON.parse(tb.value); if(["inicio","receitas","calculadoras","favoritos","perfil"].includes(t)) state.tab = t; } }catch(e){} })(),
+    (async()=>{ try{ const nt = await window.storage.get("recheiopro:notificacoesAtivas"); if(nt&&nt.value) state.notificacoesAtivas = JSON.parse(nt.value); }catch(e){} })(),
+    (async()=>{ try{ const fp = await window.storage.get("recheiopro:foto-perfil"); if(fp&&fp.value) state.fotoPerfil = JSON.parse(fp.value); }catch(e){} })(),
+    loadInsumos(),
+    loadFreteConfig(),
+    loadNegocioConfig(),
+    loadOrcamentosLog(),
+    loadPedidos(),
+    loadFornecedores(),
+    loadEstoque(),
+    loadMinhasReceitas(),
+    loadKits(),
+    loadColecoes(),
+    loadEquipamentos(),
+    loadLivroCaixa(),
+    loadContasPagar(),
+    loadContasReceber(),
+    loadPerdas(),
+    loadLembretes(),
+    loadAlertasLidos(),
+  ]);
 }
 async function saveTab(){ try{ await window.storage.set("recheiopro:tab", JSON.stringify(state.tab)); }catch(e){} }
 async function saveFotoPerfil(){ try{ await window.storage.set("recheiopro:foto-perfil", JSON.stringify(state.fotoPerfil)); }catch(e){} }
@@ -2433,7 +2442,7 @@ function renderClientesHTML(){
             <button onclick="RP.closeSheet()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);color:var(--chocolate);"><svg class="icon-ui-sm"><use href="#ui-close"/></svg></button>
           </div>
           <p style="color:var(--chocolate-suave);font-size:12px;margin-bottom:10px;">Ranking de quem mais compra, montado a partir do nome preenchido em cada pedido. Toca num cliente pra ver o histórico completo dele.</p>
-          <button onclick="RP.openFidelidadeConfig()" style="width:100%;background:var(--creme-card);color:var(--chocolate);padding:10px;border-radius:100px;font-weight:800;font-size:12px;margin-bottom:14px;">🎁 ${fidelidadeOk?'Editar':'Configurar'} programa de fidelidade</button>
+          <button onclick="RP.openFidelidadeConfig()" style="width:100%;background:var(--creme-card);color:var(--chocolate);padding:10px;border-radius:100px;font-weight:800;font-size:12px;margin-bottom:14px;"><svg class="icon-ui-sm"><use href="#ui-gift"/></svg> ${fidelidadeOk?'Editar':'Configurar'} programa de fidelidade</button>
           ${clientes.length===0 ? `
             <div style="text-align:center;padding:30px 0;color:var(--chocolate-suave);font-size:13px;">Nenhum cliente ainda. Assim que você cadastrar pedidos com o nome preenchido, o ranking aparece aqui sozinho.</div>
           ` : clientes.map((c,i)=>{
@@ -2446,7 +2455,7 @@ function renderClientesHTML(){
                 <div style="font-weight:800;font-size:13px;color:var(--framboesa);white-space:nowrap;">R$ ${c.totalGasto.toFixed(2)}</div>
               </div>
               <div style="font-size:11px;color:var(--chocolate-suave);margin-top:2px;">${c.totalPedidos} pedido${c.totalPedidos===1?'':'s'} no total${c.pedidosFechados>=2?' · cliente recorrente 💛':''}</div>
-              ${premiosGanhos>0 ? `<div style="font-size:11px;color:var(--dourado);font-weight:700;margin-top:4px;">🎁 Já bateu a meta ${premiosGanhos}x. Tem direito a: ${esc(negocioConfig.fidelidadePremio||'prêmio')}</div>` : fidelidadeOk ? `<div style="font-size:10px;color:var(--chocolate-suave);margin-top:4px;">Faltam R$ ${(metaFidelidade - (c.totalGasto % metaFidelidade)).toFixed(2)} pra próxima meta</div>` : ''}
+              ${premiosGanhos>0 ? `<div style="font-size:11px;color:var(--dourado);font-weight:700;margin-top:4px;"><svg class="icon-ui-sm"><use href="#ui-gift"/></svg> Já bateu a meta ${premiosGanhos}x. Tem direito a: ${esc(negocioConfig.fidelidadePremio||'prêmio')}</div>` : fidelidadeOk ? `<div style="font-size:10px;color:var(--chocolate-suave);margin-top:4px;">Faltam R$ ${(metaFidelidade - (c.totalGasto % metaFidelidade)).toFixed(2)} pra próxima meta</div>` : ''}
             </div>`;
           }).join('')}
         </div>
@@ -2664,7 +2673,7 @@ function renderPedidoDetalheHTML(id){
 
           ${p.cliente ? `
           <div class="card" style="margin-bottom:14px;">
-            <div style="font-weight:800;font-size:12.5px;margin-bottom:6px;">🎁 Programa de indicação</div>
+            <div style="font-weight:800;font-size:12.5px;margin-bottom:6px;"><svg class="icon-ui-sm"><use href="#ui-gift"/></svg> Programa de indicação</div>
             <div style="font-size:11.5px;color:var(--chocolate-suave);margin-bottom:8px;">Cupom desse cliente: <b style="color:var(--framboesa);font-size:13px;">${codigoCupom(p.cliente)}</b></div>
             <button onclick="RP.compartilharCupom('${p.id}')" class="no-print" style="width:100%;background:#25D366;color:#fff;padding:9px;border-radius:100px;font-weight:800;font-size:11.5px;margin-bottom:10px;">💬 Mandar cupom pro cliente</button>
             <div style="font-size:11px;color:var(--chocolate-suave);margin-bottom:4px;">Créditos de indicação acumulados: <b style="color:var(--chocolate);">${p.creditosIndicacao||0}</b></div>
@@ -3206,7 +3215,7 @@ function renderColecoesHTML(){
           ${colecoesState.map(c=>`
             <div class="card" style="margin-bottom:8px;cursor:pointer;" onclick="RP.abrirColecao('${c.id}')">
               <div style="display:flex;justify-content:space-between;align-items:center;">
-                <div style="font-weight:800;font-size:13px;">📁 ${esc(c.nome)}</div>
+                <div style="font-weight:800;font-size:13px;"><svg class="icon-ui-sm"><use href="#ui-folder"/></svg> ${esc(c.nome)}</div>
                 <span style="color:var(--chocolate-suave);">›</span>
               </div>
               <div style="font-size:11px;color:var(--chocolate-suave);margin-top:2px;">${c.receitaIds.length} receita${c.receitaIds.length===1?'':'s'}</div>
@@ -3225,7 +3234,7 @@ function renderColecaoDetalheHTML(colecaoId){
         <div class="app-px" style="padding-top:20px;">
           <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
             <button onclick="RP.openColecoes()" style="width:30px;height:30px;border-radius:50%;background:var(--creme-card);color:var(--chocolate);flex-shrink:0;"><svg class="icon-ui-sm"><use href="#ui-arrow-left"/></svg></button>
-            <div class="app-h1" style="margin-bottom:0;">📁 ${esc(c.nome)}</div>
+            <div class="app-h1" style="margin-bottom:0;"><svg class="icon-ui-sm"><use href="#ui-folder"/></svg> ${esc(c.nome)}</div>
           </div>
           <button onclick="RP.excluirColecao('${c.id}')" style="color:var(--chocolate-suave);font-size:11.5px;font-weight:700;margin-bottom:14px;"><svg class="icon-ui-sm"><use href="#ui-trash"/></svg> Excluir esta coleção</button>
           ${receitas.length===0 ? `<div style="text-align:center;color:var(--chocolate-suave);font-size:13px;padding:20px 0;">Nenhuma receita nessa coleção ainda. Abra uma receita e toque em "Adicionar a uma coleção".</div>` : ''}
@@ -4265,7 +4274,7 @@ function renderFavoritos(){
   return `
     <div class="app-px">
       <div class="app-h1">Favoritos</div>
-      <button onclick="RP.openColecoes()" style="width:100%;background:var(--creme-card);color:var(--chocolate);font-size:12.5px;font-weight:800;padding:11px 14px;border-radius:100px;margin-bottom:16px;">📁 Minhas Coleções</button>
+      <button onclick="RP.openColecoes()" style="width:100%;background:var(--creme-card);color:var(--chocolate);font-size:12.5px;font-weight:800;padding:11px 14px;border-radius:100px;margin-bottom:16px;"><svg class="icon-ui-sm"><use href="#ui-folder"/></svg> Minhas Coleções</button>
       ${favs.length===0 ? `
         <div style="text-align:center;padding:50px 0;">
           <div style="font-size:30px;margin-bottom:10px;">🤍</div>
@@ -4335,13 +4344,13 @@ function renderPerfil(){
         <span class="plan-pill ${state.plan}">${state.plan==='pro'?'★ PRO':'ESSENCIAL'}</span>
       </div>
       <div class="card" style="display:flex;align-items:center;gap:12px;margin-bottom:14px;cursor:pointer;" onclick="RP.openValidade()">
-        <span style="font-size:22px;">👩‍🍳</span>
+        <svg class="icon-ui" style="width:26px;height:26px;"><use href="#ui-chef"/></svg>
         <div style="flex:1;"><div style="font-weight:800;font-size:15px;">${state.feitas.length} receita${state.feitas.length===1?'':'s'} já feita${state.feitas.length===1?'':'s'}</div><div style="color:var(--chocolate-suave);font-size:11.5px;">Toque pra ver o controle de validade</div></div>
         <span style="color:var(--chocolate-suave);">›</span>
       </div>
       ${state.plan==='essencial' ? `
       <div class="banner-dark" onclick="RP.openUpgrade()"><div><div class="t1" style="margin-bottom:2px;">Fazer upgrade para o Pro</div><div class="t2" style="font-size:12.5px;">Você já é Essencial. Pode ter desconto no upgrade</div></div><div style="color:var(--dourado);">→</div></div>
-      ` : `<div class="card" style="display:flex;align-items:center;gap:10px;margin-bottom:14px;"><span style="font-size:18px;">🎁</span><div><div style="font-weight:800;font-size:12.5px;">Você já tem o RecheioPro completo</div><div style="color:var(--chocolate-suave);font-size:11px;">Aproveite todos os recursos e bônus.</div></div></div>`}
+      ` : `<div class="card" style="display:flex;align-items:center;gap:10px;margin-bottom:14px;"><svg class="icon-ui"><use href="#ui-gift"/></svg><div><div style="font-weight:800;font-size:12.5px;">Você já tem o RecheioPro completo</div><div style="color:var(--chocolate-suave);font-size:11px;">Aproveite todos os recursos e bônus.</div></div></div>`}
 
       <div style="border:1px solid var(--creme-linha);border-radius:16px;overflow:hidden;margin-bottom:14px;">
         ${PERFIL_CATEGORIAS.map((cat,i)=>`
@@ -5159,13 +5168,13 @@ function openRecipeSheet(r){
               <span style="font-size:18px;">🔄</span><span style="font-size:10.5px;font-weight:800;line-height:1.2;">Sobrou? Veja ideias${state.plan==='pro'?'':' <svg class="icon-ui-sm"><use href="#ui-lock"/></svg>'}</span>
             </button>
             <button onclick="RP.abrirAdicionarColecao('${r.id}')" style="background:var(--creme-card);color:var(--chocolate);border-radius:14px;padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:4px;">
-              <span style="font-size:18px;">📁</span><span style="font-size:10.5px;font-weight:800;line-height:1.2;">Add. a uma coleção</span>
+              <svg class="icon-ui"><use href="#ui-folder"/></svg><span style="font-size:10.5px;font-weight:800;line-height:1.2;">Add. a uma coleção</span>
             </button>
           </div>
           <button onclick="RP.abrirGeradorPost('${r.id}')" style="width:100%;background:var(--framboesa);color:var(--ink-on-dark);font-size:12.5px;font-weight:800;padding:11px 14px;border-radius:100px;margin-top:8px;">📱 Gerar post pro Instagram</button>
           <div style="display:flex;justify-content:space-between;align-items:center;margin:16px 0 8px;">
             <div style="font-weight:800;font-size:14px;">Modo de preparo</div>
-            <button onclick="RP.abrirModoCozinha('${r.id}')" style="background:var(--panel-dark);color:var(--ink-on-dark);font-size:11.5px;font-weight:800;padding:8px 14px;border-radius:100px;">👩‍🍳 Modo cozinha</button>
+            <button onclick="RP.abrirModoCozinha('${r.id}')" style="background:var(--panel-dark);color:var(--ink-on-dark);font-size:11.5px;font-weight:800;padding:8px 14px;border-radius:100px;"><svg class="icon-ui-sm"><use href="#ui-chef"/></svg> Modo cozinha</button>
           </div>
           ${r.modo.map((p,i)=>`<div class="checklist-row" id="passo-check-${i}" onclick="RP.toggleChecklistItem('passo-check-${i}')" style="display:flex;gap:10px;margin-bottom:10px;cursor:pointer;align-items:flex-start;"><span class="step-num">${i+1}</span><p class="check-label" style="font-size:13px;color:var(--chocolate-suave);line-height:1.5;margin:0;flex:1;">${esc(p)}</p><span class="check-box" style="flex-shrink:0;margin-top:1px;"><svg class="icon-ui-sm"><use href="#ui-check"/></svg></span></div>`).join('')}
           <div class="card" style="background:var(--creme-card);margin-top:8px;"><div style="font-weight:800;font-size:12px;margin-bottom:4px;">✨ Dica da confeiteira</div><p style="font-size:12.5px;color:var(--chocolate-suave);">${esc(r.dicas)}</p></div>
